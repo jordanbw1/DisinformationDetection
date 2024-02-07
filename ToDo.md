@@ -3,6 +3,7 @@
 ### Python Script:
 - Strip all ";" from the twitter post before added to the current prompt
 - Check to make sure Gemini gave correct response format ie. correct number of sections seperated by ";"
+- Make sure all prompts are sent in a new session
 
 ### Prompt Engineering:
 - Try to get Truth and Confidence levels more accurate
