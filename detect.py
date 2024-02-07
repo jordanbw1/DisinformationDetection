@@ -16,7 +16,7 @@ load_dotenv()
 #in_file = "./Datasets/example_data.csv"
 #out_file = "./results.csv"
 script_directory = os.path.dirname(os.path.abspath(__file__))
-in_file = os.path.join(script_directory, "Datasets\\WELFake\\WELFake_Dataset.csv")
+in_file = os.path.join(script_directory, "Datasets\\WELFake\\WELFake_Dataset_5000.csv")
 out_file = os.path.join(script_directory, "results.csv")
 data = []
 dataset_name = "WELFake Dataset"
