@@ -24,21 +24,21 @@ subject = "US_politics"
 prompts = [
 """
     Tell me if the following twitter post is factual or dissinformation. Your answer will have 4 sections seperated by a ";". 
-    Section 1 - a one word response of either "1" if it is factual or "0" if it is dissinformation. 
+    Section 1 - a one number response of either "1" if it is factual or "0" if it is dissinformation. 
     Section 2 - a level from 1-12 on how confident you are that your answer from Section 1 is correct.
     Section 3 - a level from 1-12 on how truthful the twitter post is. 
     Section 4 - A explanation of why the post is fact or fake and why you gave the confidence level you did. Here is the twitter post: 
 """,
 """
     Tell me if the following dissinformation twitter post is indeed dissinformation or if it is actually factual. Your answer will have 4 sections seperated by a ";". 
-    Section 1 - a one word response of either "1" if it is factual or "0" if it is dissinformation. 
+    Section 1 - a one number response of either "1" if it is factual or "0" if it is dissinformation. 
     Section 2 - a level from 1-12 on how confident you are that your answer from Section 1 is correct.
     Section 3 - a level from 1-12 on how truthful the twitter post is. 
     Section 4 - A explanation of why the post is fact or fake and why you gave the confidence level you did. Here is the twitter post: 
 """,
 """
     Tell me if the following factual twitter post is indeed factual or actually dissinformation. Your answer will have 4 sections seperated by a ";". 
-    Section 1 - a one word response of either "1" if it is factual or "0" if it is dissinformation. 
+    Section 1 - a one number response of either "1" if it is factual or "0" if it is dissinformation. 
     Section 2 - a level from 1-12 on how confident you are that your answer from Section 1 is correct.
     Section 3 - a level from 1-12 on how truthful the twitter post is. 
     Section 4 - A explanation of why the post is fact or fake and why you gave the confidence level you did. Here is the twitter post: 
@@ -71,8 +71,6 @@ with open(out_file, mode="a", newline="", encoding='utf-8') as csv_file:
     csv_writer = csv.writer(csv_file)
     csv_writer.writerow(headers)
 
-
-
 # Loops through every row of data in the csv file
 for current in in_data:
     i += 1
@@ -94,8 +92,8 @@ for current in in_data:
         for current_prompt in prompts:
             j += 1
 
-            # Add text to current prompt
-            full_prompt = current_prompt + current["text"]
+            # Add text to current prompt and strips text of any ";"
+            full_prompt = current_prompt + current["text"].replace(";", "")
 
             # Interact with Gemini to fill out response, response_explanation, confidence, truthful_level, and correct
             res = model.generate_content(
@@ -136,6 +134,7 @@ for current in in_data:
             #print(res.text)
             res = res.text.split(";")
 
+            # Checks if response is correct length
             if len(res) <= 1:
                 print("Prompt did not return correct response")
                 continue
