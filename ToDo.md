@@ -2,9 +2,9 @@
 
 ### Python Script:
 - (DONE) Add prompt ids
-- Strip all ";" from the twitter post before added to the current prompt
-- Check to make sure Gemini gave correct response format ie. correct number of sections seperated by ";" and a 1 or 0 for response
-- Make sure all prompts are sent in a new session
+- (DONE) Strip all ";" from the twitter post before added to the current prompt
+- (POTENTIALLY DONE, CHECK BACK AFTER TESTING) Check to make sure Gemini gave correct response format ie. correct number of sections seperated by ";" and a 1 or 0 for response
+- (DONE) Make sure all prompts are sent in a new session
 
 ### Prompt Engineering:
 - Try to get Truth and Confidence levels more accurate
