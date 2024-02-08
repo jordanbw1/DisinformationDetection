@@ -1,16 +1,17 @@
 # To Do List
 
 ### Python Script:
-- Strip all ";" from the twitter post before added to the current prompt
-- Check to make sure Gemini gave correct response format ie. correct number of sections seperated by ";" and a 1 or 0 for response
-- Make sure all prompts are sent in a new session
+- (DONE) Add prompt ids
+- (DONE) Strip all ";" from the twitter post before added to the current prompt
+- (POTENTIALLY DONE, CHECK BACK AFTER TESTING) Check to make sure Gemini gave correct response format ie. correct number of sections seperated by ";" and a 1 or 0 for response
+- (DONE) Make sure all prompts are sent in a new session
 
 ### Prompt Engineering:
 - Try to get Truth and Confidence levels more accurate
 - Try new prompt ideas to increase dissinformation detection accuracy
 
 ### Other:
-- Fix corrupted data in WELFake Dataset
+- (DONE) Fix corrupted data in WELFake Dataset 
 - Figure out how to use Liar Dataset's non-binary form of dissinformation labeling
 - Find additional datasets
 
