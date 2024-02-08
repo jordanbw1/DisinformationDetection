@@ -10,7 +10,7 @@
 - Try new prompt ideas to increase dissinformation detection accuracy
 
 ### Other:
-- Fix corrupted data in WELFake Dataset (DONE)
+- (DONE) Fix corrupted data in WELFake Dataset 
 - Figure out how to use Liar Dataset's non-binary form of dissinformation labeling
 - Find additional datasets
 
