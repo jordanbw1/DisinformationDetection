@@ -15,4 +15,8 @@
 - Figure out how to use Liar Dataset's non-binary form of dissinformation labeling
 - Find additional datasets
 
-
+### Website:
+- Has prompt field ane email field
+- Does calculations and writes results to a file (file includes stats and raw data)
+- Emails the file to the client when finished
+- Potentially in the future add field for API key so multiple people can test
