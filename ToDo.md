@@ -3,7 +3,7 @@
 ### Python Script:
 - (DONE) Add prompt ids
 - (DONE) Strip all ";" from the twitter post before added to the current prompt
-- (POTENTIALLY DONE, CHECK BACK AFTER TESTING) Check to make sure Gemini gave correct response format ie. correct number of sections seperated by ";" and a 1 or 0 for response
+- (DONE) Check to make sure Gemini gave correct response format ie. correct number of sections seperated by ";" and a 1 or 0 for response
 - (DONE) Make sure all prompts are sent in a new session
 
 ### Prompt Engineering:
@@ -15,4 +15,8 @@
 - Figure out how to use Liar Dataset's non-binary form of dissinformation labeling
 - Find additional datasets
 
-
+### Website:
+- Has prompt field ane email field
+- Does calculations and writes results to a file (file includes stats and raw data)
+- Emails the file to the client when finished
+- Potentially in the future add field for API key so multiple people can test
