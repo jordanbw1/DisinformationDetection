@@ -36,7 +36,7 @@ else:
 
 # Establish headers
 headers = [
-    "id", "dataset", "text", "subject", "prompt id", "prompt", "label", "response", "confidence_level", "truth_level", "correct", "response_explanation"
+    "id", "dataset", "text", "subject", "prompt", "label", "response", "confidence_level", "truth_level", "correct", "response_explanation"
 ]
 
 # Write the header row
@@ -118,7 +118,6 @@ for current in in_data:
         new_list.append(dataset_name) # dataset
         new_list.append(current["text"]) # text
         new_list.append(subject) # subject
-        new_list.append(j) # prompt id
         new_list.append(prompt.replace("\n", "")) # prompt
         new_list.append(current["label"]) # label
         new_list.append(res[0]) # response
