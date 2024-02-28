@@ -23,6 +23,7 @@ def run_prompt(prompt, email):
     dataset_name = "WELFake Dataset"
     subject = "US_politics"
     i = 0
+    num_correct = 0
 
     # prompt = sys.argv[1]
 
@@ -31,14 +32,9 @@ def run_prompt(prompt, email):
     model = genai.GenerativeModel(model_name='gemini-pro')
 
     # Pulls data in from csv file and organizes it in a list of dictionaries
-    if in_file == "./example_data.csv":
-        with open(in_file, 'r') as in_csv: # For Example Dataset (not utf-8)
-            reader = csv.DictReader(in_csv)
-            in_data = list(reader)
-    else:
-        with open(in_file, 'r', encoding='utf-8', errors='ignore') as in_csv: # For all datasets encoded in utf-8
-            reader = csv.DictReader(in_csv)
-            in_data = list(reader)
+    with open(in_file, 'r', encoding='utf-8', errors='ignore') as in_csv:
+        reader = csv.DictReader(in_csv)
+        in_data = list(reader)
 
     # Establish headers
     headers = [
@@ -63,7 +59,7 @@ def run_prompt(prompt, email):
             if i < 8749:
                 continue
             """
-            if i > 5000:
+            if i > 300:
                 break
             
             # Add text to current prompt and strips text of any ";"
@@ -116,6 +112,7 @@ def run_prompt(prompt, email):
             # Determines if PaLM 2 was correct or not
             if current["label"] == res[0]:
                 correct = 1
+                num_correct += 1
             else:
                 correct = 0
 
@@ -135,7 +132,7 @@ def run_prompt(prompt, email):
 
             data.append(new_list)
 
-            if i % 10 == 0:
+            if i % 50 == 0:
                 with open(out_file, mode="a", newline="", encoding='utf-8') as csv_file:
                     csv_writer = csv.writer(csv_file)
                     csv_writer.writerows(data)
@@ -156,4 +153,4 @@ def run_prompt(prompt, email):
 
 
     # Send CSV file as attachment via email
-    send_email(email, file_download_path)
+    send_email(email, file_download_path, num_correct, prompt)

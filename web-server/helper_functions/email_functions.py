@@ -1,30 +1,42 @@
+import smtplib
+import os
+import sys
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from dotenv import load_dotenv
 
-def send_email(receiver_email, file_download_link):
-    sender_email = "your_sender_email@example.com"
-    sender_password = "your_sender_password"
-    
+# Determine the path to the .env file
+env_path = os.path.join(os.path.dirname(sys.argv[0]), '..', '.env')
+
+# Load .env variables
+load_dotenv(env_path)
+
+def send_email(receiver_email, file_download_link, num_correct, prompt):
+    sender_email = os.environ['EMAIL']
+    sender_password = os.environ['EMAIL_PASSWORD']
+
     message = MIMEMultipart()
     message['From'] = sender_email
     message['To'] = receiver_email
     message['Subject'] = "Disinformation Detection Results"
-    
-    filename = "results.csv"
-    attachment = open(filename, "rb")
-    
-    part = MIMEText("Please find the attached CSV file for Disinformation Detection results.")
-    message.attach(part)
-    
-    part = MIMEBase('application', 'octet-stream')
-    part.set_payload((attachment).read())
-    encoders.encode_base64(part)
-    part.add_header('Content-Disposition', "attachment; filename= %s" % filename)
-    message.attach(part)
-    
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.starttls()
-    server.login(sender_email, sender_password)
-    text = message.as_string()
-    server.sendmail(sender_email, receiver_email, text)
-    server.quit()
+
+    body = """Your Disinformation Detection prompt results:
+
+Prompt: {}
+
+Your prompt identified {}/300 posts correctly.
+Your results csv file can be downloaded from the Disinformation Detection website using the following link: {}.""".format(prompt, num_correct, file_download_link)
+
+    message.attach(MIMEText(body, 'plain'))
+
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(sender_email, sender_password)
+        text = message.as_string()
+        server.sendmail(sender_email, receiver_email, text)
+        print("Email sent successfully!")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        server.quit()
