@@ -4,6 +4,7 @@ import sys
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
+import re
 
 # Determine the path to the .env file
 env_path = os.path.join(os.path.dirname(sys.argv[0]), '..', '.env')
@@ -40,3 +41,13 @@ Your results csv file can be downloaded from the Disinformation Detection websit
         print(f"An error occurred: {e}")
     finally:
         server.quit()
+
+
+def check_email(email):
+    # Regex string for checking email
+    email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'    # pass the regular expression
+    # Check if email is valid
+    if(re.fullmatch(email_regex, email)):
+        return True
+    else:
+        return False

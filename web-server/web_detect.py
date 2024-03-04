@@ -25,8 +25,6 @@ def run_prompt(prompt, email):
     i = 0
     num_correct = 0
 
-    # prompt = sys.argv[1]
-
     # Configure Gemini API
     genai.configure(api_key=os.environ['GOOGLE_API_KEY'])
     model = genai.GenerativeModel(model_name='gemini-pro')

@@ -7,7 +7,10 @@
 </head>
 <body>
     <h1>Dissinformation Detection Prompt Testing</h1>
-    <form method="post">
+    {% for message in get_flashed_messages() %}
+        <p>{{ message }}</p>
+    {% endfor %}
+    <form method="post" action="submit-prompt">
         <label for="prompt">Prompt:</label><br>
         <input type="text" id="prompt" name="prompt" required><br><br>
         <label for="email">Email:</label><br>
