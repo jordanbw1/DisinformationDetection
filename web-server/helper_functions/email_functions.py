@@ -30,6 +30,11 @@ def send_email(receiver_email, file_download_link, stats, prompt):
     stats["percent_fPos": math.floor((stats["fPos"] / stats["num_rows"]) * 100)]
     stats["percent_tNeg": math.floor((stats["tNeg"] / stats["num_rows"]) * 100)]
     stats["percent_fNeg": math.floor((stats["fNeg"] / stats["num_rows"]) * 100)]
+    stats["accuracy": stats["num_correct"] / stats["num_rows"]]
+    stats["recall": stats["tPos"] / (stats["tPos"] + stats["fNeg"])]
+    stats["precision": stats["tPos"] / (stats["tPos"] + stats["fPos"])]
+    stats["fscore": 2 * ((stats["precision"] * stats["recall"]) / (stats["precision"] + stats["recall"]))]
+    
     
     # write body of email
     body = """Your Disinformation Detection prompt results:
@@ -51,6 +56,14 @@ True Negatives (AI identifies as true when post is actually true):
 
 False Negatives (AI identifies as true when post is actually disinformation):
     {fNeg}/{num_rows} ({percent_fNeg}%)
+
+Accuracy: {accuracy}
+Recall: {recall}
+Precision: {precision}
+fScore: {fscore}
+
+If you have any questions on the meaning of these statistics you can visit this site: https://blog.nillsf.com/index.php/2020/05/23/
+confusion-matrix-accuracy-recall-precision-false-positive-rate-and-f-scores-explained/
 
 Your results csv file can be downloaded from the Disinformation Detection website using the following link: {download_link}
 """.format(**stats)
