@@ -6,6 +6,9 @@
     <title>Confirmation</title>
 </head>
 <body>
+    <!-- Include Navbar -->
+    {% include "macros/navbar.html" ignore missing with context %}
+    
     <h1>Confirmation</h1>
     {% for message in get_flashed_messages() %}
         <p>{{ message }}</p>

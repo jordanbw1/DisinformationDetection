@@ -6,6 +6,9 @@
     <title>Test API Key</title>
 </head>
 <body>
+    <!-- Include Navbar -->
+    {% include "macros/navbar.html" ignore missing with context %}
+    
     <h1>Test API Key</h1>
     {% for message in get_flashed_messages() %}
         <p>{{ message }}</p>

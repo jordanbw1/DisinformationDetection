@@ -6,6 +6,9 @@
     <title>Dissinformation Detection Prompt Testing</title>
 </head>
 <body>
+    <!-- Include Navbar -->
+    {% include "macros/navbar.html" ignore missing with context %}
+
     <h1>Dissinformation Detection Prompt Testing</h1>
     {% for message in get_flashed_messages() %}
         <p>{{ message }}</p>
