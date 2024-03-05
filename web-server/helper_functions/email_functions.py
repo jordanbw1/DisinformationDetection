@@ -1,3 +1,4 @@
+import math
 import smtplib
 import os
 import sys
@@ -12,7 +13,7 @@ env_path = os.path.join(os.path.dirname(sys.argv[0]), '..', '.env')
 # Load .env variables
 load_dotenv(env_path)
 
-def send_email(receiver_email, file_download_link, num_correct, prompt):
+def send_email(receiver_email, file_download_link, stats, prompt):
     sender_email = os.environ['EMAIL']
     sender_password = os.environ['EMAIL_PASSWORD']
 
@@ -21,12 +22,41 @@ def send_email(receiver_email, file_download_link, num_correct, prompt):
     message['To'] = receiver_email
     message['Subject'] = "Disinformation Detection Results"
 
+    # prep body variables
+    stats["prompt": prompt]
+    stats["download_link": file_download_link]
+    stats["percent_correct": math.floor((stats["num_correct"] / stats["num_rows"]) * 100)]
+    stats["percent_tPos": math.floor((stats["tPos"] / stats["num_rows"]) * 100)]
+    stats["percent_fPos": math.floor((stats["fPos"] / stats["num_rows"]) * 100)]
+    stats["percent_tNeg": math.floor((stats["tNeg"] / stats["num_rows"]) * 100)]
+    stats["percent_fNeg": math.floor((stats["fNeg"] / stats["num_rows"]) * 100)]
+    
+    # write body of email
     body = """Your Disinformation Detection prompt results:
 
-Prompt: {}
+Prompt: {prompt}
 
-Your prompt identified {}/300 posts correctly.
-Your results csv file can be downloaded from the Disinformation Detection website using the following link: {}.""".format(prompt, num_correct, file_download_link)
+Your prompt identified {num_correct}/{num_rows} ({percent_correct}%) posts correctly.
+
+Statistics:
+
+True Positives (AI identifies as disinformation when post is actually disinformation):
+    {tPos}/{num_rows} ({percent_tPos}%)
+
+False Positives (AI identifies as disinformation when post is true):
+    {fPos}/{num_rows} ({percent_fPos}%)
+
+True Negatives (AI identifies as true when post is actually true):
+    {tNeg}/{num_rows} ({percent_tNeg}%)
+
+False Negatives (AI identifies as true when post is actually disinformation):
+    {fNeg}/{num_rows} ({percent_fNeg}%)
+
+Your results csv file can be downloaded from the Disinformation Detection website using the following link: {download_link}
+""".format(**stats)
+    
+    # testing
+    print(body)
 
     message.attach(MIMEText(body, 'plain'))
 
