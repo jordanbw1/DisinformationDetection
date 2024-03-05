@@ -5,6 +5,9 @@ import os
 import sys
 from dotenv import load_dotenv
 from helper_functions.email_functions import check_email
+from helper_functions.api import test_key
+from routes.documents import documents
+
 
 # Determine the path to the .env file
 env_path = os.path.join(os.path.dirname(sys.argv[0]), '..', '.env')
@@ -15,6 +18,7 @@ load_dotenv(env_path)
 # Initialize App
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY")
+app.register_blueprint(documents, url_prefix="/documents")
 
 
 @app.route('/', methods=['GET'])
@@ -27,6 +31,7 @@ def submit_prompt():
     # Get prompt and email
     prompt = request.form['prompt']
     email = request.form['email']
+    api_key = request.form['api-key']
 
     # Ensure that correct email syntax is used
     if not check_email(email=email):
@@ -34,7 +39,7 @@ def submit_prompt():
         return render_template('index.html')
     
     # Create a thread and pass the function to it
-    thread = threading.Thread(target=run_prompt, args=(prompt,email,))
+    thread = threading.Thread(target=run_prompt, args=(api_key,prompt,email,))
     thread.start()
     
     # Save their email and prompt to the session to be displayed later
@@ -43,6 +48,18 @@ def submit_prompt():
 
     # Redirect to the confirmation page
     return redirect(url_for('confirmation'))
+
+@app.route('/test-key', methods=['GET', 'POST'])
+def test_key_route():
+    if request.method == 'POST':
+        api_key = request.form['api-key']
+        
+        # Create a thread and pass the function to it
+        status, message = test_key(api_key)
+
+        # Redirect to the confirmation page
+        return render_template("test_key.html")
+    return render_template("test_key.html")
 
 # Define the route for downloading files
 @app.route('/download/<path:filename>',  methods=['GET'])

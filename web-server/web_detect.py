@@ -1,16 +1,14 @@
 import csv
 import google.generativeai as genai
 import os
-from dotenv import load_dotenv
-import sys
 import uuid
 from helper_functions.email_functions import send_email
 
 
-def run_prompt(prompt, email):
-    # Load .env variables
-    load_dotenv()
+# TODO: Check API Key before running the stuff.
 
+
+def run_prompt(api_key, prompt, email):
     # Declare main variables
     script_directory = os.path.dirname(os.path.abspath(__file__))
     parent_directory = os.path.dirname(script_directory)
@@ -26,7 +24,7 @@ def run_prompt(prompt, email):
     num_correct = 0
 
     # Configure Gemini API
-    genai.configure(api_key=os.environ['GOOGLE_API_KEY'])
+    genai.configure(api_key=api_key)
     model = genai.GenerativeModel(model_name='gemini-pro')
 
     # Pulls data in from csv file and organizes it in a list of dictionaries
