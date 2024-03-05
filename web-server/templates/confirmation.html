@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmation</title>
+</head>
+<body>
+    <h1>Confirmation</h1>
+    {% for message in get_flashed_messages() %}
+        <p>{{ message }}</p>
+    {% endfor %}
+    <p>Thank you for submitting your prompt for testing! It will take about an hour to complete. Here is the prompt and email that we recieved from you.</p>
+    <ul>
+        <li>email: {{email}}</li>
+        <li>prompt: {{prompt}}</li>
+    </ul>
+</body>
+</html>
