@@ -38,6 +38,12 @@ def submit_prompt():
         flash("The email address you provided does not meet correct email format guidelines. Please try again.")
         return render_template('index.html')
     
+    # Test API key before starting
+    success, message = test_key(api_key=api_key)
+    if not success:
+        flash(message)
+        return render_template('index.html')
+    
     # Create a thread and pass the function to it
     thread = threading.Thread(target=run_prompt, args=(api_key,prompt,email,))
     thread.start()

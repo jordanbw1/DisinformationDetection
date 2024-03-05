@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Key</title>
+</head>
+<body>
+    <h1>Test API Key</h1>
+    {% for message in get_flashed_messages() %}
+        <p>{{ message }}</p>
+    {% endfor %}
+    <h2>Please enter your API key to test if your connection works.</h2>
+    <form method="post" action="test-key">
+        <label for="api-key">Api Key:</label><br>
+        <input type="text" id="api-key" name="api-key" required><br><br>
+        <input type="submit" value="Submit">
+    </form>
+    <a href="/documents/get-api-key">Click here for instructions on getting your API Key</a>
+</body>
+</html>

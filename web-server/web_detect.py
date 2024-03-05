@@ -5,9 +5,6 @@ import uuid
 from helper_functions.email_functions import send_email
 
 
-# TODO: Check API Key before running the stuff.
-
-
 def run_prompt(api_key, prompt, email):
     # Declare main variables
     script_directory = os.path.dirname(os.path.abspath(__file__))
