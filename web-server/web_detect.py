@@ -21,7 +21,7 @@ def run_prompt(api_key, prompt, email):
     dataset_name = "WELFake Dataset"
     subject = "US_politics"
     i = 0
-    num_correct = 0
+    stats = {"tPos": 0, "tNeg": 0, "fPos": 0, "fNeg": 0, "num_correct": 0, "num_rows": 300}
 
     # Configure Gemini API
     genai.configure(api_key=api_key)
@@ -55,7 +55,7 @@ def run_prompt(api_key, prompt, email):
             if i < 8749:
                 continue
             """
-            if i > 300:
+            if i > 3:
                 break
             
             # Add text to current prompt and strips text of any ";"
@@ -105,12 +105,23 @@ def run_prompt(api_key, prompt, email):
                 print("Prompt did not return correct response")
                 continue
             
-            # Determines if PaLM 2 was correct or not
-            if current["label"] == res[0]:
-                correct = 1
-                num_correct += 1
+            # Determines if AI was correct or not
+            if current["label"] == 0:
+                if current["label"] == res[0]:
+                    correct = 1
+                    stats["num_correct"] += 1
+                    stats["tPos"] += 1
+                else:
+                    correct = 0
+                    stats["fNeg"] += 1
             else:
-                correct = 0
+                if current["label"] == res[0]:
+                    correct = 1
+                    stats["num_correct"] += 1
+                    stats["tNeg"] += 1
+                else:
+                    correct = 0
+                    stats["fPos"] += 1
 
             # Create the new row of data for output csv
             new_list = []
@@ -149,4 +160,4 @@ def run_prompt(api_key, prompt, email):
 
 
     # Send CSV file as attachment via email
-    send_email(email, file_download_path, num_correct, prompt)
+    send_email(email, file_download_path, stats, prompt)
