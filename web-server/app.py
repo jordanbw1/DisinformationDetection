@@ -63,6 +63,11 @@ def test_key_route():
         # Create a thread and pass the function to it
         status, message = test_key(api_key)
 
+        if status:
+            flash("Your API key successfully established a connection!")
+        else:
+            flash(f"Your API key failed to establish a connection.")
+
         # Redirect to the confirmation page
         return render_template("test_key.html")
     return render_template("test_key.html")
