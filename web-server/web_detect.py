@@ -8,8 +8,8 @@ import pandas as pd
 
 def run_prompt(api_key, prompt, email, num_rows=300):
     if num_rows > 500 or num_rows < 1:
-        print("Too many or too few rows requested")
-        return
+        print("Too many or too few rows requested, using the default of 300")
+        num_rows = 300
     # Declare main variables
     script_directory = os.path.dirname(os.path.abspath(__file__))
     parent_directory = os.path.dirname(script_directory)
