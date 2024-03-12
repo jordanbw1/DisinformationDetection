@@ -32,6 +32,10 @@ def submit_prompt():
     prompt = request.form['prompt']
     email = request.form['email']
     api_key = request.form['api-key']
+    num_rows = request.form.get('num-rows', type=int)
+    if num_rows is None or num_rows < 1 or num_rows > 500:
+        print(f"out of bounds: {num_rows}")
+        num_rows = 300
 
     # Ensure that correct email syntax is used
     if not check_email(email=email):
@@ -45,7 +49,7 @@ def submit_prompt():
         return render_template('index.html')
     
     # Create a thread and pass the function to it
-    thread = threading.Thread(target=run_prompt, args=(api_key,prompt,email,))
+    thread = threading.Thread(target=run_prompt, args=(api_key,prompt,email,num_rows,))
     thread.start()
     
     # Save their email and prompt to the session to be displayed later
