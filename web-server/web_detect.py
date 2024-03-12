@@ -3,9 +3,13 @@ import google.generativeai as genai
 import os
 import uuid
 from helper_functions.email_functions import send_email
+import pandas as pd
 
 
-def run_prompt(api_key, prompt, email):
+def run_prompt(api_key, prompt, email, num_rows=300):
+    if num_rows > 500 or num_rows < 1:
+        print("Too many or too few rows requested")
+        return
     # Declare main variables
     script_directory = os.path.dirname(os.path.abspath(__file__))
     parent_directory = os.path.dirname(script_directory)
@@ -24,10 +28,21 @@ def run_prompt(api_key, prompt, email):
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel(model_name='gemini-pro')
 
-    # Pulls data in from csv file and organizes it in a list of dictionaries
-    with open(in_file, 'r', encoding='utf-8', errors='ignore') as in_csv:
-        reader = csv.DictReader(in_csv)
-        in_data = list(reader)
+    # # Pulls data in from csv file and organizes it in a list of dictionaries
+    # with open(in_file, 'r', encoding='utf-8', errors='ignore') as in_csv:
+    #     reader = csv.DictReader(in_csv)
+    #     in_data = list(reader)
+    # Read the CSV file into a pandas DataFrame
+    df = pd.read_csv(in_file, header=0)
+
+    # Skip the first row (headers)
+    df = df.iloc[1:]
+
+    # Shuffle the DataFrame
+    df = df.sample(frac=1)
+
+    # Grab the first num_rows rows
+    random_rows = df.head(num_rows)
 
     # Establish headers
     headers = [
@@ -40,23 +55,13 @@ def run_prompt(api_key, prompt, email):
         csv_writer.writerow(headers)
 
     # Loops through every row of data in the csv file
-    for current in in_data:
-        
-        i += 1
-        print(str(i) + ":")
-
+    num_iters = 0
+    for index, row in random_rows.iterrows():
+        print(str(num_iters) + ":")
         try:
-
-            # For testing purposes
-            """
-            if i < 8749:
-                continue
-            """
-            if i > 3:
-                break
-            
+            num_iters += 1
             # Add text to current prompt and strips text of any ";"
-            full_prompt = prompt + current["text"].replace(";", "")
+            full_prompt = prompt + row["text"].replace(";", "")
 
             # Interact with Gemini to fill out response, response_explanation, confidence, truthful_level, and correct
             res = model.generate_content(
@@ -103,8 +108,9 @@ def run_prompt(api_key, prompt, email):
                 continue
             
             # Determines if AI was correct or not
-            if current["label"] == 0:
-                if current["label"] == res[0]:
+            label = int(row["label"])
+            if label == 0:
+                if str(label) == str(res[0]):
                     correct = 1
                     stats["num_correct"] += 1
                     stats["tPos"] += 1
@@ -112,7 +118,7 @@ def run_prompt(api_key, prompt, email):
                     correct = 0
                     stats["fNeg"] += 1
             else:
-                if current["label"] == res[0]:
+                if str(label) == str(res[0]):
                     correct = 1
                     stats["num_correct"] += 1
                     stats["tNeg"] += 1
@@ -124,10 +130,10 @@ def run_prompt(api_key, prompt, email):
             new_list = []
             new_list.append(i) # id
             new_list.append(dataset_name) # dataset
-            new_list.append(current["text"]) # text
+            new_list.append(row["text"]) # text
             new_list.append(subject) # subject
             new_list.append(prompt.replace("\n", "")) # prompt
-            new_list.append(current["label"]) # label
+            new_list.append(row["label"]) # label
             new_list.append(res[0]) # response
             new_list.append(res[1]) # confidence_level
             new_list.append(res[2]) # truth_level
@@ -136,7 +142,7 @@ def run_prompt(api_key, prompt, email):
 
             data.append(new_list)
 
-            if i % 50 == 0:
+            if num_iters % 50 == 0:
                 with open(out_file, mode="a", newline="", encoding='utf-8') as csv_file:
                     csv_writer = csv.writer(csv_file)
                     csv_writer.writerows(data)
@@ -158,3 +164,5 @@ def run_prompt(api_key, prompt, email):
 
     # Send CSV file as attachment via email
     send_email(email, file_download_path, stats, prompt)
+
+    return
