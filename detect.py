@@ -84,7 +84,7 @@ for current in in_data:
         if i < 8749:
             continue
         """
-        if i > 5000:
+        if i > 5:
             break
         
 
