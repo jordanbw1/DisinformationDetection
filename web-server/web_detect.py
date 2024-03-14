@@ -22,7 +22,7 @@ def run_prompt(api_key, prompt, email, num_rows=300):
     dataset_name = "WELFake Dataset"
     subject = "US_politics"
     i = 0
-    stats = {"tPos": 0, "tNeg": 0, "fPos": 0, "fNeg": 0, "num_correct": 0, "num_rows": 300}
+    stats = {"tPos": 0, "tNeg": 0, "fPos": 0, "fNeg": 0, "num_correct": 0, "num_rows": num_rows}
 
     # Configure Gemini API
     genai.configure(api_key=api_key)

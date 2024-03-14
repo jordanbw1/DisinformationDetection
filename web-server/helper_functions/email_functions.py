@@ -23,18 +23,34 @@ def send_email(receiver_email, file_download_link, stats, prompt):
     message['Subject'] = "Disinformation Detection Results"
 
     # prep body variables
-    stats["prompt": prompt]
-    stats["download_link": file_download_link]
-    stats["percent_correct": math.floor((stats["num_correct"] / stats["num_rows"]) * 100)]
-    stats["percent_tPos": math.floor((stats["tPos"] / stats["num_rows"]) * 100)]
-    stats["percent_fPos": math.floor((stats["fPos"] / stats["num_rows"]) * 100)]
-    stats["percent_tNeg": math.floor((stats["tNeg"] / stats["num_rows"]) * 100)]
-    stats["percent_fNeg": math.floor((stats["fNeg"] / stats["num_rows"]) * 100)]
-    stats["accuracy": stats["num_correct"] / stats["num_rows"]]
-    stats["recall": stats["tPos"] / (stats["tPos"] + stats["fNeg"])]
-    stats["precision": stats["tPos"] / (stats["tPos"] + stats["fPos"])]
-    stats["fscore": 2 * ((stats["precision"] * stats["recall"]) / (stats["precision"] + stats["recall"]))]
+    stats["prompt"] = prompt
+    stats["download_link"] = file_download_link
+    stats["percent_correct"] = math.floor((stats["num_correct"] / stats["num_rows"]) * 100)
+    stats["percent_tPos"] = math.floor((stats["tPos"] / stats["num_rows"]) * 100)
+    stats["percent_fPos"] = math.floor((stats["fPos"] / stats["num_rows"]) * 100)
+    stats["percent_tNeg"] = math.floor((stats["tNeg"] / stats["num_rows"]) * 100)
+    stats["percent_fNeg"] = math.floor((stats["fNeg"] / stats["num_rows"]) * 100)
     
+    # Calculate Accuracy
+    stats["accuracy"] = round(stats["num_correct"] / stats["num_rows"], 2)
+
+    # Calculate Recall
+    if stats["tPos"] + stats["fNeg"] == 0:
+        stats["recall"] = 0
+    else:
+        stats["recall"] = round(stats["tPos"] / (stats["tPos"] + stats["fNeg"]), 2)
+
+    # Calculate Precision
+    if stats["tPos"] + stats["fPos"] == 0:
+        stats["precision"] = 0
+    else:
+        stats["precision"] = round(stats["tPos"] / (stats["tPos"] + stats["fPos"]), 2)
+
+    # Calculate F-score
+    if stats["precision"] + stats["recall"] == 0:
+        stats["fscore"] = 0
+    else:
+        stats["fscore"] = round(2 * ((stats["precision"] * stats["recall"]) / (stats["precision"] + stats["recall"])), 2)
     
     # write body of email
     body = """Your Disinformation Detection prompt results:
