@@ -1,2 +1,36 @@
-<!-- Include Navbar -->
-{% include "macros/navbar.html" ignore missing with context %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get API Key Instructions</title>
+</head>
+<body>
+    <!-- Include Navbar -->
+    {% include "macros/navbar.html" ignore missing with context %}
+    
+    {% for message in get_flashed_messages() %}
+        <p>{{ message }}</p>
+    {% endfor %}
+
+    <h1>Instructions for Getting Your API Key</h1>
+
+    <ol>
+        <li>Go to: <a href="https://aistudio.google.com/app/apikey">https://aistudio.google.com/app/apikey</a></li>
+        <li>
+            <span>Click on “Create API key”. You can see this in the screenshot below:</span>
+            <br>
+            <img src="/static/page_content/get_api_key/api-step-1.png">
+        </li>
+        <li>
+            <span>Click “Create API key in new project”. You can see this in the screenshot below:</span>
+            <br>
+            <img src="/static/page_content/get_api_key/api-step-2.png">
+        </li>
+        <li>You will be given your API Ley. Save this, you will need it to interact with the AI.</li>
+      </ol>
+
+
+
+</body>
+</html>
