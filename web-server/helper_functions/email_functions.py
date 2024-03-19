@@ -164,17 +164,19 @@ def generate_verification_code(receiver_email):
         conn = get_db_connection()
         cursor = conn.cursor()
         # Query the database
-        sql = "INSERT INTO verify_code (user_id, code) VALUES (%s, %s)"
+        sql = "INSERT INTO verify_code (user_id, code) VALUES ((SELECT user_id FROM users WHERE email = %s), %s);"
         val = (receiver_email, verification_code)
         cursor.execute(sql, val)
         conn.commit()
+        cursor.close()
+        conn.close()
+        return verification_code, "Good"
     except Exception as e:
         print(f"An error occurred: {e}")
         return False, f"An error occurred: {e}"
     finally:
-        cursor.close()
         conn.close()
-        return verification_code
+        
     
 
 def get_verification_code_from_db(receiver_email):
@@ -184,7 +186,7 @@ def get_verification_code_from_db(receiver_email):
         sql = """SELECT code FROM verify_code
                 JOIN users
                 WHERE email = %s;"""
-        val = (receiver_email)
+        val = (receiver_email,)
         cursor.execute(sql, val)
         code = cursor.fetchone()[0]
         cursor.close()
@@ -195,6 +197,7 @@ def get_verification_code_from_db(receiver_email):
         return False, f"An error occurred: {e}"
     finally:
         conn.close()
+
 
 def resend_verification_email(receiver_email):
     if not check_email(receiver_email):
@@ -228,3 +231,15 @@ def resend_verification_email(receiver_email):
         return False, f"An error occurred: {e}"
     finally:
         server.quit()
+
+
+def validate_password(password):
+    # Check password length
+    if len(password) < 8:
+        return False, "Password must be at least 8 characters long."
+
+    # Check for uppercase, lowercase, and number
+    if not re.search(r"^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$", password):
+        return False, "Password must contain at least one uppercase letter, one lowercase letter, and one number."
+
+    return True, "Password is valid."
