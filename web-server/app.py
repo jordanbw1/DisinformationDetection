@@ -4,10 +4,19 @@ import threading
 import os
 import sys
 from dotenv import load_dotenv
-from helper_functions.email_functions import check_email
+from helper_functions.email_functions import check_email, send_verification_email
 from helper_functions.api import test_key
 from routes.documents import documents
+import mysql.connector
+import bcrypt
+from helper_functions.database import get_db_connection
+import hashlib
 
+
+# Decorator used to exempt route from requiring login
+def login_exempt(f):
+    f.login_exempt = True
+    return f
 
 # Determine the path to the .env file
 env_path = os.path.join(os.path.dirname(sys.argv[0]), '..', '.env')
@@ -21,10 +30,184 @@ app.secret_key = os.environ.get("SECRET_KEY")
 app.register_blueprint(documents, url_prefix="/documents")
 
 
+def login_exempt(f):
+    f.login_exempt = True
+    return f
+
+@app.before_request
+def default_login_required():
+    # exclude 404 errors and static routes
+    # uses split to handle blueprint static routes as well
+    if not request.endpoint or request.endpoint.rsplit('.', 1)[-1] == 'static':
+        return
+
+    view = app.view_functions[request.endpoint]
+
+    if getattr(view, 'login_exempt', False):
+        return
+
+    if 'email' not in session:
+        return redirect(url_for('login'))
+    
+    if session['confirmed'] != True:
+        return redirect(url_for('verify-email'))
+    
 @app.route('/', methods=['GET'])
 def index():
    # Render the index page
     return render_template('index.html')
+
+# for example, the login page shouldn't require login
+@app.route('/login', methods=['GET', 'POST'])
+@login_exempt
+def login():
+    if 'email' in session:
+        return redirect(url_for('index'))
+    if request.method == "GET":
+        return render_template('login.html')
+    elif request.method == "POST":
+        email = request.form['email']
+        password = request.form['password']
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        try:
+            # Execute the SQL query to fetch the hashed password associated with the username
+            query = "SELECT password, confirmed FROM users WHERE email = %s"
+            cursor.execute(query, (email,))
+            result = cursor.fetchone()
+            cursor.close()
+            conn.close()
+
+            # If no result found for the given username, return False
+            if not result:
+                return False
+
+            # Extract the hashed password from the result
+            hashed_password_in_db = result[0]
+            # Hash the provided password
+            hashed_password = hashlib.sha256(password.encode()).hexdigest()
+            # Compare the hashed passwords
+            if hashed_password != hashed_password_in_db:
+                flash(f"Login failed: {err}")
+                return redirect(url_for('login'))
+            # Set user as logged in
+            session["email"] = email
+            session["confirmed"] = bool(result[1])
+        except mysql.connector.Error as err:
+            flash(f"Login failed: {err}")
+            return redirect(url_for('login'))
+        finally:
+            conn.close()
+            return redirect(url_for('index'))
+
+@app.route('/logout')
+def logout():
+    session.pop('email', None)
+    return redirect(url_for('login'))
+
+@app.route('/register', methods=['GET', 'POST'])
+@login_exempt
+def register():
+    if 'email' in session:
+        return redirect(url_for('index'))
+    if request.method == "GET":
+        return render_template('register.html')
+    elif request.method == "POST":
+        email = request.form['email']
+        password = request.form['password']
+
+        # Use regex to confirm email is valid email format
+        if not check_email(email):
+            flash("Invalid email format")
+            return redirect(url_for('register'))
+        
+        # Hash the password
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        
+        # Insert
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("INSERT INTO users (email, password) VALUES (%s, %s);", (email, hashed_password))
+            conn.commit()
+            cursor.close()
+        except mysql.connector.Error as err:
+            flash(f"Registration failed: {err}")
+            return redirect(url_for('register'))
+        finally:
+            conn.close()
+            # Mark user as not confirmed
+            session['confirmed'] = False
+            # Send verification code to email
+            send_verification_email(email)
+            return redirect(url_for('verify-email'))
+
+@app.route('/verify-email', methods=['GET', 'POST'])
+@login_exempt
+def verify_email():
+    # Send them to register if they haven't created an account yet
+    if 'email' not in session:
+        return redirect(url_for('register'))
+    # If they have already verified their email, send them to index
+    if session["confirmed"] != False:
+        return redirect(url_for('index'))
+    if request.method == "GET":
+        return render_template('verify_email.html')
+    elif request.method == "POST":
+        # If the verification code matches, confirm them in the database and change session variable to True
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        try:
+            email = session["email"]
+            code = request.form["code"]
+            # Check if code is valid
+            sql = """SELECT COUNT(*) AS count FROM users
+                        JOIN verify_code
+                        WHERE email = %s AND code = %s;"""
+            val = (email, code)
+            cursor.execute(sql, val)
+            # Get the result as bool
+            is_authenticated = bool(cursor.fetchone()[0])
+            # Close connections
+            cursor.close()
+            conn.close()
+            if not is_authenticated:
+                return False, "Code doesn't match"
+            
+            # Mark user as authenticated in the db now
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            sql = """UPDATE users
+                        SET confirmed = 1
+                        WHERE email = %s RETURNING user_id;"""
+            val = (email, code)
+            cursor.execute(sql, val)
+            conn.commit()
+            cursor.close()
+
+            # Remove the old verification code
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            sql = """DELETE FROM verify_code
+                        WHERE user_id = (SELECT user_id FROM users WHERE email = %s);"""
+            val = (email)
+            cursor.execute(sql, val)
+            conn.commit()
+            cursor.close()
+        except Exception as e:
+            flash(f"Verification failed: {e}")
+            return redirect(url_for('verify-email'))
+        finally:
+            conn.close()
+            session["confirmed"] = True
+            return redirect(url_for('index'))
+
+@app.route('/resend-verify-code', methods=['GET'])
+@login_exempt
+def resend_verify_code():
+
+    return redirect(url_for("verify-email"))
 
 @app.route('/submit-prompt', methods=['POST'])
 def submit_prompt():

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+</head>
+<body>
+    <h1>Create an Account</h1>
+    {% for message in get_flashed_messages() %}
+        <p>{{ message }}</p>
+    {% endfor %}
+
+    <h3>Note: Your email address MUST be a BYU email address.</h3>
+
+    <form method="post" action="register">
+        <label for="email">Email:</label><br>
+        <input type="text" id="email" name="email" required><br><br>
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password" required><br><br>
+        <label for="confirmpassword">Confirm Password:</label><br>
+        <input type="password" id="confirmpassword" name="confirmpassword" required><br><br>
+        <input type="submit" value="Submit">
+    </form>
+    <a href="/login">Already have an account? Sign in.</a>
+</body>
+</html>

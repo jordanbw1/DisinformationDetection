@@ -6,6 +6,10 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
 import re
+import random
+import string
+from helper_functions.database import get_db_connection
+import mysql.connector
 
 # Determine the path to the .env file
 env_path = os.path.join(os.path.dirname(sys.argv[0]), '..', '.env')
@@ -104,9 +108,123 @@ Your results csv file can be downloaded from the Disinformation Detection websit
 
 def check_email(email):
     # Regex string for checking email
-    email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'    # pass the regular expression
+    # email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'    # pass the regular expression
+    email_regex = r"""(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])"""
     # Check if email is valid
     if(re.fullmatch(email_regex, email)):
         return True
     else:
         return False
+    
+
+def send_verification_email(receiver_email):
+    if not check_email(receiver_email):
+        return False, "Bad email address"
+    
+    if not(receiver_email.endswith(".byu.edu") or receiver_email.endswith("@byu.edu")):
+        return False, "Not a BYU email address"
+
+    # Get the verification code
+    verification_code, error_message = generate_verification_code(receiver_email)
+    if not verification_code:
+        return False, error_message
+
+    sender_email = os.environ['EMAIL']
+    sender_password = os.environ['EMAIL_PASSWORD']
+
+    message = MIMEMultipart()
+    message['From'] = sender_email
+    message['To'] = receiver_email
+    message['Subject'] = "Verify Your Email - Disinformation Detection"
+    body = f"""
+    Your verification code for Disinformation Detection is: {verification_code}
+    """
+    message.attach(MIMEText(body, 'plain'))
+
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(sender_email, sender_password)
+        text = message.as_string()
+        server.sendmail(sender_email, receiver_email, text)
+        return True, "Email sent"
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return False, f"An error occurred: {e}"
+    finally:
+        server.quit()
+
+# Function to generate a random verification code
+def generate_verification_code(receiver_email):
+    # Generate code
+    verification_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+    # Insert into database
+    try:
+        # Make connection
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        # Query the database
+        sql = "INSERT INTO verify_code (user_id, code) VALUES (%s, %s)"
+        val = (receiver_email, verification_code)
+        cursor.execute(sql, val)
+        conn.commit()
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return False, f"An error occurred: {e}"
+    finally:
+        cursor.close()
+        conn.close()
+        return verification_code
+    
+
+def get_verification_code_from_db(receiver_email):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        sql = """SELECT code FROM verify_code
+                JOIN users
+                WHERE email = %s;"""
+        val = (receiver_email)
+        cursor.execute(sql, val)
+        code = cursor.fetchone()[0]
+        cursor.close()
+
+        return code, "Good"
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return False, f"An error occurred: {e}"
+    finally:
+        conn.close()
+
+def resend_verification_email(receiver_email):
+    if not check_email(receiver_email):
+        return False, "Bad email address"
+    
+    verification_code, error_message = get_verification_code_from_db(receiver_email)
+    if not verification_code:
+        return False, error_message
+
+    sender_email = os.environ['EMAIL']
+    sender_password = os.environ['EMAIL_PASSWORD']
+
+    message = MIMEMultipart()
+    message['From'] = sender_email
+    message['To'] = receiver_email
+    message['Subject'] = "Verify Your Email - Disinformation Detection"
+    body = f"""
+    Your verification code for Disinformation Detection is: {verification_code}
+    """
+    message.attach(MIMEText(body, 'plain'))
+
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(sender_email, sender_password)
+        text = message.as_string()
+        server.sendmail(sender_email, receiver_email, text)
+        return True, "Email sent"
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return False, f"An error occurred: {e}"
+    finally:
+        server.quit()
