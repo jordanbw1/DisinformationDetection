@@ -8,7 +8,6 @@ from helper_functions.email_functions import check_email, send_verification_emai
 from helper_functions.api import test_key
 from routes.documents import documents
 import mysql.connector
-import bcrypt
 from helper_functions.database import get_db_connection
 import hashlib
 
@@ -296,4 +295,4 @@ def confirmation():
     return render_template("confirmation.html", email=email, prompt=prompt)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="localhost", port=8080, ssl_context='adhoc')

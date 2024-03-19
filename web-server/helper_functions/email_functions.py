@@ -176,8 +176,7 @@ def generate_verification_code(receiver_email):
         return False, f"An error occurred: {e}"
     finally:
         conn.close()
-        
-    
+
 
 def get_verification_code_from_db(receiver_email):
     conn = get_db_connection()
