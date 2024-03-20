@@ -8,8 +8,8 @@
 <body>
     <h1>Sign In</h1>
 
-    <a href="/register">Don't have an account? Create one.</a>
-    
+    <a href="/register">Don't have an account? Create one.</a><br><br>
+
     {% for message in get_flashed_messages() %}
         <p>{{ message }}</p>
     {% endfor %}
