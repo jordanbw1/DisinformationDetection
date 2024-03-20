@@ -1,0 +1,8 @@
+Flask~=3.0.2
+mysql_connector_repackaged~=0.3.1
+python-dotenv~=1.0.1
+Requests~=2.31.0
+google-generativeai~=0.4.1
+mysql-connector-python~=8.3.0
+pandas~=2.2.1
+cryptography~=42.0.5
