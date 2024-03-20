@@ -5,10 +5,10 @@
             <a class="nav-link p-0 py-xl-3" href="/" title="Home">Home</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link p-0 py-xl-3" href="/test-key" title="Test API Key">Test API Key</a>
+            <a class="nav-link p-0 py-xl-3" href="{{url_for('documents.get_api_key')}}" title="Get API Key">Get API Key</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link p-0 py-xl-3" href="{{url_for('documents.get_api_key')}}" title="Get API Key">Get API Key</a>
+            <a class="nav-link p-0 py-xl-3" href="/test-key" title="Test API Key">Test API Key</a>
         </li>
         <li class="nav-item" style="float:right">
             <a class="nav-link p-0 py-xl-3" href="/logout" title="Sign Out">Sign Out</a>
