@@ -1,0 +1,38 @@
+.navbar-nav {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+  }
+  
+  .navbar-nav .nav-item {
+    float: left;
+  }
+  
+  .navbar-nav .nav-item a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    border-right: 1px solid #bbb;
+  }
+  
+  /* Change the link color to #111 (black) on hover */
+  .navbar-nav .nav-item a:hover {
+    background-color: #111;
+  }
+  
+  .active {
+    background-color: #04AA6D;
+  }
+  
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0; /* Ensure navbar starts from top left */
+    width: 100%;
+    z-index: 1000; /* Ensure navbar is above other elements */
+  }
+  
