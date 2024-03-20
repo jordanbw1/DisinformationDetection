@@ -4,14 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
+    <link rel="stylesheet" href="./static/page_content/register/css/emailpassword.css">
 </head>
 <body>
     <h1>Create an Account</h1>
+
+    <a href="/login">Already have an account? Sign in.</a>
     {% for message in get_flashed_messages() %}
         <p>{{ message }}</p>
     {% endfor %}
-
-    <h3>Note: Your email address MUST be a BYU email address.</h3>
 
     <form method="post" action="register">
         <label for="email">Email:</label><br>
@@ -22,6 +23,24 @@
         <input type="password" id="confirmpassword" name="confirmpassword" required><br><br>
         <input type="submit" value="Submit">
     </form>
-    <a href="/login">Already have an account? Sign in.</a>
+
+    <div id="emessage">
+        <h3>Email must meet these requirements:</h3>
+        <p id="validemail" class="invalid">Valid <b>email address</b></p>
+        <p id="byuemail" class="invalid">A <b>BYU email address</b></p>
+    </div>
+
+    <div id="message">
+        <h3>Password must contain the following:</h3>
+        <p id="letter" class="invalid">A <b>lowercase</b> letter</p>
+        <p id="capital" class="invalid">A <b>capital (uppercase)</b> letter</p>
+        <p id="number" class="invalid">A <b>number</b></p>
+        <p id="length" class="invalid">Minimum <b>8 characters</b></p>
+        <p id="same" class="invalid">Passwords must <b>match</b></p>
+    </div>
+
+    <!-- Load JavaScript for Password Strength and Validation -->
+    <script src="./static/page_content/register/js/email.js"></script>
+    <script src="./static/page_content/register/js/password.js"></script>
 </body>
 </html>

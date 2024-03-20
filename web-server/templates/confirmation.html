@@ -13,10 +13,8 @@
     {% for message in get_flashed_messages() %}
         <p>{{ message }}</p>
     {% endfor %}
-    <p>Thank you for submitting your prompt for testing! It will take about an hour to complete. Here is the prompt and email that we recieved from you.</p>
-    <ul>
-        <li>email: {{email}}</li>
-        <li>prompt: {{prompt}}</li>
-    </ul>
+    <p>Thank you for submitting your prompt for testing! It will take about an hour to complete. Here is the prompt the propmt we recieved from you.</p>
+    <br>
+    <p>prompt: {{prompt}}</p>
 </body>
 </html>

@@ -7,6 +7,9 @@
 </head>
 <body>
     <h1>Sign In</h1>
+
+    <a href="/register">Don't have an account? Create one.</a>
+    
     {% for message in get_flashed_messages() %}
         <p>{{ message }}</p>
     {% endfor %}
@@ -17,6 +20,5 @@
         <input type="password" id="password" name="password" required><br><br>
         <input type="submit" value="Submit">
     </form>
-    <a href="/register">Don't have an account? Create one.</a>
 </body>
 </html>

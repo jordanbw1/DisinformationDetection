@@ -157,7 +157,7 @@ def register():
             send_verification_email(email)
             return redirect(url_for('verify_email'))
         except mysql.connector.Error as err:
-            flash(f"Registration failed: {err}")
+            flash(f"Registration failed: unknown error occured.")
             return render_template("register.html")
         finally:
             conn.close()
@@ -218,7 +218,7 @@ def verify_email():
             session["confirmed"] = True
             return redirect(url_for('index'))
         except Exception as e:
-            flash(f"Verification failed: {e}")
+            flash(f"Verification failed: unknown error occured.")
             return redirect(url_for('verify_email'))
         finally:
             conn.close()
@@ -233,8 +233,8 @@ def resend_verify_code():
 @app.route('/submit-prompt', methods=['POST'])
 def submit_prompt():
     # Get prompt and email
+    email = session["email"]
     prompt = request.form['prompt']
-    email = request.form['email']
     api_key = request.form['api-key']
     num_rows = request.form.get('num-rows', type=int)
     if num_rows is None or num_rows < 1 or num_rows > 500:
@@ -256,8 +256,7 @@ def submit_prompt():
     thread = threading.Thread(target=run_prompt, args=(api_key,prompt,email,num_rows,))
     thread.start()
     
-    # Save their email and prompt to the session to be displayed later
-    session['email'] = email
+    # Save their prompt to the session to be displayed later
     session['prompt'] = prompt
 
     # Redirect to the confirmation page
@@ -288,11 +287,12 @@ def download(filename):
 
 @app.route('/confirmation', methods=["GET"])
 def confirmation():
-    if not session.get('email') or not session.get('prompt'):
+    # Make sure prompt is set
+    if not session.get('prompt'):
         return redirect(url_for('index'))
-    email = session.pop('email', None)
+    # Remove prompt from session
     prompt = session.pop('prompt', None)
-    return render_template("confirmation.html", email=email, prompt=prompt)
+    return render_template("confirmation.html", prompt=prompt)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
