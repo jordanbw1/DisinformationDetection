@@ -9,7 +9,7 @@
 <body>
     <h1>Create an Account</h1>
 
-    <a href="/login">Already have an account? Sign in.</a>
+    <a href="/login">Already have an account? Sign in.</a><br><br>
     {% for message in get_flashed_messages() %}
         <p>{{ message }}</p>
     {% endfor %}
@@ -18,9 +18,9 @@
         <label for="email">Email:</label><br>
         <input type="text" id="email" name="email" required><br><br>
         <label for="password">Password:</label><br>
-        <input type="password" id="password" name="password" required><br><br>
+        <input type="password" id="password" name="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" required><br><br>
         <label for="confirmpassword">Confirm Password:</label><br>
-        <input type="password" id="confirmpassword" name="confirmpassword" required><br><br>
+        <input type="password" id="confirmpassword" name="confirmpassword" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" required><br><br>
         <input type="submit" value="Submit">
     </form>
 
