@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dissinformation Detection Prompt Testing</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='page_content/index/css/index.css') }}">
 </head>
 <body>
     <!-- Include Navbar -->
@@ -15,7 +16,7 @@
     {% endfor %}
     <form method="post" action="submit-prompt">
         <label for="prompt">Prompt:</label><br>
-        <input type="text" id="prompt" name="prompt" required><br><br>
+        <textarea type="text" id="prompt" name="prompt" rows="1" oninput="autoResize(this)" required></textarea><br><br>
         <label for="api-key">Api Key:</label><br>
         <input type="text" id="api-key" name="api-key" required><br><br>
         <label for="num-rows">Number of rows to test (optional, max: 500):</label><br>
@@ -23,5 +24,7 @@
         <input type="submit" value="Submit">
     </form>
     <a href="/documents/get-key">Click here for instructions on getting your API Key</a>
+
+    <script src="{{ url_for('static', filename='page_content/index/js/index.js') }}"></script>
 </body>
 </html>
