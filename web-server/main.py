@@ -9,6 +9,7 @@ from helper_functions.api import test_key
 from routes.documents import documents
 import mysql.connector
 from helper_functions.database import get_db_connection
+from helper_functions.prompt import append_instructions
 import hashlib
 
 
@@ -244,20 +245,21 @@ def submit_prompt():
     # Ensure that correct email syntax is used
     if not check_email(email=email):
         flash("The email address you provided does not meet correct email format guidelines. Please try again.")
-        return render_template('index.html')
+        return redirect(url_for('index'))
     
     # Test API key before starting
     success, message = test_key(api_key=api_key)
     if not success:
         flash(message)
-        return render_template('index.html')
+        return redirect(url_for('index'))
     
+    full_prompt = append_instructions(prompt=prompt)
     # Create a thread and pass the function to it
-    thread = threading.Thread(target=run_prompt, args=(api_key,prompt,email,num_rows,))
+    thread = threading.Thread(target=run_prompt, args=(api_key,full_prompt,email,num_rows,))
     thread.start()
     
     # Save their prompt to the session to be displayed later
-    session['prompt'] = prompt
+    session['prompt'] = full_prompt
 
     # Redirect to the confirmation page
     return redirect(url_for('confirmation'))
@@ -273,7 +275,7 @@ def test_key_route():
         if status:
             flash("Your API key successfully established a connection!")
         else:
-            flash(f"Your API key failed to establish a connection.")
+            flash("Your API key failed to establish a connection.")
 
         # Redirect to the confirmation page
         return render_template("test_key.html")

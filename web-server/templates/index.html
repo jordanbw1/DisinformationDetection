@@ -10,20 +10,30 @@
     <!-- Include Navbar -->
     {% include "macros/navbar.html" ignore missing with context %}
 
-    <h1>Dissinformation Detection Prompt Testing</h1>
+    <br><h1>Dissinformation Detection Prompt Testing</h1><br>
     {% for message in get_flashed_messages() %}
         <p>{{ message }}</p>
     {% endfor %}
-    <form method="post" action="submit-prompt">
-        <label for="prompt">Prompt:</label><br>
-        <textarea type="text" id="prompt" name="prompt" rows="1" oninput="autoResize(this)" required></textarea><br><br>
-        <label for="api-key">Api Key:</label><br>
-        <input type="text" id="api-key" name="api-key" required><br><br>
-        <label for="num-rows">Number of rows to test (optional, max: 500):</label><br>
-        <input type="number" id="num-rows" name="num-rows" min="1" max="500"><br><br>
-        <input type="submit" value="Submit">
-    </form>
-    <a href="/documents/get-key">Click here for instructions on getting your API Key</a>
+    
+    <div class="container">
+        <div id="promptform">
+            <form method="post" action="submit-prompt">
+                <label for="prompt">Prompt:</label><br>
+                <textarea type="text" id="prompt" name="prompt" rows="1" oninput="autoResize(this)" required></textarea><br><br>
+                <label for="api-key">API Key:</label><br>
+                <input type="text" id="api-key" name="api-key" required><br><br>
+                <label for="num-rows">Number of rows to test (optional, max: 500):</label><br>
+                <input type="number" id="num-rows" name="num-rows" min="1" max="500"><br><br>
+                <input class="submit" type="submit" value="Submit">
+            </form>
+        </div>
+
+        <!-- Show prompt to user -->
+        <div id="aipromptdiv">
+            <label for="aiprompt">Prompt that will be sent to AI:</label>
+            <textarea type="text" id="aiprompt" readonly></textarea>
+        </div>
+    </div>
 
     <script src="{{ url_for('static', filename='page_content/index/js/index.js') }}"></script>
 </body>
