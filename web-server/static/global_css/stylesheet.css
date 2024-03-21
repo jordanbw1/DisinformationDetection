@@ -1,0 +1,25 @@
+/* Styling flashed messages */
+.flash {
+    margin-bottom: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* Success message */
+.flash-success {
+    background-color: #4CAF50; /* Green */
+    color: white;
+}
+
+/* Informational message */
+.flash-info {
+    background-color: #2196F3; /* Blue */
+    color: white;
+}
+
+/* Error message */
+.flash-error {
+    background-color: #f44336; /* Red */
+    color: white;
+}

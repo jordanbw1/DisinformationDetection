@@ -5,16 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dissinformation Detection Prompt Testing</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='page_content/index/css/index.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='global_css/stylesheet.css') }}">
 </head>
 <body>
     <!-- Include Navbar -->
     {% include "macros/navbar.html" ignore missing with context %}
 
+    <!-- Get Flask messages -->
+    {% include "macros/flask_messages.html" ignore missing with context %}
+
     <br><h1>Dissinformation Detection Prompt Testing</h1><br>
-    {% for message in get_flashed_messages() %}
-        <p>{{ message }}</p>
-    {% endfor %}
-    
+
     <div class="container">
         <div id="promptform">
             <form method="post" action="submit-prompt">

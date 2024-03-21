@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verify Email</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='global_css/stylesheet.css') }}">
 </head>
 <body>
+    <!-- Get Flask messages -->
+    {% include "macros/flask_messages.html" ignore missing with context %}
+
     <h1>Verify Email</h1>
-    {% for message in get_flashed_messages() %}
-        <p>{{ message }}</p>
-    {% endfor %}
+
     <p>Your email address has been sent a verification code. It may take a few minutes for the email to appear. Make sure to check your spam folder. Provide the code to verify your account.</p>
     <form method="post" action="verify-email">
         <label for="code">Code:</label><br>

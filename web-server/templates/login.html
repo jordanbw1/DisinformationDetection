@@ -4,15 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='global_css/stylesheet.css') }}">
 </head>
 <body>
+    <!-- Get Flask messages -->
+    {% include "macros/flask_messages.html" ignore missing with context %}
+
     <h1>Sign In</h1>
 
     <a href="/register">Don't have an account? Create one.</a><br><br>
 
-    {% for message in get_flashed_messages() %}
-        <p>{{ message }}</p>
-    {% endfor %}
     <form method="post" action="login">
         <label for="email">Email:</label><br>
         <input type="text" id="email" name="email" required><br><br>

@@ -81,7 +81,7 @@ def login():
 
             # If no result found for the given username, return False
             if not result:
-                flash(f"Username or password is invalid")
+                flash(f"Username or password is invalid", 'error')
                 return render_template("login.html")
 
             # Extract the hashed password from the result
@@ -90,7 +90,7 @@ def login():
             hashed_password = hashlib.sha256(password.encode()).hexdigest()
             # Compare the hashed passwords
             if hashed_password != hashed_password_in_db:
-                flash(f"Username or password is invalid")
+                flash(f"Username or password is invalid", 'error')
                 return render_template("login.html")
             # Set user as logged in
             session["email"] = email
@@ -99,7 +99,7 @@ def login():
             return redirect(url_for('index'))
 
         except mysql.connector.Error as err:
-            flash(f"Unknown error occured during login.")
+            flash(f"Unknown error occured during login.", 'error')
             return render_template("login.html")
         finally:
             conn.close()
@@ -126,7 +126,7 @@ def register():
 
         # Confirm that passwords match
         if password != confirm_password:
-            flash("Password and confirm password do not match")
+            flash("Password and confirm password do not match", 'error')
             return render_template("register.html")
         
         # Confirm strong password
@@ -137,7 +137,7 @@ def register():
 
         # Use regex to confirm email is valid email format
         if not check_email(email):
-            flash("Invalid email format")
+            flash("Invalid email format", 'error')
             return render_template("register.html")
         
         # Hash the password
@@ -158,7 +158,7 @@ def register():
             send_verification_email(email)
             return redirect(url_for('verify_email'))
         except mysql.connector.Error as err:
-            flash(f"Registration failed: unknown error occured.")
+            flash(f"Registration failed: unknown error occured.", 'error')
             return render_template("register.html")
         finally:
             conn.close()
@@ -219,7 +219,7 @@ def verify_email():
             session["confirmed"] = True
             return redirect(url_for('index'))
         except Exception as e:
-            flash(f"Verification failed: unknown error occured.")
+            flash(f"Verification failed: unknown error occured.", 'error')
             return redirect(url_for('verify_email'))
         finally:
             conn.close()
@@ -244,13 +244,13 @@ def submit_prompt():
 
     # Ensure that correct email syntax is used
     if not check_email(email=email):
-        flash("The email address you provided does not meet correct email format guidelines. Please try again.")
+        flash("The email address you provided does not meet correct email format guidelines. Please try again.", 'error')
         return redirect(url_for('index'))
     
     # Test API key before starting
     success, message = test_key(api_key=api_key)
     if not success:
-        flash(message)
+        flash(f"API Key error: {message}", 'error')
         return redirect(url_for('index'))
     
     # Add instructions to the user's prompt
@@ -278,9 +278,9 @@ def test_key_route():
         status, message = test_key(api_key)
 
         if status:
-            flash("Your API key successfully established a connection!")
+            flash("Your API key successfully established a connection!", 'success')
         else:
-            flash("Your API key failed to establish a connection.")
+            flash("Your API key failed to establish a connection.", 'error')
 
         # Redirect to the confirmation page
         return render_template("test_key.html")

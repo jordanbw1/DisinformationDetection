@@ -4,15 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test API Key</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='global_css/stylesheet.css') }}">
 </head>
 <body>
     <!-- Include Navbar -->
     {% include "macros/navbar.html" ignore missing with context %}
+
+    <!-- Get Flask messages -->
+    {% include "macros/flask_messages.html" ignore missing with context %}
     
     <h1>Test API Key</h1>
-    {% for message in get_flashed_messages() %}
-        <p>{{ message }}</p>
-    {% endfor %}
+
     <h2>Please enter your API key to test if your connection works.</h2>
     <form method="post" action="test-key">
         <label for="api-key">Api Key:</label><br>

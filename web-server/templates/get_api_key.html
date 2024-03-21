@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Get API Key Instructions</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='global_css/stylesheet.css') }}">
 </head>
 <body>
     <!-- Include Navbar -->
     {% include "macros/navbar.html" ignore missing with context %}
     
-    {% for message in get_flashed_messages() %}
-        <p>{{ message }}</p>
-    {% endfor %}
+    <!-- Get Flask messages -->
+    {% include "macros/flask_messages.html" ignore missing with context %}
 
     <h1>Instructions for Getting Your API Key</h1>
 
