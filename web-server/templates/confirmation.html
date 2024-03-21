@@ -4,17 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Confirmation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='page_content/confirmation/css/confirmation.css') }}">
 </head>
 <body>
     <!-- Include Navbar -->
     {% include "macros/navbar.html" ignore missing with context %}
     
-    <h1>Confirmation</h1>
+    <br><h1>Confirmation</h1>
     {% for message in get_flashed_messages() %}
         <p>{{ message }}</p>
     {% endfor %}
-    <p>Thank you for submitting your prompt for testing! It will take about an hour to complete. Here is the prompt the prompt we recieved from you.</p>
-    <br>
-    <p>prompt: {{prompt}}</p>
+
+    <div class="container" id="promptdiv">
+        <p>Thank you for submitting your prompt for testing! Your results will be available within approximately one hour. Below is the prompt that was submitted to the AI.</p>
+        <br>
+        
+        <label for="sentprompt">Prompt Sent:</label>
+        <textarea type="text" id="sentprompt" readonly>{{prompt}}</textarea>
+    </div>
 </body>
 </html>

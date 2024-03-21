@@ -1,0 +1,44 @@
+h1 {
+    font-size: 2rem;
+    color: #333; /* Change color as needed */
+    margin-bottom: 2rem; /* Add spacing below the heading */
+    text-align: center; /* Center the text */
+    font-family: 'Montserrat', sans-serif; /* Add Montserrat font */
+    font-weight: bold;
+    width: 100%; /* Take full width */
+}
+
+
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Align content to the top */
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 20px; /* Add some space between h1 and container */
+}
+
+.container {
+    max-width: 800px;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: #f9f9f9; /* Add a background color */
+    border-radius: 10px; /* Add some rounded corners */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add a subtle box shadow */
+}
+
+.container p {
+    font-size: 1.1rem; /* Increase font size */
+    line-height: 1.6; /* Increase line height for better readability */
+}
+
+#sentprompt {
+    width: 100%;
+    min-height: 200px; /* Set a minimum height for the textarea */
+}
