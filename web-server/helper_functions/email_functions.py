@@ -9,7 +9,6 @@ import re
 import random
 import string
 from helper_functions.database import get_db_connection
-import mysql.connector
 
 # Determine the path to the .env file
 env_path = os.path.join(os.path.dirname(sys.argv[0]), '..', '.env')

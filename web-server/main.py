@@ -253,9 +253,14 @@ def submit_prompt():
         flash(message)
         return redirect(url_for('index'))
     
+    # Add instructions to the user's prompt
     full_prompt = append_instructions(prompt=prompt)
+
+    # Get the url for the server
+    base_url = request.host_url
+
     # Create a thread and pass the function to it
-    thread = threading.Thread(target=run_prompt, args=(api_key,full_prompt,email,num_rows,))
+    thread = threading.Thread(target=run_prompt, args=(api_key,full_prompt,email,base_url,num_rows,))
     thread.start()
     
     # Save their prompt to the session to be displayed later

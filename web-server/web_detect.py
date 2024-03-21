@@ -6,7 +6,7 @@ from helper_functions.email_functions import send_email
 import pandas as pd
 
 
-def run_prompt(api_key, prompt, email, num_rows=300):
+def run_prompt(api_key, prompt, email, base_url, num_rows=300):
     if num_rows > 500 or num_rows < 1:
         print("Too many or too few rows requested, using the default of 300")
         num_rows = 300
@@ -17,7 +17,7 @@ def run_prompt(api_key, prompt, email, num_rows=300):
     in_file = os.path.join(datasets_directory, "WELFake", "WELFake_Dataset_5000.csv")
     out_file_name = str(uuid.uuid4()) + ".csv"
     out_file = os.path.join(script_directory, "dynamic", "prompt_results", out_file_name)
-    file_download_path = os.path.join("downloads", out_file_name) # This will allow us to send an email with the download path
+    file_download_path = base_url + f"/download/{out_file_name}"
     data = []
     dataset_name = "WELFake Dataset"
     subject = "US_politics"
