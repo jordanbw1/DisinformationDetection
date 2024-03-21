@@ -32,3 +32,24 @@ function updateAIPrompt() {
 
 // Add event listener to prompt input box to trigger the updateAIPrompt function on input change
 document.getElementById("prompt").addEventListener("input", updateAIPrompt);
+
+// Prevnt num-rows from being set out of bounds.
+document.addEventListener("DOMContentLoaded", function() {
+    // Get the input element for num-rows
+    var numRowsInput = document.getElementById("num-rows");
+
+    // Add an event listener for the input event
+    numRowsInput.addEventListener("input", function() {
+        // Get the current value of the input
+        var currentValue = parseInt(numRowsInput.value);
+
+        // Check if the value is less than 0
+        if (currentValue < 0) {
+            numRowsInput.value = 0; // Set the value to 0
+        }
+        // Check if the value is greater than 500
+        else if (currentValue > 500) {
+            numRowsInput.value = 500; // Set the value to 500
+        }
+    });
+});
