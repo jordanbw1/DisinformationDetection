@@ -6,23 +6,34 @@
     <title>Register</title>
     <link rel="stylesheet" href="./static/page_content/register/css/emailpassword.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='global_css/stylesheet.css') }}">
+    <link rel="stylesheet" media="screen" href="{{ url_for('static', filename='page_content/register/css/stylesheet.css') }}">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Get Flask messages -->
     {% include "macros/flask_messages.html" ignore missing with context %}
 
-    <h1>Create an Account</h1>
-
-    <a href="/login">Already have an account? Sign in.</a><br><br>
+    <div class="background">
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
 
     <form method="post" action="register">
-        <label for="email">Email:</label><br>
-        <input type="text" id="email" name="email" required><br><br>
-        <label for="password">Password:</label><br>
-        <input type="password" id="password" name="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" required><br><br>
-        <label for="confirmpassword">Confirm Password:</label><br>
-        <input type="password" id="confirmpassword" name="confirmpassword" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" required><br><br>
-        <input type="submit" value="Submit">
+        <h3>Create an Account</h3>
+
+        <label for="email">Email:</label>
+        <input type="text" id="email" name="email" required>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" required>
+        <label for="confirmpassword">Confirm Password:</label>
+        <input type="password" id="confirmpassword" name="confirmpassword" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" required>
+        <input type="submit" id="registerbutton" value="Create Account">
+        
+        <div class="loginarea">
+            <span>Already have an account? <a href="/login">Sign In</a></span>
+        </div>
     </form>
 
     <div id="emessage">

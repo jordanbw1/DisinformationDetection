@@ -5,21 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='global_css/stylesheet.css') }}">
+    <link rel="stylesheet" media="screen" href="{{ url_for('static', filename='page_content/login/css/stylesheet.css') }}">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Get Flask messages -->
     {% include "macros/flask_messages.html" ignore missing with context %}
 
-    <h1>Sign In</h1>
-
-    <a href="/register">Don't have an account? Create one.</a><br><br>
+    <div class="background">
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
 
     <form method="post" action="login">
-        <label for="email">Email:</label><br>
-        <input type="text" id="email" name="email" required><br><br>
+        <h3>Sign In</h3>
+
+        <label for="email">Email:</label>
+        <input type="text" id="email" name="email" required>
         <label for="password">Password:</label><br>
-        <input type="password" id="password" name="password" required><br><br>
-        <input type="submit" value="Submit">
+        <input type="password" id="password" name="password" required>
+        <input type="submit" id="loginbutton" value="Log In"><br>
+
+        <div class="register-forget">
+            <a href="/register">REGISTER</a>
+            <a href="">FORGOT PASSWORD</a>
+        </div>
     </form>
 </body>
 </html>
