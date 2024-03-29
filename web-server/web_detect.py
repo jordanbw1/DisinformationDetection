@@ -113,18 +113,18 @@ def run_prompt(api_key, prompt, email, base_url, num_rows=300):
                 if str(label) == str(res[0]):
                     correct = 1
                     stats["num_correct"] += 1
-                    stats["tPos"] += 1
-                else:
-                    correct = 0
-                    stats["fNeg"] += 1
-            else:
-                if str(label) == str(res[0]):
-                    correct = 1
-                    stats["num_correct"] += 1
                     stats["tNeg"] += 1
                 else:
                     correct = 0
                     stats["fPos"] += 1
+            else:
+                if str(label) == str(res[0]):
+                    correct = 1
+                    stats["num_correct"] += 1
+                    stats["tPos"] += 1
+                else:
+                    correct = 0
+                    stats["fNeg"] += 1
 
             # Create the new row of data for output csv
             new_list = []
