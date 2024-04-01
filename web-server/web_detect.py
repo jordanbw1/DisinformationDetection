@@ -4,6 +4,7 @@ import os
 import uuid
 from helper_functions.email_functions import send_email
 import pandas as pd
+from helper_functions.stats import compute_sheet_stats
 
 
 def run_prompt(api_key, prompt, email, base_url, num_rows=300):
@@ -15,14 +16,16 @@ def run_prompt(api_key, prompt, email, base_url, num_rows=300):
     parent_directory = os.path.dirname(script_directory)
     datasets_directory = os.path.join(parent_directory, "Datasets")
     in_file = os.path.join(datasets_directory, "WELFake", "WELFake_Dataset_5000.csv")
-    out_file_name = str(uuid.uuid4()) + ".csv"
-    out_file = os.path.join(script_directory, "dynamic", "prompt_results", out_file_name)
-    file_download_path = base_url + f"download/{out_file_name}"
+    uuid_name = str(uuid.uuid4())
+    out_csv_file_name = f"{uuid_name}.csv"
+    out_xlsx_file_name = f"{uuid_name}.xlsx"
+    out_file = os.path.join(script_directory, "dynamic", "prompt_results", out_csv_file_name)
+    csv_download_path = base_url + f"download/{out_csv_file_name}"
+    xlsx_download_path = base_url + f"download/{out_xlsx_file_name}"
     data = []
     dataset_name = "WELFake Dataset"
     subject = "US_politics"
     i = 0
-    stats = {"tPos": 0, "tNeg": 0, "fPos": 0, "fNeg": 0, "num_correct": 0, "num_rows": num_rows}
 
     # Configure Gemini API
     genai.configure(api_key=api_key)
@@ -112,19 +115,13 @@ def run_prompt(api_key, prompt, email, base_url, num_rows=300):
             if label == 0:
                 if str(label) == str(res[0]):
                     correct = 1
-                    stats["num_correct"] += 1
-                    stats["tNeg"] += 1
                 else:
                     correct = 0
-                    stats["fPos"] += 1
             else:
                 if str(label) == str(res[0]):
                     correct = 1
-                    stats["num_correct"] += 1
-                    stats["tPos"] += 1
                 else:
                     correct = 0
-                    stats["fNeg"] += 1
 
             # Create the new row of data for output csv
             new_list = []
@@ -161,8 +158,10 @@ def run_prompt(api_key, prompt, email, base_url, num_rows=300):
             csv_writer = csv.writer(csv_file)
             csv_writer.writerows(data)
 
+    # Create xlsx with stats
+    stats = compute_sheet_stats(out_csv_file_name, out_xlsx_file_name)
 
     # Send CSV file as attachment via email
-    send_email(email, file_download_path, stats, prompt)
+    send_email(email, csv_download_path, xlsx_download_path, stats, prompt)
 
     return

@@ -16,7 +16,7 @@ env_path = os.path.join(os.path.dirname(sys.argv[0]), '..', '.env')
 # Load .env variables
 load_dotenv(env_path)
 
-def send_email(receiver_email, file_download_link, stats, prompt):
+def send_email(receiver_email, csv_download_link, xlsx_download_link, stats, prompt):
     sender_email = os.environ['EMAIL']
     sender_password = os.environ['EMAIL_PASSWORD']
 
@@ -27,33 +27,8 @@ def send_email(receiver_email, file_download_link, stats, prompt):
 
     # prep body variables
     stats["prompt"] = prompt
-    stats["download_link"] = file_download_link
-    stats["percent_correct"] = math.floor((stats["num_correct"] / stats["num_rows"]) * 100)
-    stats["percent_tPos"] = math.floor((stats["tPos"] / stats["num_rows"]) * 100)
-    stats["percent_fPos"] = math.floor((stats["fPos"] / stats["num_rows"]) * 100)
-    stats["percent_tNeg"] = math.floor((stats["tNeg"] / stats["num_rows"]) * 100)
-    stats["percent_fNeg"] = math.floor((stats["fNeg"] / stats["num_rows"]) * 100)
-    
-    # Calculate Accuracy
-    stats["accuracy"] = round(stats["num_correct"] / stats["num_rows"], 2)
-
-    # Calculate Recall
-    if stats["tPos"] + stats["fNeg"] == 0:
-        stats["recall"] = 0
-    else:
-        stats["recall"] = round(stats["tPos"] / (stats["tPos"] + stats["fNeg"]), 2)
-
-    # Calculate Precision
-    if stats["tPos"] + stats["fPos"] == 0:
-        stats["precision"] = 0
-    else:
-        stats["precision"] = round(stats["tPos"] / (stats["tPos"] + stats["fPos"]), 2)
-
-    # Calculate F-score
-    if stats["precision"] + stats["recall"] == 0:
-        stats["fscore"] = 0
-    else:
-        stats["fscore"] = round(2 * ((stats["precision"] * stats["recall"]) / (stats["precision"] + stats["recall"])), 2)
+    stats["csv_download_link"] = csv_download_link
+    stats["xlsx_download_link"] = xlsx_download_link
     
     # write body of email
     body = """Your Disinformation Detection prompt results:
@@ -65,16 +40,16 @@ Your prompt identified {num_correct}/{num_rows} ({percent_correct}%) posts corre
 Statistics:
 
 True Positives (AI identifies as disinformation when post is actually disinformation):
-    {tPos}/{num_rows} ({percent_tPos}%)
+    {tPos}/{num_rows} ({percent_TPR}%)
 
 False Positives (AI identifies as disinformation when post is true):
-    {fPos}/{num_rows} ({percent_fPos}%)
+    {fPos}/{num_rows} ({percent_FPR}%)
 
 True Negatives (AI identifies as true when post is actually true):
-    {tNeg}/{num_rows} ({percent_tNeg}%)
+    {tNeg}/{num_rows} ({percent_TNR}%)
 
 False Negatives (AI identifies as true when post is actually disinformation):
-    {fNeg}/{num_rows} ({percent_fNeg}%)
+    {fNeg}/{num_rows} ({percent_FNR}%)
 
 Accuracy: {accuracy}
 Recall: {recall}
@@ -84,7 +59,8 @@ fScore: {fscore}
 If you have any questions on the meaning of these statistics you can visit this site: https://blog.nillsf.com/index.php/2020/05/23/
 confusion-matrix-accuracy-recall-precision-false-positive-rate-and-f-scores-explained/
 
-Your results csv file can be downloaded from the Disinformation Detection website using the following link: {download_link}
+Your results xlsx file can be downloaded from the Disinformation Detection website using the following link: {xlsx_download_link}
+Alternatively, if you are unable to open xlsx files, you can download a csv file containing your results using the following link: {csv_download_link}
 """.format(**stats)
     
     # testing

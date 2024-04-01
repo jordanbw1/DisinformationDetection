@@ -6,3 +6,4 @@ google-generativeai~=0.4.1
 mysql-connector-python~=8.3.0
 pandas~=2.2.1
 cryptography~=42.0.5
+openpyxl~=3.1.2
