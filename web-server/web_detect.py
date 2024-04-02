@@ -125,7 +125,7 @@ def run_prompt(api_key, prompt, email, base_url, num_rows=300):
 
             # Create the new row of data for output csv
             new_list = []
-            new_list.append(i) # id
+            new_list.append(index) # id
             new_list.append(dataset_name) # dataset
             new_list.append(row["text"]) # text
             new_list.append(subject) # subject

@@ -171,8 +171,6 @@ def compute_sheet_stats(inFileName, outFileName):
 
     # Pivot for confidence level
     # Prepare Headers
-    pivot_sheet.append(["Confusion Matrix for Confidence Level"])
-    pivot_header_row_indices.append(pivot_sheet.max_row)
     pivot_sheet.append(["AI Confidence Rating", "Count of Responses"])
     pivot_header_row_indices.append(pivot_sheet.max_row)
     # Append Rows
@@ -189,9 +187,7 @@ def compute_sheet_stats(inFileName, outFileName):
     pivot_sheet.append([])
     pivot_sheet.append([])
 
-    pivot_sheet.append(["Pivot Table for truth_level"])
-    pivot_header_row_indices.append(pivot_sheet.max_row)
-    pivot_sheet.append(["AI Confidence Rating", "Count of Responses"])
+    pivot_sheet.append(["AI Truth Level Rating", "Count of Responses"])
     pivot_header_row_indices.append(pivot_sheet.max_row)
     # Append Rows
     truth_total = 0
