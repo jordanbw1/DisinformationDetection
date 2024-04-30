@@ -11,6 +11,7 @@ import mysql.connector
 from helper_functions.database import get_db_connection
 from helper_functions.prompt import append_instructions
 import hashlib
+import secrets
 
 
 # Decorator used to exempt route from requiring login
@@ -69,7 +70,7 @@ def login():
         cursor = conn.cursor()
         try:
             # Execute the SQL query to fetch the hashed password associated with the username
-            query = "SELECT password, confirmed FROM users WHERE email = %s"
+            query = "SELECT password, salt, confirmed FROM users WHERE email = %s"
             cursor.execute(query, (email,))
             result = cursor.fetchone()
             cursor.close()
@@ -80,10 +81,13 @@ def login():
                 flash(f"Username or password is invalid", 'error')
                 return render_template("login.html")
 
-            # Extract the hashed password from the result
+            # Extract the hashed password and salt from the result
             hashed_password_in_db = result[0]
-            # Hash the provided password
-            hashed_password = hashlib.sha256(password.encode()).hexdigest()
+            salt = result[1]
+
+            # Hash the provided password with the retrieved salt
+            hashed_password = hash_password(password, salt)
+            
             # Compare the hashed passwords
             if hashed_password != hashed_password_in_db:
                 flash(f"Username or password is invalid", 'error')
@@ -136,14 +140,17 @@ def register():
             flash("Invalid email format", 'error')
             return render_template("register.html")
         
-        # Hash the password
-        hashed_password = hashlib.sha256(password.encode()).hexdigest()
+        # Generate salt
+        salt = generate_salt()
+        
+        # Hash the password with salt
+        hashed_password = hash_password(password, salt)
         
         # Insert
         conn = get_db_connection()
         cursor = conn.cursor()
         try:
-            cursor.execute("INSERT INTO users (email, password) VALUES (%s, %s);", (email, hashed_password))
+            cursor.execute("INSERT INTO users (email, password, salt) VALUES (%s, %s, %s);", (email, hashed_password, salt))
             conn.commit()
             cursor.close()
             conn.close()
@@ -296,6 +303,16 @@ def confirmation():
     # Remove prompt from session
     prompt = session.pop('prompt', None)
     return render_template("confirmation.html", prompt=prompt)
+
+## --------- Helper Functions --------- ##
+# Generate a random salt
+def generate_salt():
+    return secrets.token_hex(16)  # 16 bytes = 128 bits
+
+# Hash the password with the provided salt
+def hash_password(password, salt):
+    return hashlib.sha256((password + salt).encode()).hexdigest()
+## --------- End Helper Functions --------- ##
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)
