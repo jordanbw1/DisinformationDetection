@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-    <link rel="stylesheet" href="./static/page_content/register/css/emailpassword.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='page_content/register/css/emailpassword.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='global_css/stylesheet.css') }}">
     <link rel="stylesheet" media="screen" href="{{ url_for('static', filename='page_content/register/css/stylesheet.css') }}">
     <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -52,7 +52,7 @@
     </div>
 
     <!-- Load JavaScript for Password Strength and Validation -->
-    <script src="./static/page_content/register/js/email.js"></script>
-    <script src="./static/page_content/register/js/password.js"></script>
+    <script src="{{ url_for('static', filename='page_content/register/js/email.js') }}"></script>
+    <script src="{{ url_for('static', filename='page_content/register/js/password.js') }}"></script>
 </body>
 </html>

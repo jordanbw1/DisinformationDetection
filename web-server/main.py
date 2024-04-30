@@ -4,12 +4,13 @@ import threading
 import os
 import sys
 from dotenv import load_dotenv
-from helper_functions.email_functions import check_email, send_verification_email, resend_verification_email, validate_password
+from helper_functions.email_functions import check_email, send_verification_email, resend_verification_email, validate_password, send_reset_password_email
 from helper_functions.api import test_key
 from routes.documents import documents
 import mysql.connector
-from helper_functions.database import get_db_connection
+from helper_functions.database import get_db_connection, execute_sql, sql_results_one
 from helper_functions.prompt import append_instructions
+from helper_functions.reset_password import is_valid_token, get_user_from_token
 import hashlib
 import secrets
 
@@ -70,7 +71,7 @@ def login():
         cursor = conn.cursor()
         try:
             # Execute the SQL query to fetch the hashed password associated with the username
-            query = "SELECT password, salt, confirmed FROM users WHERE email = %s"
+            query = "SELECT user_id, password, salt, confirmed FROM users WHERE email = %s"
             cursor.execute(query, (email,))
             result = cursor.fetchone()
             cursor.close()
@@ -82,8 +83,8 @@ def login():
                 return render_template("login.html")
 
             # Extract the hashed password and salt from the result
-            hashed_password_in_db = result[0]
-            salt = result[1]
+            hashed_password_in_db = result[1]
+            salt = result[2]
 
             # Hash the provided password with the retrieved salt
             hashed_password = hash_password(password, salt)
@@ -93,13 +94,14 @@ def login():
                 flash(f"Username or password is invalid", 'error')
                 return render_template("login.html")
             # Set user as logged in
+            session["user_id"] = result[0]
             session["email"] = email
             session["confirmed"] = bool(result[1])
 
             return redirect(url_for('index'))
 
         except mysql.connector.Error as err:
-            flash(f"Unknown error occured during login.", 'error')
+            flash(f"Unknown error occurred during login.", 'error')
             return render_template("login.html")
         finally:
             conn.close()
@@ -107,6 +109,7 @@ def login():
 @app.route('/logout')
 @login_exempt
 def logout():
+    session.pop('user_id', None)
     session.pop('email', None)
     session.pop('confirmed', None)
     return redirect(url_for('login'))
@@ -132,7 +135,7 @@ def register():
         # Confirm strong password
         status, message = validate_password(password)
         if not status:
-            flash(message)
+            flash(message, 'error')
             return render_template("register.html")
 
         # Use regex to confirm email is valid email format
@@ -146,25 +149,26 @@ def register():
         # Hash the password with salt
         hashed_password = hash_password(password, salt)
         
-        # Insert
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        try:
-            cursor.execute("INSERT INTO users (email, password, salt) VALUES (%s, %s, %s);", (email, hashed_password, salt))
-            conn.commit()
-            cursor.close()
-            conn.close()
-            session["email"] = email
-            # Mark user as not confirmed
-            session['confirmed'] = False
-            # Send verification code to email
-            send_verification_email(email)
-            return redirect(url_for('verify_email'))
-        except mysql.connector.Error as err:
-            flash(f"Registration failed: unknown error occured.", 'error')
+        status, message = execute_sql("INSERT INTO users (email, password, salt) VALUES (%s, %s, %s);", (email, hashed_password, salt))
+        if not status:
+            flash(f"Registration failed: {message}", 'error')
             return render_template("register.html")
-        finally:
-            conn.close()
+        
+        # Get the user_id
+        status, message, result = sql_results_one("SELECT user_id FROM users WHERE email = %s;", (email,))
+        if not status or not result:
+            flash(f"Registration failed: {message}", 'error')
+            return render_template("register.html")
+        user_id = result[0]
+
+        # Set session variables
+        session["user_id"] = user_id
+        session["email"] = email
+        session['confirmed'] = False
+
+        # Send verification code to email
+        send_verification_email(email)
+        return redirect(url_for('verify_email'))
 
 @app.route('/verify-email', methods=['GET', 'POST'])
 @login_exempt
@@ -222,7 +226,7 @@ def verify_email():
             session["confirmed"] = True
             return redirect(url_for('index'))
         except Exception as e:
-            flash(f"Verification failed: unknown error occured.", 'error')
+            flash(f"Verification failed: unknown error occurred.", 'error')
             return redirect(url_for('verify_email'))
         finally:
             conn.close()
@@ -303,6 +307,92 @@ def confirmation():
     # Remove prompt from session
     prompt = session.pop('prompt', None)
     return render_template("confirmation.html", prompt=prompt)
+
+# Define a route for the reset password request form
+@app.route('/forgot-password', methods=['GET', 'POST'])
+@login_exempt
+def forgot_password():
+    if request.method == 'GET':
+        return render_template('forgot_password.html')
+    elif request.method == 'POST':
+        email = request.form['email']
+
+        # Send an email to the user with a link to the reset password page
+        base_url = request.host_url
+        status, message = send_reset_password_email(base_url, email)
+        if not status:
+            flash(f"Error sending reset password email: {message}", 'error')
+            return render_template('forgot_password.html')
+
+        # Redirect the user to a confirmation page
+        return redirect(url_for('reset_password_confirmation'))
+
+# Define a route for the reset password page
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+@login_exempt
+def reset_password(token):    
+    if request.method == 'GET':
+        # Verify the token and check if it's still valid
+        status, message = is_valid_token(token)
+        if not status:
+            flash(message, 'error')
+            return redirect(url_for('forgot_password'))
+        return render_template('reset_password.html')
+    elif request.method == 'POST':
+        # Verify the token and check if it's still valid
+        status, message = is_valid_token(token)
+        if not status:
+            flash(message, 'error')
+            return redirect(url_for('forgot_password'))
+        
+        # Get passwords from the form
+        new_password = request.form['password']
+        confirm_password = request.form['confirmpassword']
+
+        # Confirm that passwords match
+        if new_password != confirm_password:
+            flash("Password and confirm password do not match", 'error')
+            return render_template('reset_password.html')
+        
+        # Confirm strong password
+        status, message = validate_password(new_password)
+        if not status:
+            flash(message, 'error')
+            return render_template("reset_password.html")
+
+        # Get the user_id associated with the token
+        status, message, user_id = get_user_from_token(token)
+        if not status:
+            flash(message, 'error')
+            return redirect(url_for('forgot_password'))
+        
+        # Update the user's password in the database
+        # Generate salt
+        salt = generate_salt()
+        
+        # Hash the password with salt
+        hashed_password = hash_password(new_password, salt)
+        
+        # Update the password
+        status, message = execute_sql("UPDATE users SET password = %s, salt = %s WHERE user_id = %s;", (hashed_password, salt, user_id))
+        if not status:
+            flash(f"Error updating password: {message}", 'error')
+            return render_template('reset_password.html')
+
+        # Delete the token from the database
+        status, message = execute_sql("DELETE FROM password_reset_tokens WHERE token = %s;", (token,))
+        if not status:
+            flash(f"Error deleting password reset token: {message}", 'error')
+            return render_template('reset_password.html')
+
+        # Redirect the user to a confirmation page or login page
+        return redirect(url_for('login'))  # You can choose where to redirect after password reset
+
+# Define a route for the reset password confirmation page
+@app.route('/reset-password-confirmation', methods=['GET'])
+@login_exempt
+def reset_password_confirmation():
+    return render_template('reset_password_confirmation.html')
 
 ## --------- Helper Functions --------- ##
 # Generate a random salt

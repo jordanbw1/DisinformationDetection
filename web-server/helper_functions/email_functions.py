@@ -8,7 +8,8 @@ from dotenv import load_dotenv
 import re
 import random
 import string
-from helper_functions.database import get_db_connection
+from helper_functions.database import get_db_connection, execute_sql, sql_results_one
+from helper_functions.reset_password import create_password_reset_token
 
 # Determine the path to the .env file
 env_path = os.path.join(os.path.dirname(sys.argv[0]), '..', '.env')
@@ -217,3 +218,55 @@ def validate_password(password):
         return False, "Password must contain at least one uppercase letter, one lowercase letter, and one number."
 
     return True, "Password is valid."
+
+
+# Send a password reset email
+def send_reset_password_email(base_url, email):   
+    # Check if user exists in the database
+    status, message, result = sql_results_one("SELECT user_id FROM users WHERE email = %s;", (email,))
+    if not status:
+        return False, f"Unknown error occurred while getting the user's email: {message}"
+
+    # If the user doesn't exist in the database, pretend that the email was sent, but don't actually send it. This prevents security vulnerabilities.
+    if not result:
+        return True, "Email sent."
+    user_id = result[0]
+    
+    # Generate a unique token
+    status, message, token = create_password_reset_token(user_id=user_id)
+    if not status:
+        return False, message
+    
+    # Try sending the email
+    reset_link = f"{base_url}reset-password/{token}"
+    subject = "Reset Password"
+    body = f"""
+    Click the following link to reset your password: {reset_link}
+    """
+    status, message = send_generic_email(receiver_email=email, subject=subject, body=body)
+    return status, message
+
+
+# Send generic emails, this is a helper function
+def send_generic_email(receiver_email, subject, body):
+    # Get environment variables
+    sender_email = os.environ['EMAIL']
+    sender_password = os.environ['EMAIL_PASSWORD']
+    # Prepare message
+    message = MIMEMultipart()
+    message['From'] = sender_email
+    message['To'] = receiver_email
+    message['Subject'] = subject
+    message.attach(MIMEText(body, 'plain'))
+
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(sender_email, sender_password)
+        text = message.as_string()
+        server.sendmail(sender_email, receiver_email, text)
+        return True, "Email sent"
+    except Exception as e:
+        return False, f"An error occurred while sending the email: {e}"
+    finally:
+        server.quit()
