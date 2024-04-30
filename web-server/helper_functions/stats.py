@@ -51,7 +51,7 @@ def compute_sheet_stats(inFileName, outFileName):
     # tnr = correctNoDisinfo / (correctNoDisinfo + falsePositive) # Compute True Negative Rate (TNR)
     # Compute Accuracy
     accuracy_denominator = pivot_table.loc['Total', 'Total']
-    accuracy = (correctDisinfo + correctNoDisinfo) / accuracy_denominator if accuracy_denominator != 0 else 0
+    accuracy = (correctDisinfo + correctNoDisinfo) / accuracy_denominator if accuracy_denominator != 0 else 0 # (TP + TN)/(TP + TN + FP + FN)
 
     # Compute Precision
     precision_denominator = correctDisinfo + falsePositive
@@ -70,8 +70,8 @@ def compute_sheet_stats(inFileName, outFileName):
     tpr = correctDisinfo / tpr_denominator if tpr_denominator != 0 else 0
 
     # Compute False Positive Rate (FPR)
-    fpr_denominator = falsePositive + correctNoDisinfo
-    fpr = falsePositive / fpr_denominator if fpr_denominator != 0 else 0
+    fpr_denominator = falsePositive + correctNoDisinfo # denom = FP + TN
+    fpr = falsePositive / fpr_denominator if fpr_denominator != 0 else 0 # FP/(FP + TN)
 
     # Compute False Negative Rate (FNR)
     fnr_denominator = falseNegative + correctDisinfo

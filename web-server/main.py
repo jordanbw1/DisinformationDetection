@@ -30,10 +30,6 @@ app.secret_key = os.environ.get("SECRET_KEY")
 app.register_blueprint(documents, url_prefix="/documents")
 
 
-def login_exempt(f):
-    f.login_exempt = True
-    return f
-
 @app.before_request
 def default_login_required():
     # exclude 404 errors and static routes
