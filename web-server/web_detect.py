@@ -14,8 +14,7 @@ def run_prompt(api_key, prompt, email, base_url, num_rows=300):
         num_rows = 300
     # Declare main variables
     script_directory = os.path.dirname(os.path.abspath(__file__))
-    parent_directory = os.path.dirname(script_directory)
-    datasets_directory = os.path.join(parent_directory, "Datasets")
+    datasets_directory = os.path.join(script_directory, "static", "datasets")
     in_file = os.path.join(datasets_directory, "WELFake", "WELFake_Dataset_5000.csv")
     uuid_name = str(uuid.uuid4())
     out_csv_file_name = f"{uuid_name}.csv"
