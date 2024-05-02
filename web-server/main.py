@@ -266,8 +266,11 @@ def submit_prompt():
     # Get the url for the server
     base_url = request.host_url
 
+    # Get the user_id
+    user_id = session["user_id"]
+
     # Create a thread and pass the function to it
-    thread = threading.Thread(target=run_prompt, args=(api_key,full_prompt,email,base_url,num_rows,))
+    thread = threading.Thread(target=run_prompt, args=(api_key,full_prompt,email,base_url,user_id,num_rows,))
     thread.start()
     
     # Save their prompt to the session to be displayed later

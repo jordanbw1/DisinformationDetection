@@ -8,7 +8,7 @@ from helper_functions.stats import compute_sheet_stats
 from helper_functions.database import execute_sql, sql_results_one
 
 
-def run_prompt(api_key, prompt, email, base_url, num_rows=300):
+def run_prompt(api_key, prompt, email, base_url, user_id, num_rows=300):
     if num_rows > 500 or num_rows < 1:
         print("Too many or too few rows requested, using the default of 300")
         num_rows = 300
