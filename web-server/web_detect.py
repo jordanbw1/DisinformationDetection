@@ -5,6 +5,7 @@ import uuid
 from helper_functions.email_functions import send_email
 import pandas as pd
 from helper_functions.stats import compute_sheet_stats
+from helper_functions.database import execute_sql, sql_results_one
 
 
 def run_prompt(api_key, prompt, email, base_url, num_rows=300):
@@ -26,6 +27,13 @@ def run_prompt(api_key, prompt, email, base_url, num_rows=300):
     dataset_name = "WELFake Dataset"
     subject = "US_politics"
     i = 0
+
+    # TODO: Write code here to insert a new task into the database.
+    # Make sure to insert these values into the database:
+    # - user_id : the variable user_id
+    # - uuid : the variable uuid_name
+    # - status : "RUNNING"
+    # For simplicty, use the function execute_sql to insert the values into the database.
 
     # Configure Gemini API
     genai.configure(api_key=api_key)
@@ -163,5 +171,13 @@ def run_prompt(api_key, prompt, email, base_url, num_rows=300):
 
     # Send CSV file as attachment via email
     send_email(email, csv_download_path, xlsx_download_path, stats, prompt)
+
+    # TODO: Mark as completed in the database
+    # Write code here to UPDATE the task in the database.
+    # Update the following values
+    # - end_time : the current time in UTC. You may need to use the Python datetime library.
+    # - status : "COMPLETED"
+    # You should update WHERE the "uuid" column in the db is equal to the uuid_name variable.
+    # For simplicty, use the function execute_sql to insert the values into the database.
 
     return
