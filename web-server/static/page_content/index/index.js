@@ -53,3 +53,12 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 });
+
+// Disable submit button after form is submitted
+function disableSubmitButton() {
+    console.log("Called")
+    document.querySelector('.submit').disabled = true;
+}
+
+// Call disableSubmitButton function when the form is submitted
+document.querySelector('form').addEventListener('submit', disableSubmitButton);
