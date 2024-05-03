@@ -49,5 +49,20 @@ CREATE TABLE user_roles (
 );
 
 
+CREATE TABLE `chat_gpt_keys` (
+  `user_id` BIGINT UNSIGNED NOT NULL,
+  `key` VARCHAR(255) DEFAULT NULL,
+  PRIMARY KEY (`user_id`),
+  FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE `gemini_keys` (
+  `user_id` BIGINT UNSIGNED NOT NULL,
+  `key` VARCHAR(255) DEFAULT NULL,
+  PRIMARY KEY (`user_id`),
+  FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
 -- These are the current roles the database will support
 INSERT INTO roles (role_id, role_name) VALUES (1, 'admin'), (2, 'prompt_engineer');
