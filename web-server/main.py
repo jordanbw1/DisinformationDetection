@@ -8,11 +8,12 @@ from helper_functions.email_functions import check_email, send_verification_emai
 from helper_functions.api import test_key
 from routes.documents import documents
 import mysql.connector
-from helper_functions.database import get_db_connection, execute_sql, sql_results_one
+from helper_functions.database import get_db_connection, execute_sql, sql_results_one, sql_results_all
 from helper_functions.prompt import append_instructions
 from helper_functions.reset_password import is_valid_token, get_user_from_token
 import hashlib
 import secrets
+import json
 
 
 # Decorator used to exempt route from requiring login
@@ -52,8 +53,15 @@ def default_login_required():
     
 @app.route('/', methods=['GET'])
 def index():
-   # Render the index page
-    return render_template('index.html')
+    # Load dataset names
+    dataset_mapping = load_dataset_mapping()
+    user_roles = session.get("user_roles", [])
+
+    # Create a list of tuples containing dataset name and max rows
+    datasets = {name: mapping["rows"] if "prompt_engineer" in user_roles else 500 for name, mapping in dataset_mapping.items()}
+
+    # Render the index page with dataset names
+    return render_template('index.html', datasets=datasets)
 
 # for example, the login page shouldn't require login
 @app.route('/login', methods=['GET', 'POST'])
@@ -93,15 +101,26 @@ def login():
             if hashed_password != hashed_password_in_db:
                 flash(f"Username or password is invalid", 'error')
                 return render_template("login.html")
+            
             # Set user as logged in
             session["user_id"] = result[0]
             session["email"] = email
             session["confirmed"] = bool(result[1])
 
+            # Add any roles if user has them
+            # Fetch user roles from the database
+            status, message, user_roles = sql_results_all("SELECT role_name FROM user_roles JOIN roles ON user_roles.role_id = roles.role_id WHERE user_roles.user_id = %s;", (session["user_id"],))
+            if status:
+                session["user_roles"] = [role[0] for role in user_roles]
+            else:
+                print(f"Failed to fetch user roles: {message}")
+                flash(f"Failed to fetch user roles: {message}", 'error')
+                return render_template("login.html")
+
             return redirect(url_for('index'))
 
         except mysql.connector.Error as err:
-            flash(f"Unknown error occurred during login.", 'error')
+            flash(f"Unknown error occurred during login: {err}", 'error')
             return render_template("login.html")
         finally:
             conn.close()
@@ -112,6 +131,7 @@ def logout():
     session.pop('user_id', None)
     session.pop('email', None)
     session.pop('confirmed', None)
+    session.pop('user_roles', None)
     return redirect(url_for('login'))
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -240,19 +260,41 @@ def resend_verify_code():
 
 @app.route('/submit-prompt', methods=['POST'])
 def submit_prompt():
+    # Retrieve user's roles from the session
+    user_roles = session.get("user_roles", [])
+    # Determine the maximum number of rows allowed based on user roles
+    if "prompt_engineer" in user_roles:
+        max_rows = None  # Set to None to indicate no limit for engineers
+    else:
+        max_rows = 500  # Default maximum rows for non-engineers
+    
     # Get prompt and email
     email = session["email"]
     prompt = request.form['prompt']
     api_key = request.form['api-key']
+    dataset_name = request.form['dataset']
     num_rows = request.form.get('num-rows', type=int)
-    if num_rows is None or num_rows < 1 or num_rows > 500:
-        print(f"out of bounds: {num_rows}")
-        num_rows = 300
+    # Check if the specified number of rows exceeds the maximum allowed
+    if num_rows is None or (max_rows is not None and (num_rows < 1 or num_rows > max_rows)):
+        num__rows = 300  # Default to 300 rows if invalid or not specified
 
-    # Ensure that correct email syntax is used
-    if not check_email(email=email):
-        flash("The email address you provided does not meet correct email format guidelines. Please try again.", 'error')
+    # Validate dataset name against mapping
+    dataset_mapping = load_dataset_mapping()
+    if dataset_name not in dataset_mapping:
+        flash("Invalid dataset selected.", 'error')
         return redirect(url_for('index'))
+    
+    # Get folder and filename for the selected dataset
+    dataset_info = dataset_mapping.get(dataset_name)
+    if dataset_info is None or 'directory' not in dataset_info:
+        flash("Dataset not in allowed list.", 'error')
+        return redirect(url_for('index'))
+
+    dataset_folder, dataset_filename = dataset_info.get('directory', (None, None))
+    if dataset_folder is None or dataset_filename is None:
+        flash("Invalid dataset information.", 'error')
+        return redirect(url_for('index'))
+    dataset_subject = dataset_info.get('subject', '')
     
     # Test API key before starting
     success, message = test_key(api_key=api_key)
@@ -269,8 +311,16 @@ def submit_prompt():
     # Get the user_id
     user_id = session["user_id"]
 
+    # Prepare dataset info
+    dataset_info = {
+        'name': dataset_name,
+        'folder': dataset_folder,
+        'filename': dataset_filename,
+        'subject': dataset_subject
+    }
+
     # Create a thread and pass the function to it
-    thread = threading.Thread(target=run_prompt, args=(api_key,full_prompt,email,base_url,user_id,num_rows,))
+    thread = threading.Thread(target=run_prompt, args=(api_key,full_prompt,email,base_url,user_id,dataset_info,num_rows,))
     thread.start()
     
     # Save their prompt to the session to be displayed later
@@ -405,6 +455,10 @@ def generate_salt():
 # Hash the password with the provided salt
 def hash_password(password, salt):
     return hashlib.sha256((password + salt).encode()).hexdigest()
+
+def load_dataset_mapping():
+    with open('static/datasets/dataset_mapping.json', 'r') as f:
+        return json.load(f)
 ## --------- End Helper Functions --------- ##
 
 if __name__ == '__main__':

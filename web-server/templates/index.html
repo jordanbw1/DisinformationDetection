@@ -19,11 +19,17 @@
     <div class="container">
         <div id="promptform">
             <form method="post" action="submit-prompt">
+                <label for="dataset">Select Dataset:</label><br>
+                <select id="dataset" name="dataset">
+                    {% for dataset in datasets %}
+                        <option value="{{ dataset }}">{{ dataset }}</option>
+                    {% endfor %}
+                </select><br><br>
                 <label for="prompt">Prompt:</label><br>
                 <textarea type="text" id="prompt" name="prompt" rows="1" oninput="autoResize(this)" required></textarea><br><br>
                 <label for="api-key">API Key:</label><br>
                 <input type="text" id="api-key" name="api-key" required><br><br>
-                <label for="num-rows">Number of rows to test (optional, max: 500):</label><br>
+                <label for="num-rows" id="num-rows-label">Number of rows to test (optional, max: 500):</label><br>
                 <input type="number" id="num-rows" name="num-rows" min="1" max="500"><br><br>
                 <input class="submit" type="submit" value="Submit">
             </form>
@@ -36,6 +42,8 @@
         </div>
     </div>
 
+    <!-- Following script provides dataset names and max rows to javascript -->
+    <script id="dataset-data" type="application/json">{{ datasets | tojson }}</script> 
     <script src="{{ url_for('static', filename='page_content/index/index.js') }}"></script>
 </body>
 </html>

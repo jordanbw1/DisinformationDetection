@@ -1,3 +1,5 @@
+var datasets = JSON.parse(document.getElementById('dataset-data').textContent);
+
 // JavaScript function to auto-resize the textarea
 function autoResize(textarea) {
     textarea.style.height = "auto"; // Reset height
@@ -56,9 +58,32 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // Disable submit button after form is submitted
 function disableSubmitButton() {
-    console.log("Called")
     document.querySelector('.submit').disabled = true;
 }
 
 // Call disableSubmitButton function when the form is submitted
 document.querySelector('form').addEventListener('submit', disableSubmitButton);
+
+// Function to update the maximum number of rows based on the selected dataset
+function updateMaxRows() {
+    // Get the selected dataset from the dropdown
+    var datasetDropdown = document.getElementById("dataset");
+    var selectedDataset = datasetDropdown.value;
+
+    // Get the input element for num-rows
+    var numRowsInput = document.getElementById("num-rows");
+    var numRowsLabel = document.getElementById("num-rows-label");
+
+    // Update the maximum number of rows based on the selected dataset
+    var maxRows = datasets[selectedDataset] || 500; // Default to 500 if dataset not found
+    numRowsInput.setAttribute("max", maxRows);
+
+    // Update the label text
+    numRowsLabel.textContent = "Number of rows to test (optional, max: " + maxRows + "):";
+}
+
+// Add event listener to dataset dropdown to trigger the updateMaxRows function on change
+document.getElementById("dataset").addEventListener("change", updateMaxRows);
+
+// Call updateMaxRows function on page load to set initial max rows
+window.addEventListener("load", updateMaxRows);

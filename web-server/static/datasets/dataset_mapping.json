@@ -1,0 +1,7 @@
+{
+    "WELFAKE Dataset": {
+        "directory": ["WELFake", "WELFake_Dataset_5000.csv"],
+        "subject": "US_politics",
+        "rows": 7012
+    }
+}

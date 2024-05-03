@@ -8,14 +8,14 @@ from helper_functions.stats import compute_sheet_stats
 from helper_functions.database import execute_sql, sql_results_one
 
 
-def run_prompt(api_key, prompt, email, base_url, user_id, num_rows=300):
-    if num_rows > 500 or num_rows < 1:
-        print("Too many or too few rows requested, using the default of 300")
+def run_prompt(api_key, prompt, email, base_url, user_id, dataset_info, num_rows=300):
+    if num_rows < 1:
+        print("Too few rows requested, using the default of 300")
         num_rows = 300
     # Declare main variables
     script_directory = os.path.dirname(os.path.abspath(__file__))
     datasets_directory = os.path.join(script_directory, "static", "datasets")
-    in_file = os.path.join(datasets_directory, "WELFake", "WELFake_Dataset_5000.csv")
+    in_file = os.path.join(datasets_directory, dataset_info["folder"], dataset_info["filename"])
     uuid_name = str(uuid.uuid4())
     out_csv_file_name = f"{uuid_name}.csv"
     out_xlsx_file_name = f"{uuid_name}.xlsx"
@@ -23,8 +23,8 @@ def run_prompt(api_key, prompt, email, base_url, user_id, num_rows=300):
     csv_download_path = base_url + f"download/{out_csv_file_name}"
     xlsx_download_path = base_url + f"download/{out_xlsx_file_name}"
     data = []
-    dataset_name = "WELFake Dataset"
-    subject = "US_politics"
+    dataset_name = dataset_info["name"]
+    subject = dataset_info["subject"]
     i = 0
 
     # TODO: Write code here to insert a new task into the database.
@@ -50,6 +50,11 @@ def run_prompt(api_key, prompt, email, base_url, user_id, num_rows=300):
 
     # Shuffle the DataFrame
     df = df.sample(frac=1)
+
+    # If the user requests more rows than are in the dataset, limit the number of rows to the number of rows in the dataset
+    num_rows_df = len(df)
+    if num_rows > num_rows_df:
+        num_rows = num_rows_df
 
     # Grab the first num_rows rows
     random_rows = df.head(num_rows)
