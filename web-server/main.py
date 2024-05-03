@@ -447,6 +447,19 @@ def reset_password(token):
 def reset_password_confirmation():
     return render_template('reset_password_confirmation.html')
 
+# Privacy Policy
+@app.route('/privacy', methods=['GET'])
+@login_exempt
+def privacy():
+    return render_template('privacy.html')
+
+# Cookies Policy
+@app.route('/cookies', methods=['GET'])
+@login_exempt
+def cookies():
+    return render_template('cookies.html')
+
+
 ## --------- Helper Functions --------- ##
 # Generate a random salt
 def generate_salt():
