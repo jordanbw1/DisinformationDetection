@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from helper_functions.email_functions import check_email, send_verification_email, resend_verification_email, validate_password, send_reset_password_email
 from helper_functions.api import test_key
 from routes.documents import documents
+from routes.account import account
 import mysql.connector
 from helper_functions.database import get_db_connection, execute_sql, sql_results_one, sql_results_all
 from helper_functions.prompt import append_instructions
@@ -31,6 +32,7 @@ load_dotenv(env_path)
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY")
 app.register_blueprint(documents, url_prefix="/documents")
+app.register_blueprint(account, url_prefix="/account")
 
 
 @app.before_request

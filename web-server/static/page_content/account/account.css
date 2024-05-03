@@ -1,0 +1,126 @@
+.account-container {
+    margin: 20px;
+}
+
+.account-info ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.account-info ul li {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start; /* Align items to the top */
+}
+
+.account-info ul li span {
+    font-weight: bold;
+    flex: 0 0 auto;
+    margin-right: 10px; /* Add margin to separate from buttons */
+}
+
+.account-info ul li .value {
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px; /* Add margin to separate from buttons */
+}
+
+.account-info ul li .actions {
+    display: flex;
+    flex-direction: column;
+}
+
+.account-info ul li .edit-button,
+.account-info ul li .cancel-button,
+.account-info ul li .edit-form {
+    margin-top: 5px; /* Add some space between buttons and input */
+}
+
+.account-info ul li .edit-button,
+.account-info ul li .cancel-button {
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.account-info ul li .edit-button:hover,
+.account-info ul li .cancel-button:hover {
+    background-color: #0056b3;
+}
+
+.account-info ul li .edit-form input[type="text"],
+.account-info ul li .edit-form input[type="submit"] {
+    width: 200px;
+    padding: 5px;
+}
+
+.account-info ul li .edit-form input[type="submit"] {
+    margin-top: 5px; /* Add space between input and submit button */
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.account-info ul li .edit-form input[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Style for icon inside buttons */
+.edit-button i,
+.cancel-button i {
+    margin-right: 5px;
+}
+
+
+/* Style for edit forms */
+.edit-form {
+    margin-top: 10px;
+}
+
+.edit-form input[type="text"] {
+    width: 200px;
+    padding: 5px;
+    margin-right: 10px;
+}
+
+.edit-form input[type="submit"] {
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.edit-form input[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+
+.edit-button,
+.cancel-button {
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.edit-button:hover,
+.cancel-button:hover {
+    background-color: #0056b3;
+}
+
+/* Style for icon inside buttons */
+.edit-button i,
+.cancel-button i {
+    margin-right: 5px;
+}

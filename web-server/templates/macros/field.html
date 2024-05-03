@@ -1,0 +1,16 @@
+{% macro field(field_name, session_item_name, form_action, read_only) %}
+{% if read_only %}
+<form class="edit-form">
+    <span>{{ field_name }}</span>
+    <br><input readonly type="text" name="{{ session_item_name }}" value="{{ session[session_item_name] }}">
+</form>
+{% else %}
+<form class="edit-form" action="{{ form_action }}" method="POST">
+    <span>{{ field_name }}</span>
+    <button type="button" class="edit-button"><i class="fas fa-pencil-alt"></i> Edit</button>
+    <button type="button" class="cancel-button" style="display:none;"><i class="fas fa-times"></i> Cancel</button>
+    <br><input readonly type="text" name="{{ session_item_name }}" value="{{ session[session_item_name] }}">
+    <br><input type="submit" class="submit-button" value="Submit" style="display:none;">
+</form>
+{% endif %}
+{% endmacro %}
