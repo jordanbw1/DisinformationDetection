@@ -18,7 +18,7 @@ def visualize(inFileName):
     cols_to_convert = ["label", "response", "confidence_level", "truth_level", "correct"]
     results[cols_to_convert] = results[cols_to_convert].astype("category")
 
-    # Graph to show propotions of Label and Response
+    # Graph to show proportions of Label and Response
     #      Create a data frame to store the frequencies for Label and Response
     label_freq = pd.DataFrame({
         "Factor": ["Label", "Label", "Response", "Response"],
@@ -68,7 +68,8 @@ def visualize(inFileName):
         ]
     })
     #     Create histogram
-    sns.barplot(data=accuracy2_freq, x="Factor", y="Proportion", palette=["brown","brown", "skyblue", "skyblue"])
+    sns.barplot(data=accuracy2_freq, x="Factor", y="Proportion", hue="Factor",
+                palette=["brown", "brown", "skyblue", "skyblue"], legend=False)
     plt.title("Details of AI Accuracy")
     plt.xlabel("Accuracy Type")
     plt.ylabel("Proportion of Responses")
