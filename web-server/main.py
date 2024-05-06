@@ -186,7 +186,10 @@ def register():
         
         status, message = execute_sql("INSERT INTO users (email, password, salt) VALUES (%s, %s, %s);", (email, hashed_password, salt))
         if not status:
-            flash(f"Registration failed: {message}", 'error')
+            if message.find("Duplicate entry") != -1:
+                flash("Email already registered to an account", 'error')
+            else:
+                flash(f"Registration failed: {message}", 'error')
             return render_template("register.html")
         
         # Get the user_id

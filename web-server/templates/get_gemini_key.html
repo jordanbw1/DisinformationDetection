@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Get API Key Instructions</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='global_css/stylesheet.css') }}">
+    {% include "macros/style-import.html" ignore missing with context %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='page_content/get_gemini_key/get_gemini_key.css') }}">
 </head>
 <body>
     <!-- Include Navbar -->
@@ -15,19 +16,13 @@
 
     <h1>Instructions for Getting Your API Key</h1>
 
-    <ol>
-        <li>Go to: <a href="https://aistudio.google.com/app/apikey">https://aistudio.google.com/app/apikey</a></li>
-        <li>
-            <span>Click on “Create API key”. You can see this in the screenshot below:</span>
-            <br>
-            <img src="{{ url_for('static', filename='page_content/get_gemini_key/api-step-1.png') }}">
-        </li>
-        <li>
-            <span>Click “Create API key in new project”. You can see this in the screenshot below:</span>
-            <br>
-            <img src="{{ url_for('static', filename='page_content/get_gemini_key/api-step-2.png') }}   ">
-        </li>
-        <li>You will be given your API Ley. Save this, you will need it to interact with the AI.</li>
-      </ol>
+    <p>Go to: <a href="https://aistudio.google.com/app/apikey">https://aistudio.google.com/app/apikey</a></p>
+    <p>This doesn't always happen, but if you are asked to "Use Google AI Studio" or "Develop in your own environment", then click the button "Get API key". This is shown below:</p>
+    <img src="{{ url_for('static', filename='page_content/get_gemini_key/1-marked.png') }}">
+    <p>Click on “Create API key”. You can see this in the screenshot below:</p>
+    <img src="{{ url_for('static', filename='page_content/get_gemini_key/2-marked.png') }}">
+    <p>Click “Create API key in new project”. You can see this in the screenshot below:</p>
+    <img src="{{ url_for('static', filename='page_content/get_gemini_key/3-marked.png') }}   ">
+    <p>You will be given your API key. Copy this value and save it as the "Google Gemini API Key" on your <a href="/account">account page</a>.</p>
 </body>
 </html>
