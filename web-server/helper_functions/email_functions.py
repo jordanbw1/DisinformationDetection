@@ -9,7 +9,7 @@ import re
 import random
 import string
 from helper_functions.database import get_db_connection, execute_sql, sql_results_one
-from helper_functions.reset_password import create_password_reset_token
+from helper_functions.account_actions import create_password_reset_token, create_account_removal_token
 
 # Determine the path to the .env file
 env_path = os.path.join(os.path.dirname(sys.argv[0]), '..', '.env')
@@ -242,6 +242,32 @@ def send_reset_password_email(base_url, email):
     subject = "Reset Password"
     body = f"""
     Click the following link to reset your password: {reset_link}
+    """
+    status, message = send_generic_email(receiver_email=email, subject=subject, body=body)
+    return status, message
+
+# Send email to delete account
+def send_account_removal_email(base_url, user_id):   
+    # Check if user exists in the database
+    status, message, result = sql_results_one("SELECT email FROM users WHERE user_id = %s;", (user_id,))
+    if not status:
+        return False, f"Unknown error occurred while getting the user's email: {message}"
+
+    # If the user doesn't exist in the database, pretend that the email was sent, but don't actually send it. This prevents security vulnerabilities.
+    if not result:
+        return True, "No email configured for this user."
+    email = result[0]
+    
+    # Generate a unique token
+    status, message, token = create_account_removal_token(user_id=user_id)
+    if not status:
+        return False, message
+    
+    # Try sending the email
+    delete_link = f"{base_url}account/remove-account/{token}"
+    subject = "Delete Your Account"
+    body = f"""
+    We are sorry to hear you go. Click the following link to delete your account: {delete_link}
     """
     status, message = send_generic_email(receiver_email=email, subject=subject, body=body)
     return status, message

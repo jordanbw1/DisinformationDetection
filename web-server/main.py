@@ -11,7 +11,7 @@ from routes.account import account
 import mysql.connector
 from helper_functions.database import get_db_connection, execute_sql, sql_results_one, sql_results_all
 from helper_functions.prompt import append_instructions
-from helper_functions.reset_password import is_valid_token, get_user_from_token
+from helper_functions.account_actions import is_valid_password_token, get_user_from_token
 import hashlib
 import secrets
 import json
@@ -142,11 +142,7 @@ def login():
 @app.route('/logout')
 @login_exempt
 def logout():
-    session.pop('user_id', None)
-    session.pop('email', None)
-    session.pop('confirmed', None)
-    session.pop('user_roles', None)
-    session.pop('gemini_key', None)
+    session.clear()
     return redirect(url_for('login'))
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -393,14 +389,14 @@ def forgot_password():
 def reset_password(token):    
     if request.method == 'GET':
         # Verify the token and check if it's still valid
-        status, message = is_valid_token(token)
+        status, message = is_valid_password_token(token)
         if not status:
             flash(message, 'error')
             return redirect(url_for('forgot_password'))
         return render_template('reset_password.html')
     elif request.method == 'POST':
         # Verify the token and check if it's still valid
-        status, message = is_valid_token(token)
+        status, message = is_valid_password_token(token)
         if not status:
             flash(message, 'error')
             return redirect(url_for('forgot_password'))

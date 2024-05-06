@@ -1,0 +1,31 @@
+/* Custom CSS for the delete button */
+.delete-button, .cancel-button {
+    color: #fff; /* White text color */
+    padding: 10px 20px; /* Padding */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Cursor style */
+    transition: background-color 0.3s; /* Smooth transition */
+    text-decoration:none;
+}
+
+.delete-button {
+    background-color: #dc3545; /* Red background color */
+    padding: 13px 20px;
+}
+
+.cancel-button {
+    background-color: gray; /* Gray background color */
+}
+
+
+/* Container for buttons */
+.button-container {
+    margin-top: 20px; /* Adjust margin as needed */
+}
+
+.warning {
+    color: red;
+    font-weight: bold;
+    margin-top: 10px;
+}

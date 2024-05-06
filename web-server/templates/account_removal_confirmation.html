@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Account Email Sent</title>
+    {% include "macros/style-import.html" ignore missing with context %}
+</head>
+<body>
+    <!-- Include Navbar -->
+    {% include "macros/navbar.html" ignore missing with context %}
+    
+    <!-- Get Flask messages -->
+    {% include "macros/flask_messages.html" ignore missing with context %}
+
+    <h1>Delete Account Email Sent</h1>
+
+    <p>An email to confirm deleting your account has been sent. You should receive an email shortly. It may take a few minutes for the email to appear. Make sure to check your spam folder.</p>
+    
+</body>
+</html>

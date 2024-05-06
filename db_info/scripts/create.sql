@@ -56,12 +56,29 @@ CREATE TABLE `chat_gpt_keys` (
   FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+
 CREATE TABLE `gemini_keys` (
   `user_id` BIGINT UNSIGNED NOT NULL,
   `key` VARCHAR(255) DEFAULT NULL,
   PRIMARY KEY (`user_id`),
   FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+
+CREATE TABLE account_removal_tokens (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT UNSIGNED NOT NULL,
+    token VARCHAR(28) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+
+ALTER TABLE account_removal_tokens
+  CHANGE created_at created_at DATETIME NOT NULL DEFAULT (UTC_TIMESTAMP());
 
 
 -- These are the current roles the database will support

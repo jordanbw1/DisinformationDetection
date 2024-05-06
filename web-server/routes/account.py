@@ -1,6 +1,9 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from helper_functions.database import execute_sql, sql_results_one
 from helper_functions.api import test_gemini_key, test_chatgpt_key
+from helper_functions.database import execute_sql, sql_results_one
+from helper_functions.account_actions import is_valid_account_removal_token, delete_account_removal_token_for_user
+from helper_functions.email_functions import send_account_removal_email
 
 
 account = Blueprint('account', __name__, template_folder='account')
@@ -49,18 +52,72 @@ def update_api_key():
         flash("API key updated successfully", "success")
         return redirect(url_for('account.account_page'))
 
-# TODO: Implement route
-@account.route('/delete-account', methods=['GET'])
+# Delete account view and initate account deletion
+@account.route('/delete-account', methods=['GET','POST'])
 def delete_account():
-    return render_template("delete_account.html")
+    if request.method == 'GET':
+        return render_template('delete_account.html')
+    elif request.method == 'POST':
+        # Send an email to the user with a link to the reset password page
+        base_url = request.host_url
+        status, message = send_account_removal_email(base_url, session["user_id"])
+        if not status:
+            flash(f"Error sending account removal email: {message}", 'error')
+            return render_template('delete_account.html')
 
-# TODO: Implement route
-@account.route('/delete-account-confirm/<token>', methods=['GET', 'POST'])
-def delete_account_confirm(token):
-    if request.method == 'POST':
-        # Delete the account
-        pass
-    return render_template("delete_account.html")
+        # Redirect the user to a confirmation page
+        return redirect(url_for('account.account_removal_confirmation'))
+    
+@account.route('/cancel-delete', methods=['GET', 'POST'])
+def cancel_delete():
+    # Delete the account removal token
+    status, message = delete_account_removal_token_for_user(session["user_id"])
+    if not status:
+        flash(f"Error deleting account removal token: {message}", 'error')
+    else:
+        flash("Account removal cancelled", 'success')
+    return redirect(url_for('account.account_page'))
+    
+# Account removal confirmation page
+@account.route('/account-removal-confirmation', methods=['GET'])
+def account_removal_confirmation():
+    return render_template('account_removal_confirmation.html')
+
+# Route for deleting the account
+@account.route('/remove-account/<token>', methods=['GET', 'POST'])
+def remove_account(token):    
+    if request.method == 'GET':
+        # Verify the token and check if it's still valid
+        status, message = is_valid_account_removal_token(token)
+        if not status:
+            flash(message, 'error')
+            return redirect(url_for('account.delete_account'))
+        return render_template('remove_account.html')
+    elif request.method == 'POST':
+        # Verify the token and check if it's still valid
+        status, message = is_valid_account_removal_token(token)
+        if not status:
+            flash(message, 'error')
+            return redirect(url_for('account.delete_account'))
+        
+        # Get removal confirmation from the form
+        confirm_delete = request.form['confirm-delete']
+        if confirm_delete != 'delete':
+            flash("Please type 'delete' to confirm account deletion", 'error')
+            return render_template('remove_account.html')
+        
+        # Delete the user's account
+        status, message = execute_sql("DELETE FROM users WHERE user_id = %s;", (session["user_id"],))
+        if not status:
+            flash(f"Error deleting user account: {message}", 'error')
+            return render_template('remove_account.html')
+
+        # Pop session variables
+        session.clear()
+        flash("Account deleted successfully", 'success')
+
+        # Redirect the user to a confirmation page or login page
+        return redirect(url_for('login'))
 
 def helper_save_query_key(api_key_type, api_key):
     # Get the table name

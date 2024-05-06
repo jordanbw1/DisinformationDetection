@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Account</title>
+    {% include "macros/style-import.html" ignore missing with context %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='page_content/delete_account/delete_account.css') }}">
+</head>
+<body>
+    <!-- Include Navbar -->
+    {% include "macros/navbar.html" ignore missing with context %}
+    
+    <!-- Get Flask messages -->
+    {% include "macros/flask_messages.html" ignore missing with context %}
+
+    <h1>Delete Account</h1>
+
+    <p>Are you sure you want to delete your account?</p>
+    <form method="post" id="deleteForm" action="{{ url_for('account.delete_account') }}">
+        <div class="button-container">
+            <a href="{{ url_for('account.cancel_delete') }}" class="cancel-button button">Cancel</a>
+            <input type="submit" class="delete-button button" value="Delete Account">
+        </div>
+    </form>
+    
+</body>
+</html>
