@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account</title>
+    {% include "macros/style-import.html" ignore missing with context %}
     <link rel="stylesheet" href="{{ url_for('static', filename='page_content/account/account.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='global_css/stylesheet.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ url_for('static', filename='page_content/account/account.js') }}"></script>
@@ -20,20 +20,39 @@
     <!-- Other macros -->
     {% from "macros/account/field.html" import field %}
 
-    <div class="account-container">
-        <div class="account-info">
-            <h2>Account Information</h2>
-            <ul>
-                <li>
-                    {{ field("Email", "email", None, True) }}
-                </li>
-                <li>
-                    {{ field("ChatGPT API Key", "chatgpt_key", url_for('account.update_api_key'), False) }}
-                </li>
-                <li>
-                    {{ field("Google Gemini API Key", "gemini_key", url_for('account.update_api_key'), False) }}
-                </li>
-            </ul>
+        <div class="body-container">
+
+        <div class="account-container">
+            <div class="account-info">
+                <h2>Account Information</h2>
+                <ul>
+                    <li>
+                        {{ field("Email", "email", None, True) }}
+                    </li>
+                    <li>
+                        {{ field("ChatGPT API Key", "chatgpt_key", url_for('account.update_api_key'), False) }}
+                    </li>
+                    <li>
+                        {{ field("Google Gemini API Key", "gemini_key", url_for('account.update_api_key'), False) }}
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <br>
+
+        <div>
+            <h2>API key instructions</h2>
+            <span>Instructions for obtaining ChatGPT API key:</span><br>
+            <a href="{{ url_for('documents.get_chatgpt_key') }}">Get ChatGPT API Key</a>
+            <br><br>
+            <span>Instructions for obtaining Google Gemini API key:</span><br>
+            <a href="{{ url_for('documents.get_gemini_key') }}">Get Gemini API Key</a>
+        </div>
+        <br>
+
+        <div>
+            <h2>Account Actions</h2>
+            <a href="{{ url_for('account.delete_account') }}">Delete Account</a>
         </div>
     </div>
 </body>
