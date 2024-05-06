@@ -3,6 +3,77 @@ import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.styles import PatternFill, Font
 import math
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+
+def visualize(inFileName):
+    # Define filepaths
+    script_directory = os.path.dirname(os.path.abspath(__file__))
+    parent_directory = os.path.dirname(script_directory)
+    inFileLoc = os.path.join(parent_directory, "dynamic", "prompt_results", inFileName)
+    # Read Excel file
+    results = pd.read_excel(inFileLoc)
+    # Convert columns to categorical
+    cols_to_convert = ["label", "response", "confidence_level", "truth_level", "correct"]
+    results[cols_to_convert] = results[cols_to_convert].astype("category")
+
+    # Graph to show proportions of Label and Response
+    #      Create a data frame to store the frequencies for Label and Response
+    label_freq = pd.DataFrame({
+        "Factor": ["Label", "Label", "Response", "Response"],
+        "Level": ["True", "False", "True", "False"],
+        "Frequency": [
+            (results["label"] == 1).sum(),
+            (results["label"] == 0).sum(),
+            (results["response"] == 1).sum(),
+            (results["response"] == 0).sum()
+        ]
+    })
+    #      Create histogram for Label and Response
+    sns.barplot(data=label_freq, x="Factor", y="Frequency", hue="Level", palette=["skyblue", "brown"])
+    plt.title("Frequency of True vs False")
+    plt.xlabel(None)
+    plt.ylabel("Frequency")
+    plt.legend(title="Level")
+    plt.show()
+
+    # Graph to show general accuracy
+    #      Create a data frame to store the frequencies for AI Accuracy
+    accuracy_freq = pd.DataFrame({
+        "Factor": ["AI Accuracy", "AI Accuracy"],
+        "Level": ["Correct", "Incorrect"],
+        "Frequency": [
+            (results["correct"] == 1).sum(),
+            (results["correct"] == 0).sum()
+        ]
+    })
+    #     Create histogram for AI Accuracy
+    sns.barplot(data=accuracy_freq, x="Factor", y="Frequency", hue="Level", palette=["skyblue", "brown"])
+    plt.title("AI accuracy")
+    plt.xlabel(None)
+    plt.ylabel("Frequency")
+    plt.legend(title="Level")
+    plt.show()
+
+    # Track false positives, false negatives, true positives, and true negatives using proportion rather than frequency
+    #      Create a data frame to store the proportions for truth matrix
+    accuracy2_freq = pd.DataFrame({
+        "Factor": ["False Positives", "False Negatives", "Correct True", "Correct False"],
+        "Proportion": [
+            ((results["label"] == 0) & (results["response"] == 1)).sum()/len(results.index[1:]),
+            ((results["label"] == 1) & (results["response"] == 0)).sum()/len(results.index[1:]),
+            ((results["label"] == 1) & (results["response"] == 1)).sum()/len(results.index[1:]),
+            ((results["label"] == 0) & (results["response"] == 0)).sum()/len(results.index[1:])
+        ]
+    })
+    #     Create histogram
+    sns.barplot(data=accuracy2_freq, x="Factor", y="Proportion", hue="Factor",
+                palette=["brown", "brown", "skyblue", "skyblue"], legend=False)
+    plt.title("Details of AI Accuracy")
+    plt.xlabel("Accuracy Type")
+    plt.ylabel("Proportion of Responses")
+    plt.show()
 
 
 def compute_sheet_stats(inFileName, outFileName):
