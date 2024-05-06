@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Privacy Policy</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='global_css/stylesheet.css') }}">
+    {% include "macros/style-import.html" ignore missing with context %}
 </head>
 <body>
     <!-- Include Navbar -->

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get API Key Instructions</title>
+    {% include "macros/style-import.html" ignore missing with context %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='page_content/get_chatgpt_key/get_chatgpt_key.css') }}">
+</head>
+<body>
+    <!-- Include Navbar -->
+    {% include "macros/navbar.html" ignore missing with context %}
+    
+    <!-- Get Flask messages -->
+    {% include "macros/flask_messages.html" ignore missing with context %}
+
+    <h1>Instructions for Getting Your API Key</h1>
+
+    <p>Go to: <a href="https://platform.openai.com/api-keys">https://platform.openai.com/api-keys</a></p>
+    <p>Sign in if prompted. If redirected, navigate back to: <a href="https://platform.openai.com/api-keys">https://platform.openai.com/api-keys</a></p>
+    <p>Click on "Create new secret key”. You can see this in the screenshot below:</p>
+    <img src="{{ url_for('static', filename='page_content/get_chatgpt_key/1-create-secret-key-marked.png') }}">
+    <p>Set permissions to "all". You can leave all settings as default. Click "Create secret key". You can see this in the screenshot below:</p>
+    <img src="{{ url_for('static', filename='page_content/get_chatgpt_key/2-key-setup-marked.png') }}">
+    <p>You will be given your API key. Copy this value and save it as the "ChatGPT API Key" on your <a href="/account">account page</a>.</p>
+</body>
+</html>

@@ -3,7 +3,6 @@ h1 {
     color: #333; /* Change color as needed */
     margin-bottom: 2rem; /* Add spacing below the heading */
     text-align: center; /* Center the text */
-    font-family: 'Montserrat', sans-serif; /* Add Montserrat font */
     font-weight: bold;
     width: 100%; /* Take full width */
 }
@@ -13,8 +12,7 @@ h1 {
 }
 
 label {
-    font-size: 1rem; /* Adjust font size as needed */
-    font-family: 'Montserrat', sans-serif; /* Use the Montserrat font or your preferred font */
+    font-size: 1.1rem; /* Adjust font size as needed */
     /* color: ; Adjust color as needed */
     margin-bottom: 0;
     letter-spacing: 1px; /* Add letter-spacing for better readability */
