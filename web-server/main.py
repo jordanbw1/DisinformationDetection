@@ -5,7 +5,7 @@ import os
 import sys
 from dotenv import load_dotenv
 from helper_functions.email_functions import check_email, send_verification_email, resend_verification_email, validate_password, send_reset_password_email
-from helper_functions.api import test_key
+from helper_functions.api import test_gemini_key, test_chatgpt_key
 from routes.documents import documents
 from routes.account import account
 import mysql.connector
@@ -55,6 +55,11 @@ def default_login_required():
     
 @app.route('/', methods=['GET'])
 def index():
+    # Ensure user has a Gemini key before testing prompts
+    if not session.get("gemini_key"):
+        flash("Please enter a Gemini key before testing prompts.", 'info')
+        return redirect(url_for('account.account_page'))
+
     # Load dataset names
     dataset_mapping = load_dataset_mapping()
     user_roles = session.get("user_roles", [])
@@ -118,6 +123,13 @@ def login():
                 print(f"Failed to fetch user roles: {message}")
                 flash(f"Failed to fetch user roles: {message}", 'error')
                 return render_template("login.html")
+            
+            # Get gemini key if they have one
+            status, message, result = sql_results_one("SELECT `key` FROM gemini_keys WHERE user_id = %s;", (session["user_id"],))
+            if status and result:
+                session["gemini_key"] = result[0]
+            else:
+                session["gemini_key"] = None
 
             return redirect(url_for('index'))
 
@@ -134,6 +146,7 @@ def logout():
     session.pop('email', None)
     session.pop('confirmed', None)
     session.pop('user_roles', None)
+    session.pop('gemini_key', None)
     return redirect(url_for('login'))
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -273,9 +286,15 @@ def submit_prompt():
     # Get prompt and email
     email = session["email"]
     prompt = request.form['prompt']
-    api_key = request.form['api-key']
     dataset_name = request.form['dataset']
     num_rows = request.form.get('num-rows', type=int)
+    api_key = session["gemini_key"]
+    
+    # If the user doesn't have a gemini key, redirect them to the account page
+    if api_key is None:
+        flash("Please enter a Gemini key before testing prompts.", 'info')
+        return redirect(url_for('account.account_page'))
+
     # Check if the specified number of rows exceeds the maximum allowed
     if num_rows is None or (max_rows is not None and (num_rows < 1 or num_rows > max_rows)):
         num__rows = 300  # Default to 300 rows if invalid or not specified
@@ -299,7 +318,7 @@ def submit_prompt():
     dataset_subject = dataset_info.get('subject', '')
     
     # Test API key before starting
-    success, message = test_key(api_key=api_key)
+    success, message = test_gemini_key(api_key=api_key)
     if not success:
         flash(f"API Key error: {message}", 'error')
         return redirect(url_for('index'))
@@ -330,23 +349,6 @@ def submit_prompt():
 
     # Redirect to the confirmation page
     return redirect(url_for('confirmation'))
-
-@app.route('/test-key', methods=['GET', 'POST'])
-def test_key_route():
-    if request.method == 'POST':
-        api_key = request.form['api-key']
-        
-        # Create a thread and pass the function to it
-        status, message = test_key(api_key)
-
-        if status:
-            flash("Your API key successfully established a connection!", 'success')
-        else:
-            flash("Your API key failed to establish a connection.", 'error')
-
-        # Redirect to the confirmation page
-        return render_template("test_key.html")
-    return render_template("test_key.html")
 
 # Define the route for downloading files
 @app.route('/download/<path:filename>',  methods=['GET'])

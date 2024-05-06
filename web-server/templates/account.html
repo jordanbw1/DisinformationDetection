@@ -29,9 +29,9 @@
                     <li>
                         {{ field("Email", "email", None, True) }}
                     </li>
-                    <li>
+                    <!-- <li>
                         {{ field("ChatGPT API Key", "chatgpt_key", url_for('account.update_api_key'), False) }}
-                    </li>
+                    </li> -->
                     <li>
                         {{ field("Google Gemini API Key", "gemini_key", url_for('account.update_api_key'), False) }}
                     </li>
@@ -42,9 +42,9 @@
 
         <div>
             <h2>API key instructions</h2>
-            <span>Instructions for obtaining ChatGPT API key:</span><br>
+            <!-- <span>Instructions for obtaining ChatGPT API key:</span><br>
             <a href="{{ url_for('documents.get_chatgpt_key') }}">Get ChatGPT API Key</a>
-            <br><br>
+            <br><br> -->
             <span>Instructions for obtaining Google Gemini API key:</span><br>
             <a href="{{ url_for('documents.get_gemini_key') }}">Get Gemini API Key</a>
         </div>
