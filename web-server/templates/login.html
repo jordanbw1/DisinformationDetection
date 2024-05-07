@@ -20,6 +20,7 @@
     </div>
 
     <form method="post" action="login">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <h3>Sign In</h3>
 
         <label for="email">Email:</label>

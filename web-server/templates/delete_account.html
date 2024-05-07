@@ -18,6 +18,7 @@
 
     <p>Are you sure you want to delete your account?</p>
     <form method="post" id="deleteForm" action="{{ url_for('account.delete_account') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="button-container">
             <a href="{{ url_for('account.cancel_delete') }}" class="cancel-button button">Cancel</a>
             <input type="submit" class="delete-button button" value="Delete Account">

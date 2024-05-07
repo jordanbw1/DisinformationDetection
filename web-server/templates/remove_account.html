@@ -17,6 +17,7 @@
     <h1>Confirm Delete Account</h1>
 
     <form method="post" id="deleteForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <label for="confirm-delete">Please type the word "<strong>delete</strong>" to confirm you want to delete your account. <span class="warning">WARNING: This action cannot be undone!</span></label><br><br>
         <input type="text" id="confirm-delete" name="confirm-delete"><br>
         <div class="button-container">

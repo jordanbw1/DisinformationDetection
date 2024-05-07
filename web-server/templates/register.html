@@ -21,6 +21,7 @@
     </div>
 
     <form method="post" action="register">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <h3>Create an Account</h3>
 
         <label for="email">Email:</label>

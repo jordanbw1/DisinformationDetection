@@ -17,6 +17,7 @@
 
     <p>Your email address has been sent a verification code. It may take a few minutes for the email to appear. Make sure to check your spam folder. Provide the code to verify your account.</p>
     <form method="post" action="verify-email">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <label for="code">Code:</label><br>
         <input type="text" id="code" name="code" required>
         <input type="submit" value="Submit">

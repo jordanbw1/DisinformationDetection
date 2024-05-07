@@ -19,6 +19,7 @@
     <div class="container">
         <div id="promptform">
             <form method="post" action="submit-prompt">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <label for="dataset">Select Dataset:</label><br>
                 <select id="dataset" name="dataset">
                     {% for dataset in datasets %}
