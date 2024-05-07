@@ -354,9 +354,15 @@ def submit_prompt():
     # Redirect to the confirmation page
     return redirect(url_for('confirmation'))
 
-# Define the route for downloading files
+# Recieves request to download a file and redirects to downloading route
 @app.route('/download/<path:filename>',  methods=['GET'])
 def download(filename):
+    # Redirect user to download route
+    return redirect(url_for('download_file', filename=filename))
+
+# Define the route for downloading files
+@app.route('/download-file/<path:filename>',  methods=['GET'])
+def download_file(filename):
     # Send the file to the user
     return send_from_directory("dynamic/prompt_results", filename)
 
