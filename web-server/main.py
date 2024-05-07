@@ -358,7 +358,8 @@ def submit_prompt():
 @app.route('/download/<path:filename>',  methods=['GET'])
 def download(filename):
     # Redirect user to download route
-    return redirect(url_for('download_file', filename=filename))
+    # return redirect(url_for('download_file', filename=filename))
+    return render_template("download_redirect.html", filename=filename)
 
 # Define the route for downloading files
 @app.route('/download-file/<path:filename>',  methods=['GET'])
