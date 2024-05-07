@@ -83,3 +83,17 @@ ALTER TABLE account_removal_tokens
 
 -- These are the current roles the database will support
 INSERT IGNORE INTO roles (role_id, role_name) VALUES (1, 'admin'), (2, 'prompt_engineer');
+
+
+CREATE TABLE IF NOT EXISTS running_tasks (
+	process_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	user_id BIGINT UNSIGNED NOT NULL,
+	uuid VARCHAR(36) UNIQUE NOT NULL,
+	status ENUM('PENDING', 'RUNNING', 'COMPLETED', 'FAILED') DEFAULT 'PENDING' NOT NULL,
+	start_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	end_time DATETIME,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+ALTER TABLE running_tasks CHANGE start_time start_time DATETIME NOT NULL DEFAULT (UTC_TIMESTAMP())

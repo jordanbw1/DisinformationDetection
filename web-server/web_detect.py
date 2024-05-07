@@ -27,13 +27,12 @@ def run_prompt(api_key, prompt, email, base_url, user_id, dataset_info, num_rows
     subject = dataset_info["subject"]
     i = 0
 
-    # TODO: Write code here to insert a new task into the database.
-    # Make sure to insert these values into the database:
-    # - user_id : the variable user_id
-    # - uuid : the variable uuid_name
-    # - status : "RUNNING"
-    # For simplicty, use the function execute_sql to insert the values into the database.
-
+    # Inserts a new task into the database. (user_id : the variable user_id, uuid : the variable uuid_name, status : "RUNNING")
+    status, message = execute_sql("INSERT INTO running_tasks (user_id, uuid, status) VALUES (%s, %s, 'RUNNING');", (user_id, uuid_name,))
+    if not status:
+        print(message)
+        return None
+    
     # Configure Gemini API
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel(model_name='gemini-pro')
@@ -176,12 +175,12 @@ def run_prompt(api_key, prompt, email, base_url, user_id, dataset_info, num_rows
     # Send CSV file as attachment via email
     send_email(email, csv_download_path, xlsx_download_path, stats, prompt)
 
-    # TODO: Mark as completed in the database
-    # Write code here to UPDATE the task in the database.
-    # Update the following values
-    # - end_time : the current time in UTC. You may need to use the Python datetime library.
-    # - status : "COMPLETED"
-    # You should update WHERE the "uuid" column in the db is equal to the uuid_name variable.
-    # For simplicty, use the function execute_sql to insert the values into the database.
+    # Marks as completed in the database running_tasks table.
+    # Updates end_time : the current time in UTC and status : "COMPLETED"
+    status, message = execute_sql("UPDATE `running_tasks` SET `status` = 'COMPLETED', `end_time` = utc_timestamp() WHERE `uuid` = %s;", (uuid_name,))
+    if not status:
+        print(message)
+        return None
+
 
     return
