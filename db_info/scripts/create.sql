@@ -1,4 +1,4 @@
-CREATE TABLE `users` (
+CREATE TABLE IF NOT EXISTS `users` (
   `user_id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `email` varchar(320) NOT NULL,
   `password` varchar(255) NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE `users` (
 );
 
 
-CREATE TABLE `verify_code` (
+CREATE TABLE IF NOT EXISTS `verify_code` (
   `user_id` bigint unsigned NOT NULL,
   `code` varchar(6) NOT NULL,
   PRIMARY KEY (`user_id`),
@@ -18,7 +18,7 @@ CREATE TABLE `verify_code` (
 );
 
 
-CREATE TABLE password_reset_tokens (
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT UNSIGNED NOT NULL,
     token VARCHAR(28) NOT NULL,
@@ -34,13 +34,13 @@ ALTER TABLE password_reset_tokens
   CHANGE created_at created_at DATETIME NOT NULL DEFAULT (UTC_TIMESTAMP());
 
 
-CREATE TABLE roles (
+CREATE TABLE IF NOT EXISTS roles (
     role_id INT UNSIGNED PRIMARY KEY,
     role_name VARCHAR(50) UNIQUE NOT NULL
 );
 
 
-CREATE TABLE user_roles (
+CREATE TABLE IF NOT EXISTS user_roles (
     user_id BIGINT UNSIGNED NOT NULL,
     role_id INT UNSIGNED NOT NULL,
     PRIMARY KEY (user_id, role_id),
@@ -49,7 +49,7 @@ CREATE TABLE user_roles (
 );
 
 
-CREATE TABLE `chat_gpt_keys` (
+CREATE TABLE IF NOT EXISTS `chat_gpt_keys` (
   `user_id` BIGINT UNSIGNED NOT NULL,
   `key` VARCHAR(255) DEFAULT NULL,
   PRIMARY KEY (`user_id`),
@@ -57,7 +57,7 @@ CREATE TABLE `chat_gpt_keys` (
 );
 
 
-CREATE TABLE `gemini_keys` (
+CREATE TABLE IF NOT EXISTS `gemini_keys` (
   `user_id` BIGINT UNSIGNED NOT NULL,
   `key` VARCHAR(255) DEFAULT NULL,
   PRIMARY KEY (`user_id`),
@@ -65,7 +65,7 @@ CREATE TABLE `gemini_keys` (
 );
 
 
-CREATE TABLE account_removal_tokens (
+CREATE TABLE IF NOT EXISTS account_removal_tokens (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT UNSIGNED NOT NULL,
     token VARCHAR(28) NOT NULL,
@@ -82,4 +82,4 @@ ALTER TABLE account_removal_tokens
 
 
 -- These are the current roles the database will support
-INSERT INTO roles (role_id, role_name) VALUES (1, 'admin'), (2, 'prompt_engineer');
+INSERT IGNORE INTO roles (role_id, role_name) VALUES (1, 'admin'), (2, 'prompt_engineer');
