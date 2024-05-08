@@ -96,9 +96,6 @@ def check_email(email):
 def send_verification_email(receiver_email):
     if not check_email(receiver_email):
         return False, "Bad email address"
-    
-    if not(receiver_email.endswith(".byu.edu") or receiver_email.endswith("@byu.edu")):
-        return False, "Not a BYU email address"
 
     # Get the verification code
     verification_code, error_message = generate_verification_code(receiver_email)

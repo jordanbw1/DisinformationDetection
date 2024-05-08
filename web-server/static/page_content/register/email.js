@@ -1,6 +1,5 @@
 var emailInput = document.getElementById("email");
 var validEmail = document.getElementById("validemail");
-var byuEmail = document.getElementById("byuemail");
 
 // When the user clicks on the password field, show the message box
 emailInput.onfocus = function() {
@@ -22,16 +21,4 @@ emailInput.onkeyup = function() {
       validEmail.classList.remove("valid");
       validEmail.classList.add("invalid");
   }
-
-  // Define the regex pattern
-  var byuRegex = /@(?:[a-zA-Z0-9-]+\.)?byu\.edu$/;
-  if (byuRegex.test(emailInput.value)) {
-    byuEmail.classList.remove("invalid");
-    byuEmail.classList.add("valid");
-  } else {
-    byuEmail.classList.remove("valid");
-    byuEmail.classList.add("invalid");
-  }
-
-
 }
