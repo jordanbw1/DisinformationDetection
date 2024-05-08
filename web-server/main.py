@@ -10,7 +10,7 @@ from routes.documents import documents
 from routes.account import account
 import mysql.connector
 from helper_functions.database import get_db_connection, execute_sql, sql_results_one, sql_results_all
-from helper_functions.prompt import append_instructions
+from helper_functions.prompt import append_instructions, get_instructions
 from helper_functions.account_actions import is_valid_password_token, get_user_from_token
 from flask_wtf import CSRFProtect
 import hashlib
@@ -71,9 +71,12 @@ def index():
 
     # Create a list of tuples containing dataset name and max rows
     datasets = {name: mapping["rows"] if "prompt_engineer" in user_roles else 500 for name, mapping in dataset_mapping.items()}
+    
+    # Get instructions for the prompt
+    instructions = get_instructions()
 
     # Render the index page with dataset names
-    return render_template('index.html', datasets=datasets)
+    return render_template('index.html', datasets=datasets, instructions=instructions)
 
 # for example, the login page shouldn't require login
 @app.route('/login', methods=['GET', 'POST'])
