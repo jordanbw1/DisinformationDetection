@@ -96,4 +96,4 @@ CREATE TABLE IF NOT EXISTS running_tasks (
 );
 
 
-ALTER TABLE running_tasks CHANGE start_time start_time DATETIME NOT NULL DEFAULT (UTC_TIMESTAMP())
+ALTER TABLE running_tasks CHANGE start_time start_time DATETIME NOT NULL DEFAULT (UTC_TIMESTAMP());
