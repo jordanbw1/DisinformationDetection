@@ -20,11 +20,12 @@
         <div id="promptform">
             <form method="post" action="submit-prompt">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <input type="hidden" id="instructions" value="{{ instructions }}">
                 <label for="dataset">Select Dataset:</label><br>
                 <select id="dataset" name="dataset">
-                    {% for dataset in datasets %}
-                        <option value="{{ dataset }}">{{ dataset }}</option>
-                    {% endfor %}
+                {% for dataset in datasets %}
+                    <option value="{{ dataset }}">{{ dataset }}</option>
+                {% endfor %}
                 </select><br><br>
                 <label for="prompt">Prompt:</label><br>
                 <textarea type="text" id="prompt" name="prompt" rows="1" oninput="autoResize(this)" required></textarea><br><br>

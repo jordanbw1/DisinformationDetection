@@ -6,6 +6,7 @@ from helper_functions.email_functions import send_email
 import pandas as pd
 from helper_functions.stats import compute_sheet_stats
 from helper_functions.database import execute_sql, sql_results_one
+import xml.etree.ElementTree as ET
 
 
 def run_prompt(api_key, prompt, email, base_url, user_id, dataset_info, num_rows=300):
@@ -76,7 +77,7 @@ def run_prompt(api_key, prompt, email, base_url, user_id, dataset_info, num_rows
         try:
             num_iters += 1
             # Add text to current prompt and strips text of any ";"
-            full_prompt = prompt + row["text"].replace(";", "")
+            full_prompt = prompt + row["text"]
 
             # Interact with Gemini to fill out response, response_explanation, confidence, truthful_level, and correct
             res = model.generate_content(
@@ -114,23 +115,23 @@ def run_prompt(api_key, prompt, email, base_url, user_id, dataset_info, num_rows
                 print(str(i) + ": Response is empty")
                 continue
 
-            #print(res.text)
-            res = res.text.split(";")
-
-            # Checks if response is correct length
-            if len(res) <= 1:
-                print("Prompt did not return correct response")
-                continue
+            # Extract relevant information from the XML content
+            res = res.text
+            root = ET.fromstring(res)
+            answer = root.find('answer').text
+            confidence_level = root.find('confidence_level').text
+            truth_level = root.find('truth_level').text
+            explanation = root.find('explanation').text
             
             # Determines if AI was correct or not
             label = int(row["label"])
             if label == 0:
-                if str(label) == str(res[0]):
+                if str(label) == str(answer):
                     correct = 1
                 else:
                     correct = 0
             else:
-                if str(label) == str(res[0]):
+                if str(label) == str(answer):
                     correct = 1
                 else:
                     correct = 0
@@ -143,11 +144,11 @@ def run_prompt(api_key, prompt, email, base_url, user_id, dataset_info, num_rows
             new_list.append(subject) # subject
             new_list.append(prompt.replace("\n", "")) # prompt
             new_list.append(row["label"]) # label
-            new_list.append(res[0]) # response
-            new_list.append(res[1]) # confidence_level
-            new_list.append(res[2]) # truth_level
+            new_list.append(answer) # response
+            new_list.append(confidence_level) # confidence_level
+            new_list.append(truth_level) # truth_level
             new_list.append(correct) # correct
-            new_list.append(res[3]) # response_explanation
+            new_list.append(explanation) # response_explanation
 
             data.append(new_list)
 
@@ -159,6 +160,12 @@ def run_prompt(api_key, prompt, email, base_url, user_id, dataset_info, num_rows
                 # Clear the data list after writing to the CSV file
                 data = []
 
+        except AttributeError as e:
+            print(f"(server error) Error extracting data from XML: {str(e)} response: {str(res)}")
+            continue
+        except ValueError as e:
+            print(f"(server error) Error extracting data from XML: {str(e)} response: {str(res)}")
+            continue
         except Exception as e:
             print(f"(server error) Exception: {str(e)}")
             continue  # Move on to the next iteration
