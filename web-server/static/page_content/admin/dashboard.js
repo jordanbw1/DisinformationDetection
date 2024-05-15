@@ -10,12 +10,26 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 userTable.innerHTML = '';
                 data.users.forEach(user => {
                     const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td><input type="checkbox" name="user_ids" value="${user.user_id}"></td>
-                        <td>${user.user_id}</td>
-                        <td>${user.email}</td>
-                        <td>${user.roles}</td>
-                    `;
+                    const userIdCell = document.createElement('td');
+                    userIdCell.textContent = user.user_id;
+                    row.appendChild(userIdCell);
+
+                    const emailCell = document.createElement('td');
+                    emailCell.textContent = user.email;
+                    row.appendChild(emailCell);
+
+                    const rolesCell = document.createElement('td');
+                    rolesCell.textContent = user.roles;
+                    row.appendChild(rolesCell);
+
+                    const checkboxCell = document.createElement('td');
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.name = 'user_ids';
+                    checkbox.value = user.user_id;
+                    checkboxCell.appendChild(checkbox);
+                    row.appendChild(checkboxCell);
+
                     userTable.appendChild(row);
                 });
 
