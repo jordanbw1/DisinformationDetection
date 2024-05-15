@@ -8,6 +8,7 @@ from helper_functions.email_functions import check_email, send_verification_emai
 from helper_functions.api import test_gemini_key, test_chatgpt_key
 from routes.documents import documents
 from routes.account import account
+from routes.admin import admin
 import mysql.connector
 from helper_functions.database import get_db_connection, execute_sql, sql_results_one, sql_results_all
 from helper_functions.prompt import append_instructions, get_instructions
@@ -34,6 +35,7 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY")
 app.register_blueprint(documents, url_prefix="/documents")
 app.register_blueprint(account, url_prefix="/account")
+app.register_blueprint(admin, url_prefix="/admin")
 
 # Initialize CSRF protection
 csrf = CSRFProtect()

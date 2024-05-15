@@ -40,6 +40,10 @@ CREATE TABLE IF NOT EXISTS roles (
 );
 
 
+-- These are the current roles the database will support
+INSERT IGNORE INTO roles (role_id, role_name) VALUES (1, 'admin'), (2, 'prompt_engineer'), (3, 'organizer');
+
+
 CREATE TABLE IF NOT EXISTS user_roles (
     user_id BIGINT UNSIGNED NOT NULL,
     role_id INT UNSIGNED NOT NULL,
@@ -81,10 +85,6 @@ ALTER TABLE account_removal_tokens
   CHANGE created_at created_at DATETIME NOT NULL DEFAULT (UTC_TIMESTAMP());
 
 
--- These are the current roles the database will support
-INSERT IGNORE INTO roles (role_id, role_name) VALUES (1, 'admin'), (2, 'prompt_engineer');
-
-
 CREATE TABLE IF NOT EXISTS running_tasks (
 	process_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	user_id BIGINT UNSIGNED NOT NULL,
@@ -97,3 +97,5 @@ CREATE TABLE IF NOT EXISTS running_tasks (
 
 
 ALTER TABLE running_tasks CHANGE start_time start_time DATETIME NOT NULL DEFAULT (UTC_TIMESTAMP());
+
+
