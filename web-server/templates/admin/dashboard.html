@@ -27,7 +27,6 @@
                     <tr>
                         <th><input type="checkbox" id="selectAll"></th>
                         <th>ID</th>
-                        <th>Username</th>
                         <th>Email</th>
                         <th>Roles</th>
                     </tr>
@@ -45,49 +44,16 @@
             </div>
             <button type="submit" class="btn btn-primary">Apply</button>
         </form>
+
+        <!-- Pagination Controls -->
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                <li class="page-item"><a class="page-link" href="#" id="prevPage">Previous</a></li>
+                <li class="page-item"><a class="page-link" href="#" id="nextPage">Next</a></li>
+            </ul>
+        </nav>
     </div>
     
-    <script>
-        document.addEventListener('DOMContentLoaded', (event) => {
-            // Fetch users from the server and populate the table
-            fetch('/admin/users')
-                .then(response => response.json())
-                .then(data => {
-                    const userTable = document.getElementById('userTable');
-                    data.users.forEach(user => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td><input type="checkbox" name="user_ids" value="${user.id}"></td>
-                            <td>${user.id}</td>
-                            <td>${user.username}</td>
-                            <td>${user.email}</td>
-                            <td>${user.roles.join(', ')}</td>
-                        `;
-                        userTable.appendChild(row);
-                    });
-                });
-
-            // Search functionality
-            document.getElementById('searchInput').addEventListener('input', function() {
-                const filter = this.value.toLowerCase();
-                const rows = document.querySelectorAll('#userTable tr');
-                rows.forEach(row => {
-                    const username = row.cells[2].textContent.toLowerCase();
-                    const email = row.cells[3].textContent.toLowerCase();
-                    if (username.includes(filter) || email.includes(filter)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            });
-
-            // Select all functionality
-            document.getElementById('selectAll').addEventListener('change', function() {
-                const checkboxes = document.querySelectorAll('#userTable input[type="checkbox"]');
-                checkboxes.forEach(checkbox => checkbox.checked = this.checked);
-            });
-        });
-    </script>
+    <script src="{{ url_for('static', filename='page_content/admin/dashboard.js') }}"></script>
 </body>
 </html>

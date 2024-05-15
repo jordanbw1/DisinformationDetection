@@ -99,3 +99,19 @@ CREATE TABLE IF NOT EXISTS running_tasks (
 ALTER TABLE running_tasks CHANGE start_time start_time DATETIME NOT NULL DEFAULT (UTC_TIMESTAMP());
 
 
+CREATE OR REPLACE VIEW users_and_roles AS
+SELECT 
+    users.user_id,
+    users.email,
+    GROUP_CONCAT(roles.role_name) AS roles
+FROM 
+    users
+LEFT JOIN 
+    user_roles ON users.user_id = user_roles.user_id
+LEFT JOIN 
+    roles ON user_roles.role_id = roles.role_id
+GROUP BY 
+    users.user_id, users.email;
+
+
+
