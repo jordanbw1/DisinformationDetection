@@ -200,7 +200,6 @@ def compute_sheet_stats(inFileName, outFileName):
         'False Negative Rate (FNR)': fnr,
         'True Negative Rate (TNR)': tnr
     }
-    print("VALS", values)
 
     # Add a starting explanation row
     pivot_sheet.cell(row=1, column=1, value="Summary statistics")
