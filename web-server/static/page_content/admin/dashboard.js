@@ -10,6 +10,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 userTable.innerHTML = '';
                 data.users.forEach(user => {
                     const row = document.createElement('tr');
+
+                    const checkboxCell = document.createElement('td');
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.name = 'user_ids';
+                    checkbox.value = user.user_id;
+                    checkboxCell.appendChild(checkbox);
+                    row.appendChild(checkboxCell);
+
                     const userIdCell = document.createElement('td');
                     userIdCell.textContent = user.user_id;
                     row.appendChild(userIdCell);
@@ -21,14 +30,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
                     const rolesCell = document.createElement('td');
                     rolesCell.textContent = user.roles;
                     row.appendChild(rolesCell);
-
-                    const checkboxCell = document.createElement('td');
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.name = 'user_ids';
-                    checkbox.value = user.user_id;
-                    checkboxCell.appendChild(checkbox);
-                    row.appendChild(checkboxCell);
 
                     userTable.appendChild(row);
                 });
