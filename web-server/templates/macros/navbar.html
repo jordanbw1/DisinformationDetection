@@ -6,10 +6,12 @@
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav mr-auto">
             {% if session.get("confirmed") %}
+            <!-- Display these to authenticated users -->
             <li class="nav-item">
                 <a class="nav-link" href="{{url_for('account.account_page')}}" title="Account">Account</a>
             </li>
             {% if "admin" in session.get("user_roles", []) %}
+            <!-- Display this to admin users -->
             <li class="nav-item">
                 <a class="nav-link" href="{{url_for('admin.admin_dashboard')}}" title="Admin Dashboard">Admin Dashboard</a>
             </li>

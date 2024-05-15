@@ -1,17 +1,30 @@
-from flask import Blueprint, render_template, url_for, redirect, jsonify, request, session
+from flask import Blueprint, render_template, url_for, redirect, jsonify, request, session, flash
+from functools import wraps
 from helper_functions.database import execute_sql, sql_results_one, sql_results_all
 
 admin = Blueprint('admin', __name__, template_folder='admin')
 
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_roles' not in session or 'admin' not in session['user_roles']:
+            flash("You need to be an admin to access this page.", 'error')
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 @admin.route('/')
+@admin_required
 def admin_home():
     return redirect(url_for('admin.admin_dashboard')),
 
 @admin.route('/dashboard')
+@admin_required
 def admin_dashboard():
     return render_template("admin/dashboard.html")
 
 @admin.route('/users', methods=['GET'])
+@admin_required
 def get_users():
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 10, type=int)
