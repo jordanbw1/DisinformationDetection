@@ -57,7 +57,6 @@ body {
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
-    border-right: 1px solid #bbb;
 }
 
 .navbar-nav .nav-item:last-child a {
@@ -79,4 +78,3 @@ body {
     width: 100%;
     z-index: 1000; /* Ensure navbar is above other elements */
 }
-    

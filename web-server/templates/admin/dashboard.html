@@ -6,7 +6,6 @@
     <title>Admin Dashboard</title>
     {% include "macros/style-import.html" ignore missing with context %}
     <link rel="stylesheet" href="{{ url_for('static', filename='page_content/admin-dashboard/admin-dashboard.css') }}">
-    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous"> -->
 </head>
 <body>
     <!-- Include Navbar -->
@@ -15,6 +14,80 @@
     <!-- Get Flask messages -->
     {% include "macros/flask_messages.html" ignore missing with context %}
 
+    <div class="container mt-5">
+        <h2>Admin Dashboard</h2>
+        
+        <div class="search-box">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search users...">
+        </div>
+        
+        <form id="userForm" action="/admin/actions" method="post">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAll"></th>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Roles</th>
+                    </tr>
+                </thead>
+                <tbody id="userTable">
+                    <!-- Users will be dynamically inserted here -->
+                </tbody>
+            </table>
+            
+            <div class="form-group">
+                <select class="form-control" name="action" id="actionSelect">
+                    <option value="add_role">Add Role</option>
+                    <!-- Other actions can be added here -->
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Apply</button>
+        </form>
+    </div>
     
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            // Fetch users from the server and populate the table
+            fetch('/admin/users')
+                .then(response => response.json())
+                .then(data => {
+                    const userTable = document.getElementById('userTable');
+                    data.users.forEach(user => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td><input type="checkbox" name="user_ids" value="${user.id}"></td>
+                            <td>${user.id}</td>
+                            <td>${user.username}</td>
+                            <td>${user.email}</td>
+                            <td>${user.roles.join(', ')}</td>
+                        `;
+                        userTable.appendChild(row);
+                    });
+                });
+
+            // Search functionality
+            document.getElementById('searchInput').addEventListener('input', function() {
+                const filter = this.value.toLowerCase();
+                const rows = document.querySelectorAll('#userTable tr');
+                rows.forEach(row => {
+                    const username = row.cells[2].textContent.toLowerCase();
+                    const email = row.cells[3].textContent.toLowerCase();
+                    if (username.includes(filter) || email.includes(filter)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+
+            // Select all functionality
+            document.getElementById('selectAll').addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll('#userTable input[type="checkbox"]');
+                checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+            });
+        });
+    </script>
 </body>
 </html>
