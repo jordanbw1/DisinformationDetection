@@ -31,6 +31,23 @@ def execute_sql(query, values=None):
     return True, "Good"
 
 # Execute generic sql query
+def execute_sql_return_id(query, values):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(query, values)
+        conn.commit()
+        last_insert_id = cursor.lastrowid
+    except mysql.connector.Error as err:
+        print(f"Error executing SQL query: {err}")
+        conn.rollback()
+        return False, f"Error executing SQL query: {err}", None
+    finally:
+        cursor.close()
+        conn.close()
+    return True, "Good", last_insert_id
+
+# Execute generic sql query
 def sql_results_one(query, values=None):
     conn = get_db_connection()
     cursor = conn.cursor()

@@ -5,11 +5,16 @@ import uuid
 from helper_functions.email_functions import send_email
 import pandas as pd
 from helper_functions.stats import compute_sheet_stats
-from helper_functions.database import execute_sql, sql_results_one
+from helper_functions.database import execute_sql, sql_results_one, execute_sql_return_id
 import xml.etree.ElementTree as ET
+from helper_functions.prompt import append_instructions, get_instructions
+import json
 
 
 def run_prompt(api_key, prompt, email, base_url, user_id, dataset_info, num_rows=300):
+    og_prompt = prompt
+    instructions = get_instructions()
+    prompt = append_instructions(prompt)
     if num_rows < 1:
         print("Too few rows requested, using the default of 300")
         num_rows = 300
@@ -186,8 +191,33 @@ def run_prompt(api_key, prompt, email, base_url, user_id, dataset_info, num_rows
     # Updates end_time : the current time in UTC and status : "COMPLETED"
     status, message = execute_sql("UPDATE `running_tasks` SET `status` = 'COMPLETED', `end_time` = utc_timestamp() WHERE `uuid` = %s;", (uuid_name,))
     if not status:
-        print(message)
+        print("ERROR:", message)
+        return None
+    
+    # Insert results into results table
+    results_stats = {
+        'tPos': int(stats["tPos"]),
+        'tNeg': int(stats["tNeg"]),
+        'fNeg': int(stats["fNeg"]),
+        'fPos': int(stats["fPos"]),
+        'accuracy': float(stats["accuracy"]),
+        'precision': float(stats["precision"]),
+        'recall': float(stats["recall"]),
+        'fscore': float(stats["fscore"]),
+    }
+    # Convert results_stats to JSON string
+    results_stats_json = json.dumps(results_stats)
+
+    status, message, result = execute_sql_return_id("INSERT INTO results (user_id, uuid, scores) VALUES (%s, %s, %s);", (user_id, uuid_name, results_stats_json,))
+    if not status or not result:
+        print("ERROR:", message)
+        return None
+    result_id = result
+    
+    # Insert prompt and instructions into results_additional_info table
+    status, message = execute_sql("INSERT INTO results_additional_info (result_id, prompt, instructions) VALUES (%s, %s, %s);", (result_id, og_prompt, instructions,))
+    if not status:
+        print("ERROR:", message)
         return None
 
-
-    return
+    return None

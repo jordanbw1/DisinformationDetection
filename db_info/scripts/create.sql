@@ -211,9 +211,10 @@ SELECT
     results.scores,
     results_additional_info.prompt
 FROM 
-    results
-JOIN 
     result_in_competition
+LEFT JOIN 
+    results
+    ON result_in_competition.result_id = results.id
 LEFT JOIN
 	results_additional_info
 ON results_additional_info.result_id = results.id

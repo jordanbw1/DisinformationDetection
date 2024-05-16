@@ -302,7 +302,6 @@ def compute_sheet_stats(inFileName, outFileName):
         'percent_TNR': round((correctNoDisinfo / numRows) * 100),
         'percent_FNR': round((falseNegative / numRows) * 100)
     }
-    print(stats)
 
     # Return the filename and stats
     return stats

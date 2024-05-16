@@ -10,6 +10,7 @@ from routes.documents import documents_routes
 from routes.account import account_routes
 from routes.admin import admin_routes
 from routes.competition import competition_routes
+from helper_functions.fail_running_tasks import fail_running_tasks
 import mysql.connector
 from helper_functions.database import get_db_connection, execute_sql, sql_results_one, sql_results_all
 from helper_functions.prompt import append_instructions, get_instructions
@@ -77,7 +78,7 @@ def index():
     datasets = {name: mapping["rows"] if "prompt_engineer" in user_roles else 500 for name, mapping in dataset_mapping.items()}
     
     # Get instructions for the prompt
-    instructions = get_instructions()
+    instructions = "\n" + get_instructions()
 
     # Render the index page with dataset names
     return render_template('index.html', datasets=datasets, instructions=instructions)
@@ -327,15 +328,21 @@ def submit_prompt():
         flash("Invalid dataset information.", 'error')
         return redirect(url_for('index'))
     dataset_subject = dataset_info.get('subject', '')
+
+    # Check to see if user has another prompt currently running
+    status, message, result = sql_results_all("SELECT * FROM running_tasks WHERE user_id = %s AND status = 'RUNNING';", (session["user_id"],))
+    if not status:
+        flash(f"Error checking for running tasks: {message}", 'error')
+        return redirect(url_for('index'))
+    if result:
+        flash("You already have a prompt running. Please wait for it to finish before submitting another.", 'error')
+        return redirect(url_for('index'))
     
     # Test API key before starting
     success, message = test_gemini_key(api_key=api_key)
     if not success:
         flash(f"API Key error: {message}", 'error')
         return redirect(url_for('index'))
-    
-    # Add instructions to the user's prompt
-    full_prompt = append_instructions(prompt=prompt)
 
     # Get the url for the server
     base_url = request.host_url
@@ -352,10 +359,11 @@ def submit_prompt():
     }
 
     # Create a thread and pass the function to it
-    thread = threading.Thread(target=run_prompt, args=(api_key,full_prompt,email,base_url,user_id,dataset_info,num_rows,))
+    thread = threading.Thread(target=run_prompt, args=(api_key,prompt,email,base_url,user_id,dataset_info,num_rows,))
     thread.start()
     
     # Save their prompt to the session to be displayed later
+    full_prompt = append_instructions(prompt=prompt)
     session['prompt'] = full_prompt
 
     # Redirect to the confirmation page
@@ -496,4 +504,5 @@ def load_dataset_mapping():
 ## --------- End Helper Functions --------- ##
 
 if __name__ == '__main__':
+    fail_running_tasks()
     app.run(host='0.0.0.0', port=8080, debug=True)

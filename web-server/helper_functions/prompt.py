@@ -1,5 +1,5 @@
 def get_instructions():
-    instructions = """\nYour response should have these sections:
+    instructions = """Your response should have these sections:
 <answer> - a one number response of either "1" if it is dissinformation or "0" if it is factual.
 <confidence_level> - a level from 1-12 on how confident you are that your answer from Section 1 is correct.
 <truth_level> - a level from 1-12 on how truthful the twitter post is.
@@ -14,5 +14,5 @@ Here is the post you should evaluate:"""
 
 def append_instructions(prompt):
     instructions = get_instructions()
-    fixed_prompt = str(prompt) + instructions
+    fixed_prompt = str(prompt) + "\n" + instructions
     return fixed_prompt
