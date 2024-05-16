@@ -117,9 +117,9 @@ GROUP BY
 CREATE TABLE IF NOT EXISTS competitions (
 	id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
-  join_link VARCHAR(255) UNIQUE NOT NULL,
   start_date DATETIME,
-  end_date DATETIME
+  end_date DATETIME,
+  join_link VARCHAR(255) UNIQUE NOT NULL
 );
 
 
@@ -147,9 +147,15 @@ CREATE TABLE IF NOT EXISTS competition_settings (
 	competition_id BIGINT UNSIGNED PRIMARY KEY,
   scoreboard_visibility BOOL NOT NULL DEFAULT TRUE,
   public BOOL NOT NULL DEFAULT FALSE,
+  additional JSON,
+  CONSTRAINT FOREIGN KEY (competition_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+CREATE TABLE IF NOT EXISTS competition_details (
+  competition_id BIGINT UNSIGNED PRIMARY KEY,
   description TEXT,
   rules TEXT,
   terms_service TEXT,
-  additional JSON,
-  CONSTRAINT FOREIGN KEY (comp_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
+  FOREIGN KEY (competition_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
 );

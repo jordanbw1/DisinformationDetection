@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{comp_name}} Competition Home Page</title>
+    <title>{{comp_name}} Competition</title>
     {% include "macros/style-import.html" ignore missing with context %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='page_content/competition/competition_page.css') }}">
 </head>
 <body>
     <!-- Include Navbar -->
@@ -13,9 +14,24 @@
     <!-- Get Flask messages -->
     {% include "macros/flask_messages.html" ignore missing with context %}
 
-    <div class="container mt-5">
-        <h2>{{comp_name}} Competition Home Page</h2>
+    <div class="body-div">
+        <!-- Top section, headers, and announcements -->
+        <div class="container mt-5">
+            <!-- Headers -->
+            <div class="d-flex justify-content-between">
+                <h2 class="headers">{{comp_name}} Competition</h2>
+                <a class="headers btn btn-secondary">Open Workspace</a>
+            </div><br><br>
+            <!-- Announcements Area -->
+            <!-- Description area -->
+            {% if description %}
+            <p>{{description}}</p>
+            {% endif %}
+        </div>
+
     </div>
+        
+    
         
     
 </body>

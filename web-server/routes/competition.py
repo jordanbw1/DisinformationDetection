@@ -6,14 +6,15 @@ competition_routes = Blueprint('competition_routes', __name__, template_folder='
 @competition_routes.route('/')
 def home():
     # TODO: Render the home page with all competitions listed
-    return render_template("competition/home.html")
+    return render_template("competition/list_competitions.html")
 
 @competition_routes.route('/<competition_id>')
 def competition_page(competition_id):
     # Check if user is in competition, and get competition details
-    query = """SELECT name FROM competition_participants
+    query = """SELECT name, description FROM competition_participants
     LEFT JOIN competitions ON competition_participants.competition_id = competitions.id
-    WHERE competition_id = %s AND user_id = %s;"""
+    LEFT JOIN competition_details ON competition_participants.competition_id = competition_details.competition_id
+    WHERE competition_participants.competition_id = %s AND user_id = %s;"""
     status, message, result = sql_results_one(query, (competition_id, session["user_id"],))
     if not status:
         flash(f"Error occurred while checking if user is in competition: {message}", "error")
@@ -21,11 +22,11 @@ def competition_page(competition_id):
     if not result:
         flash("You are not part of this competition", "error")
         return redirect(url_for('index'))
-    
     comp_name = result[0]
+    description = result[1]
     
     # TODO: Render the competition page with correct settings
-    return render_template("competition/competition_page.html", comp_name=comp_name)
+    return render_template("competition/competition_page.html", comp_name=comp_name, description=description)
 
 @competition_routes.route('/join/<join_link>')
 def welcome(join_link):
@@ -40,7 +41,7 @@ def welcome(join_link):
     competition_id = competition_id[0]
 
     # Get the name and description for competition
-    status, message, result = sql_results_one("SELECT name, description FROM competition_settings INNER JOIN competitions WHERE competition_id = %s", (competition_id,))
+    status, message, result = sql_results_one("SELECT name, description FROM competition_details INNER JOIN competitions WHERE competition_id = %s", (competition_id,))
     if not status:
         flash(f"Error occurred while joining competition: {message}", "error")
         return redirect(url_for('index'))
@@ -67,7 +68,7 @@ def register(join_link):
 
     if request.method == 'GET':
         # Get the name, rules, and terms of service for competition
-        status, message, result = sql_results_one("SELECT name, rules, terms_service FROM competition_settings INNER JOIN competitions WHERE competition_id = %s", (competition_id,))
+        status, message, result = sql_results_one("SELECT name, rules, terms_service FROM competition_details INNER JOIN competitions WHERE competition_id = %s", (competition_id,))
         if not status:
             flash(f"Error occurred while joining competition: {message}", "error")
             return redirect(url_for('index'))
