@@ -146,6 +146,7 @@ ALTER TABLE competition_participants CHANGE date_joined date_joined DATETIME NOT
 CREATE TABLE IF NOT EXISTS competition_settings (
 	competition_id BIGINT UNSIGNED PRIMARY KEY,
   scoreboard_visibility BOOL NOT NULL DEFAULT TRUE,
+  public BOOL NOT NULL DEFAULT FALSE,
   description TEXT,
   rules TEXT,
   terms_service TEXT,
