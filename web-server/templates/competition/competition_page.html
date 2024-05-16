@@ -42,6 +42,7 @@
         </div>
 
         <div class="container mt-5">
+            <h2 class="headers">Scoreboard</h2><br>
             <div class="search-box">
                 <input type="text" id="searchInput" class="form-control" placeholder="Search scoreboard...">
             </div>
@@ -58,10 +59,20 @@
                     <!-- Users will be dynamically inserted here -->
                 </tbody>
             </table>
+
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                    <li class="page-item"><a class="page-link" href="#" id="prevPage">Previous</a></li>
+                    <li class="page-item"><a class="page-link" href="#" id="nextPage">Next</a></li>
+                </ul>
+            </nav>
         </div>
-
-
     </div>
+
+<!-- Store comp_id for the javascript -->
+<input type="hidden" id="comp_id" value="{{competition_id}}">
+
+<script src="{{ url_for('static', filename='page_content/competition/competition_page.js') }}"></script>
     
 </body>
 </html>

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, flash, redirect, url_for, request, session
+from flask import Blueprint, render_template, flash, redirect, url_for, request, session, jsonify
 from helper_functions.database import execute_sql, sql_results_one, sql_results_all
 
 competition_routes = Blueprint('competition_routes', __name__, template_folder='competition')
@@ -36,7 +36,7 @@ def competition_page(competition_id):
     else:
         announcements = [{"announcement": row[0], "announce_time": str(row[1])[:-3]} for row in result]
     
-    return render_template("competition/competition_page.html", comp_name=comp_name, description=description, announcements=announcements)
+    return render_template("competition/competition_page.html", comp_name=comp_name, description=description, announcements=announcements, competition_id=competition_id)
 
 @competition_routes.route('/join/<join_link>')
 def welcome(join_link):
@@ -113,3 +113,45 @@ def register(join_link):
         
         flash("Successfully registered for competition", "success")
         return redirect(url_for('competition_routes.competition_page', competition_id=competition_id))
+    
+@competition_routes.route('/scoreboard/<comp_id>', methods=['GET'])
+def get_scoreboard(comp_id):
+    # Confirm user is in competition
+    status, message, result = sql_results_one("SELECT * FROM competition_participants WHERE competition_id = %s AND user_id = %s", (comp_id, session["user_id"],))
+    if not status:
+        return jsonify({'error': message}), 500
+    if not result:
+        return jsonify({'error': 'User is not in competition'}), 403
+    
+    # Get the page and per_page parameters
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+    start = (page - 1) * per_page
+
+    # Get the top scores for the competition
+    status, message, scores = sql_results_all("SELECT full_name, highest_fscore, ranking FROM competition_scoreboard_fscore WHERE competition_id = %s ORDER BY highest_fscore DESC LIMIT %s OFFSET %s", (comp_id, per_page, start))
+    if not status:
+        return jsonify({'error': message}), 500
+    
+    # Get the total number of scores for the competition
+    status, message, total = sql_results_one("SELECT COUNT(*) FROM competition_scoreboard_fscore;")
+    if not status:
+        return jsonify({'error': message}), 500
+
+    # Format user data to be easily passable to the frontend
+    formatted_scoreboard = []
+    for score in scores:
+        formatted_score = {
+            'name': score[0],
+            'score': score[1],
+            'rank': score[2]
+        }
+        formatted_scoreboard.append(formatted_score)
+    
+    # Send back the formatted scoreboard
+    return jsonify({
+        'scoreboard': formatted_scoreboard,
+        'total': total,
+        'page': page,
+        'per_page': per_page
+    })

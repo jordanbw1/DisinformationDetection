@@ -209,13 +209,41 @@ SELECT
     result_in_competition.result_id,
     result_in_competition.competition_id,
     results.user_id,
+    users.full_name,
     results.scores,
     results_additional_info.prompt
 FROM 
     result_in_competition
 LEFT JOIN 
     results
-    ON result_in_competition.result_id = results.id
+ON result_in_competition.result_id = results.id
 LEFT JOIN
 	results_additional_info
 ON results_additional_info.result_id = results.id
+LEFT JOIN
+	users
+ON users.user_id = results.user_id;
+
+
+CREATE OR REPLACE VIEW competition_scoreboard_fscore AS
+WITH user_scores AS (
+    SELECT
+        competition_id,
+        user_id,
+        full_name,
+        MAX(CAST(JSON_UNQUOTE(JSON_EXTRACT(scores, '$.fscore')) AS DECIMAL(10,2))) AS highest_fscore
+    FROM 
+        competition_scoreboard
+    GROUP BY 
+        competition_id, user_id, full_name
+)
+SELECT 
+	  competition_id,
+    user_id,
+    full_name,
+    highest_fscore,
+    RANK() OVER (ORDER BY highest_fscore DESC) AS ranking
+FROM 
+    user_scores
+ORDER BY 
+    ranking;
