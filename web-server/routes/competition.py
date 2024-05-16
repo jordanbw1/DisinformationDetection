@@ -24,9 +24,19 @@ def competition_page(competition_id):
         return redirect(url_for('index'))
     comp_name = result[0]
     description = result[1]
+
+    # Get announcements for the competition
+    query = """SELECT announcement, announce_time FROM competition_announcements WHERE competition_id = %s ORDER BY announce_time DESC;"""
+    status, message, result = sql_results_all(query, (competition_id,))
+    if not status:
+        flash(f"Error occurred while getting competition announcements: {message}", "error")
+        return redirect(url_for('index'))
+    if not result:
+        announcements = None
+    else:
+        announcements = [{"announcement": row[0], "announce_time": str(row[1])[:-3]} for row in result]
     
-    # TODO: Render the competition page with correct settings
-    return render_template("competition/competition_page.html", comp_name=comp_name, description=description)
+    return render_template("competition/competition_page.html", comp_name=comp_name, description=description, announcements=announcements)
 
 @competition_routes.route('/join/<join_link>')
 def welcome(join_link):

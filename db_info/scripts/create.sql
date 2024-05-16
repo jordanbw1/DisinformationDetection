@@ -125,9 +125,9 @@ CREATE TABLE IF NOT EXISTS competitions (
 
 CREATE TABLE IF NOT EXISTS competition_organizer (
 	user_id BIGINT UNSIGNED,
-    competition_id BIGINT UNSIGNED,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (competition_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
+  competition_id BIGINT UNSIGNED,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (competition_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
@@ -157,5 +157,16 @@ CREATE TABLE IF NOT EXISTS competition_details (
   description TEXT,
   rules TEXT,
   terms_service TEXT,
-  FOREIGN KEY (competition_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT FOREIGN KEY (competition_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+
+CREATE TABLE IF NOT EXISTS competition_announcements (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	competition_id BIGINT UNSIGNED NOT NULL,
+  announcement TEXT NOT NULL,
+  announce_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT FOREIGN KEY (competition_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+ALTER TABLE competition_announcements CHANGE announce_time announce_time DATETIME NOT NULL DEFAULT (UTC_TIMESTAMP());

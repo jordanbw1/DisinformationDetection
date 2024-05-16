@@ -20,9 +20,21 @@
             <!-- Headers -->
             <div class="d-flex justify-content-between">
                 <h2 class="headers">{{comp_name}} Competition</h2>
-                <a class="headers btn btn-secondary">Open Workspace</a>
-            </div><br><br>
+                <a class="headers btn btn-secondary">Prompt Editor</a>
+            </div><br>
             <!-- Announcements Area -->
+            {% if announcements %}
+            <div class="announcements">
+                <h4>Announcements</h4>
+                <hr>
+                <ul>
+                    {% for announcement in announcements %}
+                    <li>{{announcement["announce_time"]}} - {{announcement["announcement"]}}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <hr>
+            {% endif %}
             <!-- Description area -->
             {% if description %}
             <p>{{description}}</p>
@@ -30,9 +42,6 @@
         </div>
 
     </div>
-        
-    
-        
     
 </body>
 </html>
