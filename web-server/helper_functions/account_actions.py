@@ -140,4 +140,13 @@ def delete_account_removal_token(token):
 def delete_account_removal_token_for_user(user_id):
     status, message = execute_sql("DELETE FROM account_removal_tokens WHERE user_id = %s;", (user_id,))
     return status, message
+
+def validate_user_name(full_name):
+    if not full_name or full_name.isspace():
+        return False, "Full name cannot be empty"
+    if len(full_name) > 255:
+        return False, "Full name cannot be longer than 255 characters"
+    if not full_name.replace(" ", "").isalnum():
+        return False, "Full name can only contain letters, numbers, and spaces"
+    return True, "Good"
 # ------------ END DELETE ACCOUNT FUNCTIONS ------------ #

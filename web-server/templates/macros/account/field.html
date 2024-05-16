@@ -13,7 +13,6 @@
     <button type="button" class="cancel-button" style="display:none;"><i class="fas fa-times"></i> Cancel</button>
     <br><input readonly type="text" class="input-field" name="{{ session_item_name }}" value="{{ session[session_item_name] }}">
     <br><input type="submit" class="submit-button" value="Save" style="display:none;">
-    <input type="hidden" name="api_key_type" value="{{ session_item_name }}">
     <input type="hidden" class="original-field" value="{{ session[session_item_name] }}">
 </form>
 {% endif %}

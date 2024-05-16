@@ -41,6 +41,26 @@
             {% endif %}
         </div>
 
+        <div class="container mt-5">
+            <div class="search-box">
+                <input type="text" id="searchInput" class="form-control" placeholder="Search scoreboard...">
+            </div>
+            
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Score</th>
+                        <th>Rank</th>
+                    </tr>
+                </thead>
+                <tbody id="scoreboard">
+                    <!-- Users will be dynamically inserted here -->
+                </tbody>
+            </table>
+        </div>
+
+
     </div>
     
 </body>

@@ -24,6 +24,8 @@
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <h3>Create an Account</h3>
 
+        <label for="fullName">Your Name:</label>
+        <input type="text" id="fullName" name="fullName" required>
         <label for="email">Email:</label>
         <input type="text" id="email" name="email" required>
         <label for="password">Password:</label>

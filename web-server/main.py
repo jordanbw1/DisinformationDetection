@@ -12,9 +12,9 @@ from routes.admin import admin_routes
 from routes.competition import competition_routes
 from helper_functions.fail_running_tasks import fail_running_tasks
 import mysql.connector
-from helper_functions.database import get_db_connection, execute_sql, sql_results_one, sql_results_all
+from helper_functions.database import get_db_connection, execute_sql, sql_results_one, sql_results_all, execute_sql_return_id
 from helper_functions.prompt import append_instructions, get_instructions
-from helper_functions.account_actions import is_valid_password_token, get_user_from_token
+from helper_functions.account_actions import is_valid_password_token, get_user_from_token, validate_user_name
 from flask_wtf import CSRFProtect
 import hashlib
 import secrets
@@ -99,11 +99,7 @@ def login():
         cursor = conn.cursor()
         try:
             # Execute the SQL query to fetch the hashed password associated with the username
-            query = "SELECT user_id, password, salt, confirmed FROM users WHERE email = %s"
-            cursor.execute(query, (email,))
-            result = cursor.fetchone()
-            cursor.close()
-            conn.close()
+            status, message, result = sql_results_one("SELECT user_id, password, salt, confirmed, full_name FROM users WHERE email = %s;", (email,))
 
             # If no result found for the given username, return False
             if not result:
@@ -125,7 +121,8 @@ def login():
             # Set user as logged in
             session["user_id"] = result[0]
             session["email"] = email
-            session["confirmed"] = bool(result[1])
+            session["confirmed"] = bool(result[3])
+            session["full_name"] = result[4]
 
             # Add any roles if user has them
             # Fetch user roles from the database
@@ -167,9 +164,16 @@ def register():
         return render_template('register.html')
     elif request.method == "POST":
         # Get form values
+        full_name = request.form['fullName']
         email = request.form['email']
         password = request.form['password']
         confirm_password = request.form['confirmpassword']
+
+        # Check that users name is alphanumeric
+        status, message = validate_user_name(full_name)
+        if not status:
+            flash(message, "error")
+            return redirect(url_for('account.account_page'))
 
         # Confirm that passwords match
         if password != confirm_password:
@@ -193,22 +197,20 @@ def register():
         # Hash the password with salt
         hashed_password = hash_password(password, salt)
         
-        status, message = execute_sql("INSERT INTO users (email, password, salt) VALUES (%s, %s, %s);", (email, hashed_password, salt))
+        status, message, result = execute_sql_return_id("INSERT INTO users (full_name, email, password, salt) VALUES (%s, %s, %s, %s);", (full_name, email, hashed_password, salt))
         if not status:
             if message.find("Duplicate entry") != -1:
                 flash("Email already registered to an account", 'error')
             else:
                 flash(f"Registration failed: {message}", 'error')
             return render_template("register.html")
-        
-        # Get the user_id
-        status, message, result = sql_results_one("SELECT user_id FROM users WHERE email = %s;", (email,))
-        if not status or not result:
+        if not result:
             flash(f"Registration failed: {message}", 'error')
             return render_template("register.html")
-        user_id = result[0]
+        user_id = result
 
         # Set session variables
+        session["full_name"] = full_name
         session["user_id"] = user_id
         session["email"] = email
         session['confirmed'] = False

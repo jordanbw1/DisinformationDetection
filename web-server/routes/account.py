@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from helper_functions.database import execute_sql, sql_results_one
 from helper_functions.api import test_gemini_key, test_chatgpt_key
 from helper_functions.database import execute_sql, sql_results_one
-from helper_functions.account_actions import is_valid_account_removal_token, delete_account_removal_token_for_user
+from helper_functions.account_actions import is_valid_account_removal_token, delete_account_removal_token_for_user, validate_user_name
 from helper_functions.email_functions import send_account_removal_email
 
 
@@ -17,38 +17,28 @@ def account_page():
 @account_routes.route('/update-api-key', methods=['POST'])
 def update_api_key():
     if request.method == 'POST':
-        # Get the API key type
-        api_key_type = request.form.get('api_key_type')
-        if not api_key_type:
-            flash("API key type is required", "error")
-            return redirect(url_for('account.account_page'))
-        # Determine api key type
-        if api_key_type != 'gemini_key' and api_key_type != 'chatgpt_key':
-            flash("Invalid API key type", "error")
-            return redirect(url_for('account.account_page'))
-        
         # Get the API key
-        api_key = request.form.get(api_key_type)
+        api_key = request.form.get("gemini_key")
         
         # Call helper function to test the API key before saving, unless it is None.
         if api_key == "None" or api_key == "" or api_key == None:
-            helper_delete_query_key(api_key_type)
-            session[api_key_type] = None
+            helper_delete_query_key("gemini_key")
+            session["gemini_key"] = None
             flash("API key deleted successfully", "success")
             return redirect(url_for('account.account_page'))
 
-        status, message = helper_test_query_key(api_key_type, api_key)
+        status, message = helper_test_query_key("gemini_key", api_key)
         if not status:
             flash(f"Error ocurred while testing API key: {message}", "error")
             return redirect(url_for('account.account_page'))
 
         # Call helper functions to save the API key
-        status, message = helper_save_query_key(api_key_type, api_key)
+        status, message = helper_save_query_key("gemini_key", api_key)
         if not status:
             flash(f"Error ocurred while saving API key: {message}", "error")
             return redirect(url_for('account.account_page'))
         
-        session[api_key_type] = api_key
+        session["gemini_key"] = api_key
         flash("API key updated successfully", "success")
         return redirect(url_for('account.account_page'))
 
@@ -118,6 +108,29 @@ def remove_account(token):
 
         # Redirect the user to a confirmation page or login page
         return redirect(url_for('login'))
+    
+# Route for updating user's name
+@account_routes.route('/update-name', methods=['POST'])
+def update_name():
+    if request.method == 'POST':       
+        # Get the user's new name
+        full_name = request.form.get("full_name")
+
+        # Check that users name is alphanumeric
+        status, message = validate_user_name(full_name)
+        if not status:
+            flash(message, "error")
+            return redirect(url_for('account.account_page'))
+        
+        # Update the user's name in the database
+        status, message = execute_sql("UPDATE users SET full_name = %s WHERE user_id = %s;", (full_name, session["user_id"],))
+        if not status:
+            flash(f"Error updating name: {message}", "error")
+            return redirect(url_for('account.account_page'))
+        
+        session["full_name"] = full_name
+        flash("API key updated successfully", "success")
+        return redirect(url_for('account.account_page'))
 
 def helper_save_query_key(api_key_type, api_key):
     # Get the table name

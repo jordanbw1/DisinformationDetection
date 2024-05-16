@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS `users` (
   `user_id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `full_name` varchar(255) NOT NULL,
   `email` varchar(320) NOT NULL,
   `password` varchar(255) NOT NULL,
   `confirmed` BOOLEAN NOT NULL DEFAULT '0',

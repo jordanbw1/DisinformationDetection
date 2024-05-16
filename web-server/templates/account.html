@@ -27,13 +27,16 @@
                 <h2>Account Information</h2>
                 <ul>
                     <li>
+                        {{ field("Full Name", "full_name", url_for('account.update_name'), False) }}
+                    </li>
+                    <li>
                         {{ field("Email", "email", None, True) }}
                     </li>
                     <!-- <li>
                         {{ field("ChatGPT API Key", "chatgpt_key", url_for('account.update_api_key'), False) }}
                     </li> -->
                     <li>
-                        {{ field("Google Gemini API Key", "gemini_key", url_for('account.update_api_key'), False) }}
+                        {{ field("Google Gemini API Key", "gemini_key", url_for('account.update_api_key'), False ) }}
                     </li>
                 </ul>
             </div>
