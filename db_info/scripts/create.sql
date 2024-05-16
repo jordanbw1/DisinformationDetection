@@ -169,4 +169,51 @@ CREATE TABLE IF NOT EXISTS competition_announcements (
   CONSTRAINT FOREIGN KEY (competition_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+
 ALTER TABLE competition_announcements CHANGE announce_time announce_time DATETIME NOT NULL DEFAULT (UTC_TIMESTAMP());
+
+
+CREATE TABLE IF NOT EXISTS results (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
+  user_id BIGINT UNSIGNED NOT NULL,
+  uuid VARCHAR(36) NOT NULL,
+  scores JSON NOT NULL,
+  finish_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+ALTER TABLE results CHANGE finish_time finish_time DATETIME NOT NULL DEFAULT (UTC_TIMESTAMP());
+
+
+CREATE TABLE IF NOT EXISTS results_additional_info (
+  result_id BIGINT UNSIGNED PRIMARY KEY, 
+  prompt TEXT,
+  instructions TEXT,
+  CONSTRAINT FOREIGN KEY (result_id) REFERENCES results(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+CREATE TABLE IF NOT EXISTS result_in_competition (
+  result_id BIGINT UNSIGNED, 
+  competition_id BIGINT UNSIGNED,
+  PRIMARY KEY(result_id, competition_id),
+  CONSTRAINT FOREIGN KEY (result_id) REFERENCES results(id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT FOREIGN KEY (competition_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+CREATE OR REPLACE VIEW competition_scoreboard AS
+SELECT 
+    result_in_competition.result_id,
+    result_in_competition.competition_id,
+    results.user_id,
+    results.scores,
+    results_additional_info.prompt
+FROM 
+    results
+JOIN 
+    result_in_competition
+LEFT JOIN
+	results_additional_info
+ON results_additional_info.result_id = results.id
