@@ -20,7 +20,7 @@
             <!-- Headers -->
             <div class="d-flex justify-content-between">
                 <h2 class="headers">{{comp_name}} Competition</h2>
-                <a class="headers btn btn-secondary">Prompt Editor</a>
+                <a href="{{url_for('competition_routes.prompt_editor', comp_id=competition_id)}}" class="headers btn btn-secondary">Prompt Editor</a>
             </div><br>
             <!-- Announcements Area -->
             {% if announcements %}

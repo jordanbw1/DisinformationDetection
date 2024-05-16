@@ -11,7 +11,7 @@ from helper_functions.prompt import append_instructions, get_instructions
 import json
 
 
-def run_prompt(api_key, prompt, email, base_url, user_id, dataset_info, num_rows=300):
+def run_prompt(api_key, prompt, email, base_url, user_id, dataset_info, num_rows=300, comp_id=None):
     og_prompt = prompt
     instructions = get_instructions()
     prompt = append_instructions(prompt)
@@ -34,11 +34,20 @@ def run_prompt(api_key, prompt, email, base_url, user_id, dataset_info, num_rows
     i = 0
 
     # Inserts a new task into the database. (user_id : the variable user_id, uuid : the variable uuid_name, status : "RUNNING")
-    status, message = execute_sql("INSERT INTO running_tasks (user_id, uuid, status) VALUES (%s, %s, 'RUNNING');", (user_id, uuid_name,))
-    if not status:
-        print(message)
+    status, message, result = execute_sql_return_id("INSERT INTO running_tasks (user_id, uuid, status) VALUES (%s, %s, 'RUNNING');", (user_id, uuid_name,))
+    if not status or not result:
+        print("ERROR:", message)
         return None
-    
+    task_id = result
+
+    # Insert task_id into running_task_competition table
+    if comp_id:
+        status, message = execute_sql("INSERT INTO running_task_competition (task_id, competition_id) VALUES (%s, %s);", (task_id, comp_id,))
+        if not status:
+            print("ERROR:", message)
+            mark_task_failed(uuid_name)
+            return None
+
     # Configure Gemini API
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel(model_name='gemini-pro')
@@ -192,6 +201,7 @@ def run_prompt(api_key, prompt, email, base_url, user_id, dataset_info, num_rows
     status, message = execute_sql("UPDATE `running_tasks` SET `status` = 'COMPLETED', `end_time` = utc_timestamp() WHERE `uuid` = %s;", (uuid_name,))
     if not status:
         print("ERROR:", message)
+        mark_task_failed(uuid_name)
         return None
     
     # Insert results into results table
@@ -219,5 +229,26 @@ def run_prompt(api_key, prompt, email, base_url, user_id, dataset_info, num_rows
     if not status:
         print("ERROR:", message)
         return None
+    
+    # If the competition_id is not None, insert the result_id into the competition_results table
+    if comp_id:
+        status, message = execute_sql("INSERT INTO result_in_competition (result_id, competition_id) VALUES (%s, %s);", (result_id, comp_id,))
+        if not status:
+            print("ERROR:", message)
+            return None
 
     return None
+
+
+def mark_task_failed(uuid_name):
+    try:
+        # Marks as failed in the database running_tasks table.
+        # Updates end_time : the current time in UTC and status : "FAILED"
+        status, message = execute_sql("UPDATE `running_tasks` SET `status` = 'FAILED', `end_time` = utc_timestamp() WHERE `uuid` = %s;", (uuid_name,))
+        if not status:
+            print("ERROR:", message)
+            return None
+        return None
+    except Exception as e:
+        print(f"Unable to mark task as failed: {str(e)}")
+        return None

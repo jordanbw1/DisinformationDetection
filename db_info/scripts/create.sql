@@ -247,3 +247,12 @@ FROM
     user_scores
 ORDER BY 
     ranking;
+
+
+CREATE TABLE IF NOT EXISTS running_task_competition (
+    task_id BIGINT UNSIGNED NOT NULL,
+    competition_id BIGINT UNSIGNED NOT NULL,
+    PRIMARY KEY (task_id),
+    FOREIGN KEY (task_id) REFERENCES running_tasks(process_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (competition_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
+);

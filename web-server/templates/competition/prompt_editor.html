@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dissinformation Detection Prompt Testing</title>
+    <title>{{comp_name}} Prompt Editor</title>
     {% include "macros/style-import.html" ignore missing with context %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='page_content/index/index.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='page_content/competition/prompt_editor.css') }}">
 </head>
 <body>
     <!-- Include Navbar -->
@@ -14,23 +14,15 @@
     <!-- Get Flask messages -->
     {% include "macros/flask_messages.html" ignore missing with context %}
 
-    <br><h1>Dissinformation Detection Prompt Testing</h1><br>
+    <br><h1>{{comp_name}} Prompt Editor</h1><br>
 
     <div class="container">
         <div id="promptform">
-            <form method="post" action="submit-prompt">
+            <form method="post">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <input type="hidden" id="instructions" value="{{ instructions }}">
-                <label for="dataset">Select Dataset:</label><br>
-                <select id="dataset" name="dataset">
-                {% for dataset in datasets %}
-                    <option value="{{ dataset }}">{{ dataset }}</option>
-                {% endfor %}
-                </select><br><br>
                 <label for="prompt">Prompt:</label><br>
                 <textarea type="text" id="prompt" name="prompt" rows="1" oninput="autoResize(this)" required></textarea><br><br>
-                <label for="num-rows" id="num-rows-label">Number of rows to test (optional, max: 500):</label><br>
-                <input type="number" id="num-rows" name="num-rows" min="1" max="500"><br><br>
                 <input class="submit" type="submit" value="Submit">
             </form>
         </div>
@@ -44,6 +36,6 @@
 
     <!-- Following script provides dataset names and max rows to javascript -->
     <script id="dataset-data" type="application/json">{{ datasets | tojson }}</script> 
-    <script src="{{ url_for('static', filename='page_content/index/index.js') }}"></script>
+    <script src="{{ url_for('static', filename='page_content/competition/prompt_editor.js') }}"></script>
 </body>
 </html>

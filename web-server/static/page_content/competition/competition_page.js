@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
         fetch(`/competition/scoreboard/${comp_id}?page=${page}&per_page=${perPage}`)
             .then(response => response.json())
             .then(data => {
-                console.log("DATA:", data)
                 const scoreboard = document.getElementById('scoreboard');
                 scoreboard.innerHTML = '';
                 data.scoreboard.forEach(score => {

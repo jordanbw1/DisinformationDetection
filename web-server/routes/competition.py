@@ -1,5 +1,10 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, request, session, jsonify
 from helper_functions.database import execute_sql, sql_results_one, sql_results_all
+from helper_functions.prompt import append_instructions, get_instructions
+from web_detect import run_prompt
+import json
+from helper_functions.api import test_gemini_key
+import threading
 
 competition_routes = Blueprint('competition_routes', __name__, template_folder='competition')
 
@@ -113,7 +118,107 @@ def register(join_link):
         
         flash("Successfully registered for competition", "success")
         return redirect(url_for('competition_routes.competition_page', competition_id=competition_id))
+
+@competition_routes.route('/prompt-editor/<comp_id>', methods=['GET', 'POST'])
+def prompt_editor(comp_id):
+    # Ensure user has a Gemini key before testing prompts
+    if not session.get("gemini_key"):
+        flash("Please enter a Gemini key before testing prompts.", 'info')
+        return redirect(url_for('account.account_page'))
     
+    # Check if user is in competition, and get competition details
+    query = """SELECT name FROM competition_participants
+    LEFT JOIN competitions ON competition_participants.competition_id = competitions.id
+    WHERE competition_participants.competition_id = %s AND user_id = %s;"""
+    status, message, result = sql_results_one(query, (comp_id, session["user_id"],))
+    if not status:
+        flash(f"Error occurred while checking if user is in competition: {message}", "error")
+        return redirect(url_for('index'))
+    if not result:
+        flash("You are not part of this competition", "error")
+        return redirect(url_for('index'))
+    comp_name = result[0]
+
+    if request.method == 'GET':
+        # Load dataset names
+        dataset_mapping = load_dataset_mapping()
+
+        # Create a list of tuples containing dataset name and max rows
+        datasets = {name: mapping["rows"] for name, mapping in dataset_mapping.items()}
+        
+        # Get instructions for the prompt
+        instructions = "\n" + get_instructions()
+
+        # Render the index page with dataset names
+        return render_template('competition/prompt_editor.html', datasets=datasets, instructions=instructions, comp_name=comp_name, comp_id=comp_id)
+    
+    elif request.method == 'POST':      
+        # Get prompt and email
+        prompt = request.form['prompt']
+        email = session["email"]
+        api_key = session["gemini_key"]
+        dataset_name = "WELFAKE Dataset"
+
+        # Validate dataset name against mapping
+        dataset_mapping = load_dataset_mapping()
+        if dataset_name not in dataset_mapping:
+            flash("Invalid dataset selected.", 'error')
+            return redirect(url_for('competition_routes.prompt_editor', comp_id=comp_id))
+        
+        # Get folder, filename, and num rows for the selected dataset
+        dataset_info = dataset_mapping.get(dataset_name)
+        if dataset_info is None or 'directory' not in dataset_info:
+            flash("Dataset not in allowed list.", 'error')
+            return redirect(url_for('competition_routes.prompt_editor', comp_id=comp_id))
+        
+        dataset_folder, dataset_filename = dataset_info.get('directory', (None, None))
+        if dataset_folder is None or dataset_filename is None:
+            flash("Invalid dataset information.", 'error')
+            return redirect(url_for('competition_routes.prompt_editor', comp_id=comp_id))
+        dataset_subject = dataset_info.get('subject', '')
+        num_rows = dataset_info.get('rows', 10000)
+
+        # Check to see if user has another prompt currently running
+        status, message, result = sql_results_all("SELECT * FROM running_tasks WHERE user_id = %s AND status = 'RUNNING';", (session["user_id"],))
+        if not status:
+            flash(f"Error checking for running tasks: {message}", 'error')
+            return redirect(url_for('competition_routes.prompt_editor', comp_id=comp_id))
+        if result:
+            flash("You already have a prompt running. Please wait for it to finish before submitting another.", 'error')
+            return redirect(url_for('competition_routes.prompt_editor', comp_id=comp_id))
+        
+        # Test API key before starting
+        success, message = test_gemini_key(api_key=api_key)
+        if not success:
+            flash(f"API Key error: {message}", 'error')
+            return redirect(url_for('competition_routes.prompt_editor', comp_id=comp_id))
+
+        # Get the url for the server
+        base_url = request.host_url
+
+        # Get the user_id
+        user_id = session["user_id"]
+
+        # Prepare dataset info
+        dataset_info = {
+            'name': dataset_name,
+            'folder': dataset_folder,
+            'filename': dataset_filename,
+            'subject': dataset_subject
+        }
+
+        num_rows = 10
+        # Create a thread and pass the function to it
+        thread = threading.Thread(target=run_prompt, args=(api_key,prompt,email,base_url,user_id,dataset_info,num_rows,comp_id,))
+        thread.start()
+        
+        # Save their prompt to the session to be displayed later
+        full_prompt = append_instructions(prompt=prompt)
+        session['prompt'] = full_prompt
+
+        # Redirect to the confirmation page
+        return redirect(url_for('confirmation'))
+
 @competition_routes.route('/scoreboard/<comp_id>', methods=['GET'])
 def get_scoreboard(comp_id):
     # Confirm user is in competition
@@ -155,3 +260,7 @@ def get_scoreboard(comp_id):
         'page': page,
         'per_page': per_page
     })
+
+def load_dataset_mapping():
+    with open('static/datasets/dataset_mapping.json', 'r') as f:
+        return json.load(f)

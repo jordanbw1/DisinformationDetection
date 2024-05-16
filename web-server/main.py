@@ -361,7 +361,7 @@ def submit_prompt():
     }
 
     # Create a thread and pass the function to it
-    thread = threading.Thread(target=run_prompt, args=(api_key,prompt,email,base_url,user_id,dataset_info,num_rows,))
+    thread = threading.Thread(target=run_prompt, args=(api_key,prompt,email,base_url,user_id,dataset_info,num_rows,None,))
     thread.start()
     
     # Save their prompt to the session to be displayed later
