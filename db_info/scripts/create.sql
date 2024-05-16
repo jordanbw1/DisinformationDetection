@@ -114,4 +114,30 @@ GROUP BY
     users.user_id, users.email;
 
 
+CREATE TABLE IF NOT EXISTS competitions (
+	id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  join_link VARCHAR(255) UNIQUE NOT NULL,
+  start_date DATETIME,
+  end_date DATETIME
+);
 
+
+CREATE TABLE IF NOT EXISTS competition_organizer (
+	user_id BIGINT UNSIGNED,
+    competition_id BIGINT UNSIGNED,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (competition_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+CREATE TABLE IF NOT EXISTS competition_participants (
+	user_id BIGINT UNSIGNED,
+  competition_id BIGINT UNSIGNED,
+  date_joined DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (competition_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+ALTER TABLE competition_participants CHANGE date_joined date_joined DATETIME NOT NULL DEFAULT (UTC_TIMESTAMP());

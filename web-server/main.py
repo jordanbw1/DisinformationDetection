@@ -6,9 +6,10 @@ import sys
 from dotenv import load_dotenv
 from helper_functions.email_functions import check_email, send_verification_email, resend_verification_email, validate_password, send_reset_password_email
 from helper_functions.api import test_gemini_key, test_chatgpt_key
-from routes.documents import documents
-from routes.account import account
-from routes.admin import admin
+from routes.documents import documents_routes
+from routes.account import account_routes
+from routes.admin import admin_routes
+from routes.competition import competition_routes
 import mysql.connector
 from helper_functions.database import get_db_connection, execute_sql, sql_results_one, sql_results_all
 from helper_functions.prompt import append_instructions, get_instructions
@@ -33,9 +34,10 @@ load_dotenv(env_path)
 # Initialize App
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY")
-app.register_blueprint(documents, url_prefix="/documents")
-app.register_blueprint(account, url_prefix="/account")
-app.register_blueprint(admin, url_prefix="/admin")
+app.register_blueprint(documents_routes, url_prefix="/documents")
+app.register_blueprint(account_routes, url_prefix="/account")
+app.register_blueprint(admin_routes, url_prefix="/admin")
+app.register_blueprint(competition_routes, url_prefix="/competition")
 
 # Initialize CSRF protection
 csrf = CSRFProtect()

@@ -6,15 +6,15 @@ from helper_functions.account_actions import is_valid_account_removal_token, del
 from helper_functions.email_functions import send_account_removal_email
 
 
-account = Blueprint('account', __name__, template_folder='account')
+account_routes = Blueprint('account', __name__, template_folder='account')
 
 # Account page
-@account.route('/', methods=['GET'])
+@account_routes.route('/', methods=['GET'])
 def account_page():
     return render_template('account.html')
 
 # Save the API key provided by the user
-@account.route('/update-api-key', methods=['POST'])
+@account_routes.route('/update-api-key', methods=['POST'])
 def update_api_key():
     if request.method == 'POST':
         # Get the API key type
@@ -53,7 +53,7 @@ def update_api_key():
         return redirect(url_for('account.account_page'))
 
 # Delete account view and initate account deletion
-@account.route('/delete-account', methods=['GET','POST'])
+@account_routes.route('/delete-account', methods=['GET','POST'])
 def delete_account():
     if request.method == 'GET':
         return render_template('delete_account.html')
@@ -68,7 +68,7 @@ def delete_account():
         # Redirect the user to a confirmation page
         return redirect(url_for('account.account_removal_confirmation'))
     
-@account.route('/cancel-delete', methods=['GET', 'POST'])
+@account_routes.route('/cancel-delete', methods=['GET', 'POST'])
 def cancel_delete():
     # Delete the account removal token
     status, message = delete_account_removal_token_for_user(session["user_id"])
@@ -79,12 +79,12 @@ def cancel_delete():
     return redirect(url_for('account.account_page'))
     
 # Account removal confirmation page
-@account.route('/account-removal-confirmation', methods=['GET'])
+@account_routes.route('/account-removal-confirmation', methods=['GET'])
 def account_removal_confirmation():
     return render_template('account_removal_confirmation.html')
 
 # Route for deleting the account
-@account.route('/remove-account/<token>', methods=['GET', 'POST'])
+@account_routes.route('/remove-account/<token>', methods=['GET', 'POST'])
 def remove_account(token):    
     if request.method == 'GET':
         # Verify the token and check if it's still valid
