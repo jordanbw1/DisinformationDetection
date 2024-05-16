@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to the Competition</title>
+    {% include "macros/style-import.html" ignore missing with context %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='page_content/competition/welcome.css') }}">
+</head>
+<body>
+    <!-- Include Navbar -->
+    {% include "macros/navbar.html" ignore missing with context %}
+
+    <!-- Get Flask messages -->
+    {% include "macros/flask_messages.html" ignore missing with context %}
+
+    <div class="body-div">
+        <div class="container mt-5">
+            <h2>Welcome</h2><br>
+            {% if description %}
+            <p>{{description}}</p>
+            {% endif %}
+            <br>
+            <div class="button-div">
+                <a href="{{register_url}}" class="btn">
+                    Let's Go!
+                    <div class="arrow"></div>
+                </a>
+            </div>
+        </div>
+    </div>
+        
+    
+</body>
+</html>

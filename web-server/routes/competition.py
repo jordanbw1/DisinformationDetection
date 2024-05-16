@@ -20,7 +20,7 @@ def competition_page(competition_id):
         return redirect(url_for('index'))
     if not result:
         flash("You are not part of this competition", "error")
-        return redirect(url_for('competition_routes.home'))
+        return redirect(url_for('index'))
     
     comp_name = result[0]
     
@@ -28,30 +28,77 @@ def competition_page(competition_id):
     return render_template("competition/competition_page.html", comp_name=comp_name)
 
 @competition_routes.route('/join/<join_link>')
-def join(join_link):
+def welcome(join_link):
     # Get competition id for the join link
     status, message, competition_id = sql_results_one("SELECT id FROM competitions WHERE join_link = %s", (join_link,))
     if not status:
         flash(f"Error occurred while joining competition: {message}", "error")
         return redirect(url_for('index'))
-    
     if not competition_id:
         flash("Invalid join link", "error")
         return redirect(url_for('index'))
     competition_id = competition_id[0]
 
-    # Check if user is already part of the competition  
-    status, message, result = sql_results_one("SELECT * FROM competition_participants WHERE competition_id = %s AND user_id = %s", (competition_id, session["user_id"],))
+    # Get the name and description for competition
+    status, message, result = sql_results_one("SELECT name, description FROM competition_settings INNER JOIN competitions WHERE competition_id = %s", (competition_id,))
     if not status:
         flash(f"Error occurred while joining competition: {message}", "error")
         return redirect(url_for('index'))
-    if result:
-        flash("You are already part of this competition", "error")
+    if not result:
+        flash("Invalid competition", "error")
+        return redirect(url_for('index'))
+    comp_name = result[0]
+    description = result[1]
+    register_url = url_for('competition_routes.register', join_link=join_link)
+    
+    return render_template("competition/welcome.html", comp_name=comp_name, description=description, register_url=register_url)
+
+@competition_routes.route('/register/<join_link>', methods=['GET', 'POST'])
+def register(join_link):
+    # Get competition id for the join link
+    status, message, competition_id = sql_results_one("SELECT id FROM competitions WHERE join_link = %s", (join_link,))
+    if not status:
+        flash(f"Error occurred while joining competition: {message}", "error")
+        return redirect(url_for('index'))
+    if not competition_id:
+        flash("Invalid join link", "error")
+        return redirect(url_for('index'))
+    competition_id = competition_id[0]
+
+    if request.method == 'GET':
+        # Get the name, rules, and terms of service for competition
+        status, message, result = sql_results_one("SELECT name, rules, terms_service FROM competition_settings INNER JOIN competitions WHERE competition_id = %s", (competition_id,))
+        if not status:
+            flash(f"Error occurred while joining competition: {message}", "error")
+            return redirect(url_for('index'))
+        if not result:
+            flash("Invalid competition", "error")
+            return redirect(url_for('index'))
+        comp_name = result[0]
+        rules = result[1].split("\n")
+        terms_service = result[2].split("\n")
+        
+        return render_template("competition/register.html", comp_name=comp_name, rules=rules, terms_service=terms_service)
+    
+    elif request.method == 'POST':
+        # Ensure that the user has agreed to the terms of service
+        if 'termsCheck' not in request.form or request.form['termsCheck'] != "on":
+            flash("You must agree to the terms of service to register", "error")
+            return redirect(url_for('competition_routes.register', join_link=join_link))
+        
+        # Check if user is already part of the competition  
+        status, message, result = sql_results_one("SELECT * FROM competition_participants WHERE competition_id = %s AND user_id = %s", (competition_id, session["user_id"],))
+        if not status:
+            flash(f"Error occurred while joining competition: {message}", "error")
+            return redirect(url_for('index'))
+        if result:
+            flash("You are already part of this competition", "error")
+            return redirect(url_for('competition_routes.competition_page', competition_id=competition_id))
+        
+        status, message = execute_sql("INSERT INTO competition_participants (competition_id, user_id) VALUES (%s, %s)", (competition_id, session["user_id"],))
+        if not status:
+            flash(f"Error occurred while joining competition: {message}", "error")
+            return redirect(url_for('index'))
+        
+        flash("Successfully registered for competition", "success")
         return redirect(url_for('competition_routes.competition_page', competition_id=competition_id))
-    
-    status, message = execute_sql("INSERT INTO competition_participants (competition_id, user_id) VALUES (%s, %s)", (competition_id, session["user_id"],))
-    if not status:
-        flash(f"Error occurred while joining competition: {message}", "error")
-        return redirect(url_for('index'))
-    
-    return redirect(url_for('competition_routes.competition_page', competition_id=competition_id))

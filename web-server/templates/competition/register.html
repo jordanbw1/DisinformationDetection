@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register for {{comp_name}} Competition</title>
+    {% include "macros/style-import.html" ignore missing with context %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='page_content/competition/register.css') }}">
+</head>
+<body>
+    <!-- Include Navbar -->
+    {% include "macros/navbar.html" ignore missing with context %}
+
+    <!-- Get Flask messages -->
+    {% include "macros/flask_messages.html" ignore missing with context %}
+
+    <div class="body-div">
+        <div class="container mt-5">
+        {% if rules %}
+            <h2>Rules</h2><br>
+            <p>Read the rules carefully before proceeding.</p>
+            <ul>
+            {% for rule in rules %}
+                <li>{{rule}}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+            <br>
+            <form method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input" id="termsCheck" name="termsCheck" required>
+                    <label class="form-check-label" for="termsCheck">
+                        I have read and agree to the <a href="#" data-toggle="modal" data-target="#termsModal">terms of service</a>.
+                    </label>
+                </div>
+                <div class="button-div">
+                    <button class="btn">Register For Competition</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Terms of Service Modal -->
+    <div class="modal fade" id="termsModal" tabindex="-1" role="dialog" aria-labelledby="termsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="termsModalLabel">Terms of Service</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {% for term in terms_service %}
+                        <p>{{term}}</p>
+                    {% endfor %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>

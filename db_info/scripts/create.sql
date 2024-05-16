@@ -141,3 +141,14 @@ CREATE TABLE IF NOT EXISTS competition_participants (
 
 
 ALTER TABLE competition_participants CHANGE date_joined date_joined DATETIME NOT NULL DEFAULT (UTC_TIMESTAMP());
+
+
+CREATE TABLE IF NOT EXISTS competition_settings (
+	competition_id BIGINT UNSIGNED PRIMARY KEY,
+  scoreboard_visibility BOOL NOT NULL DEFAULT TRUE,
+  description TEXT,
+  rules TEXT,
+  terms_service TEXT,
+  additional JSON,
+  CONSTRAINT FOREIGN KEY (comp_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
