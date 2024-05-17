@@ -58,6 +58,7 @@ def default_login_required():
         return
 
     if 'email' not in session:
+        session['attempted_route'] = request.url
         return redirect(url_for('login'))
     
     if session['confirmed'] != True:
@@ -141,6 +142,10 @@ def login():
             else:
                 session["gemini_key"] = None
 
+            # Redirect them to their requested page
+            if session['attempted_route']:
+                return redirect(session.pop('attempted_route'))
+            # Redirect them to the index page
             return redirect(url_for('index'))
 
         except mysql.connector.Error as err:
@@ -273,6 +278,11 @@ def verify_email():
             cursor.close()
 
             session["confirmed"] = True
+
+            # Redirect them to their requested page
+            if session['attempted_route']:
+                return redirect(session.pop('attempted_route'))
+            # Send them to the index page
             return redirect(url_for('index'))
         except Exception as e:
             flash(f"Verification failed: unknown error occurred.", 'error')
