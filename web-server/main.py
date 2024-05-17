@@ -143,7 +143,7 @@ def login():
                 session["gemini_key"] = None
 
             # Redirect them to their requested page
-            if session['attempted_route']:
+            if session.get('attempted_route'):
                 return redirect(session.pop('attempted_route'))
             # Redirect them to the index page
             return redirect(url_for('index'))
@@ -280,7 +280,7 @@ def verify_email():
             session["confirmed"] = True
 
             # Redirect them to their requested page
-            if session['attempted_route']:
+            if session.get('attempted_route'):
                 return redirect(session.pop('attempted_route'))
             # Send them to the index page
             return redirect(url_for('index'))

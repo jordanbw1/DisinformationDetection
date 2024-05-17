@@ -207,7 +207,6 @@ def prompt_editor(comp_id):
             'subject': dataset_subject
         }
 
-        num_rows = 10
         # Create a thread and pass the function to it
         thread = threading.Thread(target=run_prompt, args=(api_key,prompt,email,base_url,user_id,dataset_info,num_rows,comp_id,))
         thread.start()
