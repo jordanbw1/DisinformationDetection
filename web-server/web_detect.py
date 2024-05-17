@@ -21,7 +21,7 @@ def run_prompt(api_key, prompt, email, base_url, user_id, dataset_info, num_rows
     # Declare main variables
     script_directory = os.path.dirname(os.path.abspath(__file__))
     datasets_directory = os.path.join(script_directory, "static", "datasets")
-    in_file = os.path.join(datasets_directory, dataset_info["folder"], dataset_info["filename"])
+    in_file = dataset_info["file_path"]
     uuid_name = str(uuid.uuid4())
     out_csv_file_name = f"{uuid_name}.csv"
     out_xlsx_file_name = f"{uuid_name}.xlsx"

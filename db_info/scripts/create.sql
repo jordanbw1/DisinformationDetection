@@ -256,3 +256,13 @@ CREATE TABLE IF NOT EXISTS running_task_competition (
     FOREIGN KEY (task_id) REFERENCES running_tasks(process_id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (competition_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+
+CREATE TABLE IF NOT EXISTS competition_datasets (
+  competition_id BIGINT UNSIGNED PRIMARY KEY,
+  file_name VARCHAR(70) NOT NULL,
+  friendly_name VARCHAR(70) NOT NULL,
+  num_rows INT UNSIGNED NOT NULL,
+  subject VARCHAR(255),
+  CONSTRAINT FOREIGN KEY(competition_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
+);

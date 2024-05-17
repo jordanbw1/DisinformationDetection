@@ -4,7 +4,13 @@ from helper_functions.prompt import append_instructions, get_instructions
 from web_detect import run_prompt
 import json
 from helper_functions.api import test_gemini_key
+from helper_functions.security import check_filename_for_traversal
 import threading
+import os
+
+SCRIPTS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+PARENT_DIRECTORY = os.path.dirname(SCRIPTS_DIRECTORY)
+DATASETS_DIRECTORY = os.path.join(PARENT_DIRECTORY, 'dynamic', 'datasets')
 
 competition_routes = Blueprint('competition_routes', __name__, template_folder='competition')
 
@@ -157,26 +163,29 @@ def prompt_editor(comp_id):
         prompt = request.form['prompt']
         email = session["email"]
         api_key = session["gemini_key"]
-        dataset_name = "WELFAKE Dataset"
 
-        # Validate dataset name against mapping
-        dataset_mapping = load_dataset_mapping()
-        if dataset_name not in dataset_mapping:
-            flash("Invalid dataset selected.", 'error')
+        # Get dataset for the competition
+        status, message, result = sql_results_one("SELECT file_name, num_rows, subject, friendly_name FROM competition_datasets WHERE competition_id = %s", (comp_id,))
+        if not status:
+            flash(f"Error occurred while getting competition dataset: {message}", "error")
+            return redirect(url_for('index'))
+        if not result:
+            flash("No dataset found for competition", "error")
+            return redirect(url_for('index'))
+        
+        # Get dataset information
+        dataset_filename = result[0]
+        num_rows = int(result[1])
+        dataset_subject = result[2]
+        dataset_name = result[3]
+
+        # Check filename for traversal
+        if not check_filename_for_traversal(dataset_filename):
+            flash("Invalid dataset filename", "error")
             return redirect(url_for('competition_routes.prompt_editor', comp_id=comp_id))
         
-        # Get folder, filename, and num rows for the selected dataset
-        dataset_info = dataset_mapping.get(dataset_name)
-        if dataset_info is None or 'directory' not in dataset_info:
-            flash("Dataset not in allowed list.", 'error')
-            return redirect(url_for('competition_routes.prompt_editor', comp_id=comp_id))
-        
-        dataset_folder, dataset_filename = dataset_info.get('directory', (None, None))
-        if dataset_folder is None or dataset_filename is None:
-            flash("Invalid dataset information.", 'error')
-            return redirect(url_for('competition_routes.prompt_editor', comp_id=comp_id))
-        dataset_subject = dataset_info.get('subject', '')
-        num_rows = dataset_info.get('rows', 10000)
+        # Get dataset file path
+        dataset_path = os.path.join(DATASETS_DIRECTORY, str(comp_id), dataset_filename)
 
         # Check to see if user has another prompt currently running
         status, message, result = sql_results_all("SELECT * FROM running_tasks WHERE user_id = %s AND status = 'RUNNING';", (session["user_id"],))
@@ -202,9 +211,10 @@ def prompt_editor(comp_id):
         # Prepare dataset info
         dataset_info = {
             'name': dataset_name,
-            'folder': dataset_folder,
+            'file_path': dataset_path,
             'filename': dataset_filename,
-            'subject': dataset_subject
+            'subject': dataset_subject,
+            'num_rows': num_rows
         }
 
         # Create a thread and pass the function to it

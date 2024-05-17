@@ -1,6 +1,7 @@
 # Custom
 prompt_results/
 **/.DS_Store
+/web-server/dynamic/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
