@@ -260,6 +260,89 @@ def get_scoreboard(comp_id):
         'per_page': per_page
     })
 
+@competition_routes.route('/registered/', methods=['GET'])
+def get_registered_competitions():
+    # Get the page and per_page parameters
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+    start = (page - 1) * per_page
+
+    # Get the registered competition information for the user
+    query = """SELECT competition_id, name, highest_fscore, ranking, start_date, end_date
+    FROM competition_scoreboard_fscore 
+    INNER JOIN competitions ON competitions.id = competition_scoreboard_fscore.competition_id
+    WHERE user_id = %s ORDER BY highest_fscore DESC LIMIT %s OFFSET %s"""
+    status, message, scores = sql_results_all(query, (session["user_id"], per_page, start,))
+    if not status:
+        return jsonify({'error': message}), 500
+    
+    # Get the total number of competitions
+    status, message, total = sql_results_one("SELECT COUNT(*) FROM competition_scoreboard_fscore INNER JOIN competitions ON competitions.id = competition_scoreboard_fscore.competition_id WHERE user_id = %s;", (session["user_id"],))
+    if not status:
+        return jsonify({'error': message}), 500
+
+    # Format user data to be easily passable to the frontend
+    registered_competitions = []
+    for score in scores:
+        formatted_score = {
+            'competition_id': score[0],
+            'name': score[1],
+            'score': score[2],
+            'rank': score[3],
+            'start_date': str(score[4])[:-9],
+            'end_date': str(score[5])[:-9] if score[4] else ""
+        }
+        registered_competitions.append(formatted_score)
+    
+    # Send back the registered competitions
+    return jsonify({
+        'competitions': registered_competitions,
+        'total': total,
+        'page': page,
+        'per_page': per_page
+    })
+
+@competition_routes.route('/available/', methods=['GET'])
+def get_available_competitions():
+    # Get the page and per_page parameters
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+    start = (page - 1) * per_page
+
+    # Get the available competition information
+    query = """SELECT name, start_date, end_date, join_link
+    FROM competitions
+    LEFT JOIN competition_settings ON competitions.id = competition_settings.competition_id
+    WHERE public = TRUE
+    LIMIT %s OFFSET %s;"""
+    status, message, scores = sql_results_all(query, (per_page, start,))
+    if not status:
+        return jsonify({'error': message}), 500
+    
+    # Get the total number of competitions
+    status, message, total = sql_results_one("SELECT COUNT(*) FROM competitions LEFT JOIN competition_settings ON competitions.id = competition_settings.competition_id WHERE public = TRUE;")
+    if not status:
+        return jsonify({'error': message}), 500
+
+    # Format user data to be easily passable to the frontend
+    available_competitions = []
+    for score in scores:
+        formatted_score = {
+            'name': score[0],
+            'start_date': str(score[1])[:-9],
+            'end_date': str(score[2])[:-3] if score[2] else "",
+            'join_path': score[3]
+        }
+        available_competitions.append(formatted_score)
+    
+    # Send back the available competitions
+    return jsonify({
+        'competitions': available_competitions,
+        'total': total,
+        'page': page,
+        'per_page': per_page
+    })
+
 def load_dataset_mapping():
     with open('static/datasets/dataset_mapping.json', 'r') as f:
         return json.load(f)

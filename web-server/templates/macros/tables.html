@@ -1,0 +1,102 @@
+<!-- macros/tables.html -->
+{% macro competition_table(id, head_name, search_id, table_headers, fetch_url, join_type) %}
+<div class="container mt-5">
+    <h2 class="headers">{{head_name}}</h2><br>
+    <div class="search-box">
+        <input type="text" id="{{ search_id }}" class="form-control" placeholder="Search {{head_name.lower()}}...">
+    </div>
+    
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                {% for header in table_headers %}
+                    <th>{{ header[0] }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody id="{{ id }}">
+            <!-- Competitions will be dynamically inserted here -->
+        </tbody>
+    </table>
+
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+            <li class="page-item"><a class="page-link" href="#" id="prevPage_{{ id }}">Previous</a></li>
+            <li class="page-item"><a class="page-link" href="#" id="nextPage_{{ id }}">Next</a></li>
+        </ul>
+    </nav>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            let currentPage = 1;
+            const perPage = 10;
+
+            function fetchCompetitions(page) {
+                fetch('{{ fetch_url }}?page=' + page + '&per_page=' + perPage)
+                    .then(response => response.json())
+                    .then(data => {
+                        const competitions = document.getElementById('{{ id }}');
+                        competitions.innerHTML = '';
+                        data.competitions.forEach(comp => {
+                            const row = document.createElement('tr');
+                            {% for header in table_headers %}
+                                var cell = document.createElement('td');
+                                {% if header[1] == 'name' %}
+                                    {% if join_type == 'join' %}
+                                        const link = document.createElement('a');
+                                        link.href = '/competition/join/' + comp.join_path;
+                                        link.textContent = comp.name;
+                                        cell.appendChild(link);
+                                    {% else %}
+                                        const link = document.createElement('a');
+                                        link.href = '/competition/' + comp.competition_id;
+                                        link.textContent = comp.name;
+                                        cell.appendChild(link);
+                                    {% endif %}
+                                {% else %}
+                                    cell.textContent = comp.{{ header[1] }};
+                                {% endif %}
+                                row.appendChild(cell);
+                            {% endfor %}
+                            competitions.appendChild(row);
+                        });
+
+                        // Enable/disable pagination buttons
+                        document.getElementById('prevPage_{{ id }}').parentElement.classList.toggle('disabled', page === 1);
+                        document.getElementById('nextPage_{{ id }}').parentElement.classList.toggle('disabled', data.competitions.length < perPage);
+                    });
+            }
+
+            document.getElementById('{{ search_id }}').addEventListener('input', function() {
+                const filter = this.value.toLowerCase();
+                const rows = document.querySelectorAll('#{{ id }} tr');
+                rows.forEach(row => {
+                    const name = row.cells[0].textContent.toLowerCase();
+                    if (name.includes(filter)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+
+            document.getElementById('prevPage_{{ id }}').addEventListener('click', function(event) {
+                event.preventDefault();
+                if (currentPage > 1) {
+                    currentPage--;
+                    fetchCompetitions(currentPage);
+                }
+            });
+
+            document.getElementById('nextPage_{{ id }}').addEventListener('click', function(event) {
+                event.preventDefault();
+                currentPage++;
+                fetchCompetitions(currentPage);
+            });
+
+            // Initial fetch
+            fetchCompetitions(currentPage);
+        });
+    </script>
+</div>
+{% endmacro %}

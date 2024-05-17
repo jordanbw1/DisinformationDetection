@@ -66,23 +66,7 @@ def default_login_required():
     
 @app.route('/', methods=['GET'])
 def index():
-    # Ensure user has a Gemini key before testing prompts
-    if not session.get("gemini_key"):
-        flash("Please enter a Gemini key before testing prompts.", 'info')
-        return redirect(url_for('account.account_page'))
-
-    # Load dataset names
-    dataset_mapping = load_dataset_mapping()
-    user_roles = session.get("user_roles", [])
-
-    # Create a list of tuples containing dataset name and max rows
-    datasets = {name: mapping["rows"] if "prompt_engineer" in user_roles else 500 for name, mapping in dataset_mapping.items()}
-    
-    # Get instructions for the prompt
-    instructions = "\n" + get_instructions()
-
-    # Render the index page with dataset names
-    return render_template('index.html', datasets=datasets, instructions=instructions)
+    return render_template('index.html')
 
 # for example, the login page shouldn't require login
 @app.route('/login', methods=['GET', 'POST'])

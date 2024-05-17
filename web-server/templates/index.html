@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dissinformation Detection Prompt Testing</title>
+    <title>Competitions</title>
     {% include "macros/style-import.html" ignore missing with context %}
     <link rel="stylesheet" href="{{ url_for('static', filename='page_content/index/index.css') }}">
 </head>
@@ -14,36 +14,17 @@
     <!-- Get Flask messages -->
     {% include "macros/flask_messages.html" ignore missing with context %}
 
-    <br><h1>Dissinformation Detection Prompt Testing</h1><br>
+    <!-- Get macro for table -->
+    {% from "macros/tables.html" import competition_table %}
 
-    <div class="container">
-        <div id="promptform">
-            <form method="post" action="submit-prompt">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                <input type="hidden" id="instructions" value="{{ instructions }}">
-                <label for="dataset">Select Dataset:</label><br>
-                <select id="dataset" name="dataset">
-                {% for dataset in datasets %}
-                    <option value="{{ dataset }}">{{ dataset }}</option>
-                {% endfor %}
-                </select><br><br>
-                <label for="prompt">Prompt:</label><br>
-                <textarea type="text" id="prompt" name="prompt" rows="1" oninput="autoResize(this)" required></textarea><br><br>
-                <label for="num-rows" id="num-rows-label">Number of rows to test (optional, max: 500):</label><br>
-                <input type="number" id="num-rows" name="num-rows" min="1" max="500"><br><br>
-                <input class="submit" type="submit" value="Submit">
-            </form>
-        </div>
+    <!-- Display competitions the user is registered in -->
+    <div class="body-div">
+        <!-- Use generic_table macro to create a registered competitions table -->
+        {{ competition_table('registeredCompetitions', 'Registered competitions', 'searchInputRegistered', [('Competition', 'name'), ('Your Score', 'score'), ('Your Ranking', 'rank'), ('Start Date','start_date'), ('End Date', 'end_date')], '/competition/registered/', "") }}
 
-        <!-- Show prompt to user -->
-        <div id="aipromptdiv">
-            <label for="aiprompt">Prompt that will be sent to AI:</label>
-            <textarea type="text" id="aiprompt" readonly></textarea>
-        </div>
+        <!-- Display the list of public competitions -->
+        {{ competition_table('availableCompetitions', 'Open for registration', 'searchInputAvailable', [('Competition', 'name'), ('Start Date','start_date'), ('End Date', 'end_date')], '/competition/available/', "join") }}
     </div>
-
-    <!-- Following script provides dataset names and max rows to javascript -->
-    <script id="dataset-data" type="application/json">{{ datasets | tojson }}</script> 
-    <script src="{{ url_for('static', filename='page_content/index/index.js') }}"></script>
+   
 </body>
 </html>

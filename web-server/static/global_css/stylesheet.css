@@ -78,3 +78,8 @@ body {
     width: 100%;
     z-index: 1000; /* Ensure navbar is above other elements */
 }
+
+
+.headers {
+    font-size: 2rem;
+}
