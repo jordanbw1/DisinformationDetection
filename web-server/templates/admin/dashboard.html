@@ -14,6 +14,9 @@
     <!-- Get Flask messages -->
     {% include "macros/flask_messages.html" ignore missing with context %}
 
+    <!-- Placeholder for JavaScript messages -->
+    <div id="js-messages"></div>
+
     <div class="container mt-5">
         <h2>Admin Dashboard</h2>
         
@@ -22,6 +25,7 @@
         </div>
         
         <form id="userForm" action="/admin/actions" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <table class="table table-bordered">
                 <thead>
                     <tr>
@@ -35,22 +39,59 @@
                     <!-- Users will be dynamically inserted here -->
                 </tbody>
             </table>
-            
-            <!-- <div class="form-group">
-                <select class="form-control" name="action" id="actionSelect">
-                    <option value="add_role">Add Role</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Apply</button> -->
-        </form>
 
-        <!-- Pagination Controls -->
-        <nav aria-label="Page navigation example">
-            <ul class="pagination">
-                <li class="page-item"><a class="page-link" href="#" id="prevPage">Previous</a></li>
-                <li class="page-item"><a class="page-link" href="#" id="nextPage">Next</a></li>
-            </ul>
-        </nav>
+            <!-- Pagination Controls -->
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                    <li class="page-item"><a class="page-link" href="#" id="prevPage">Previous</a></li>
+                    <li class="page-item"><a class="page-link" href="#" id="nextPage">Next</a></li>
+                </ul>
+            </nav>
+            
+            <!-- Action Form -->
+            <br>
+            <div class="form-group">
+                <!-- Select an Action -->
+                <label for="actionSelect">Action</label>
+                <select class="form-control" name="action" id="actionSelect">
+                    <option value="none">Select an action</option>
+                    <option value="add_role">Add Role</option>
+                    <option value="remove_role">Remove Role</option>
+                </select>
+
+                <!-- Select a Role -->
+                <div id="roleSelectDiv" hidden>
+                    <br>
+                    <label for="roleSelect">Select a Role</label>
+                    <select class="form-control" name="role" id="roleSelect">
+                        <option value="none">Select a role</option>
+                        <option value="organizer">Competition Organizer</option>
+                        <option value="admin">Admin (Entire Website)</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary" id="actionSubmitButton" hidden>Apply</button>
+        </form>
+    </div>
+
+    <!-- Warning Modal -->
+    <div class="modal fade" id="warningModal" tabindex="-1" role="dialog" aria-labelledby="warningModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="warningModalLabel">Warning</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="ModalWarningText">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="modalCancelButton" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="modalConfirmButton">Confirm</button>
+                </div>
+            </div>
+        </div>
     </div>
     
     <script src="{{ url_for('static', filename='page_content/admin/dashboard.js') }}"></script>

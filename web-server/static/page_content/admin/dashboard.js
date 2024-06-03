@@ -40,6 +40,17 @@ document.addEventListener('DOMContentLoaded', (event) => {
             });
     }
 
+    function showMessage(message, category) {
+        const jsMessages = document.getElementById('js-messages');
+        const alert = document.createElement('div');
+        alert.className = `alert alert-dismissible flash flash-${category}`;
+        alert.innerHTML = `
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            ${message}
+        `;
+        jsMessages.appendChild(alert);
+    }
+
     document.getElementById('searchInput').addEventListener('input', function() {
         const filter = this.value.toLowerCase();
         const rows = document.querySelectorAll('#userTable tr');
@@ -71,6 +82,85 @@ document.addEventListener('DOMContentLoaded', (event) => {
         event.preventDefault();
         currentPage++;
         fetchUsers(currentPage);
+    });
+
+    document.getElementById('actionSelect').addEventListener('change', function() {
+        const actionSelect = document.getElementById('actionSelect');
+        const roleSelectDiv = document.getElementById('roleSelectDiv');
+        const actionSubmitButton = document.getElementById('actionSubmitButton');
+        if (actionSelect.value === 'add_role' || actionSelect.value === 'remove_role') {
+            roleSelectDiv.hidden = false;
+            actionSubmitButton.hidden = false;
+        } else {
+            roleSelectDiv.hidden = true;
+            actionSubmitButton.hidden = true;
+        }
+    });
+
+    function submitUserForm(formData) {
+        // Append the CSRF token to the FormData if not already included
+        const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+        if (!formData.has('csrf_token')) {
+            formData.append('csrf_token', csrfToken);
+        }
+
+        // Handle form submission
+        fetch('/admin/actions', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json().then(data => ({ status: response.status, body: data })))
+        .then(({ status, body }) => {
+            if (status !== 200) {
+                throw new Error(body.error || 'Unknown error');
+            }
+            // Show success message
+            showMessage(body.message || 'Action executed successfully.', 'success');
+            // Reload the user table
+            fetchUsers(currentPage);
+        })
+        .catch(error => {
+            // Display error message
+            showMessage(error.message || 'An error occurred while executing the action.', 'error');
+        });
+    }
+
+    document.getElementById('userForm').addEventListener('submit', function(event) {
+        const actionSelect = document.getElementById('actionSelect');
+        const roleInput = document.getElementById('roleSelect');
+        const selectedRows = document.querySelectorAll('#userTable input[type="checkbox"]:checked');
+        // If no rows are selected, show an error message
+        if (selectedRows.length === 0) {
+            event.preventDefault();
+            showMessage('Please select at least one user.', 'error');
+        // If the action is not selected or the role is not entered, show an error message
+        } else if (!actionSelect.value || !roleInput.value || actionSelect.value == 'none' || roleInput.value == 'none') {
+            event.preventDefault();
+            showMessage('Please select an action and a role.', 'error');
+        } else {
+            if (roleInput.value === 'admin') {
+                // Prevent the form from submitting immediately
+                event.preventDefault();
+                formToSubmit = this;
+                // Set the warning message based on if this is an add or remove action
+                const action = actionSelect.value === 'add_role' ? 'add' : 'remove';
+                document.getElementById('ModalWarningText').textContent = `Are you sure you want to ${action} the admin role for the selected users?`;
+                $('#warningModal').modal('show');
+                return;
+            }
+            event.preventDefault();
+            const formData = new FormData(this);
+            submitUserForm(formData);
+        }
+    });
+
+    // Modal confirm button
+    document.getElementById('modalConfirmButton').addEventListener('click', function() {
+        if (formToSubmit) {
+            const formData = new FormData(formToSubmit);
+            submitUserForm(formData);
+        }
+        $('#warningModal').modal('hide');
     });
 
     // Initial fetch
