@@ -10,6 +10,7 @@ from routes.documents import documents_routes
 from routes.account import account_routes
 from routes.admin import admin_routes
 from routes.competition import competition_routes
+from routes.organizer import organizer_routes
 from helper_functions.fail_running_tasks import fail_running_tasks
 import mysql.connector
 from helper_functions.database import get_db_connection, execute_sql, sql_results_one, sql_results_all, execute_sql_return_id
@@ -39,6 +40,7 @@ app.register_blueprint(documents_routes, url_prefix="/documents")
 app.register_blueprint(account_routes, url_prefix="/account")
 app.register_blueprint(admin_routes, url_prefix="/admin")
 app.register_blueprint(competition_routes, url_prefix="/competition")
+app.register_blueprint(organizer_routes, url_prefix="/organizer")
 
 # Initialize CSRF protection
 csrf = CSRFProtect()

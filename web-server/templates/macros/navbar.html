@@ -16,6 +16,12 @@
                 <a class="nav-link" href="{{url_for('admin.admin_dashboard')}}" title="Admin Dashboard">Admin Dashboard</a>
             </li>
             {% endif %}
+            {% if "organizer" in session.get("user_roles", []) %}
+            <!-- Display this to organizers -->
+            <li class="nav-item">
+                <a class="nav-link" href="{{url_for('organizer.organizer_home')}}" title="Organizer Dashboard">Organizer Dashboard</a>
+            </li>
+            {% endif %}
             {% endif %}
             <li class="nav-item">
                 <a class="nav-link" href="{{url_for('privacy')}}" title="Privacy Policy">Privacy Policy</a>

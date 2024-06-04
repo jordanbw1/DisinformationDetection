@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, url_for, redirect, jsonify, request, session, flash
 from functools import wraps
-from helper_functions.database import execute_sql, sql_results_one, sql_results_all, execute_many_sql
+from helper_functions.database import execute_sql, sql_results_one, sql_results_all, execute_many_sql, execute_sql_return_id, Database
+from helper_functions.email_functions import send_generic_email
 
 admin_routes = Blueprint('admin', __name__, template_folder='admin')
 
@@ -106,6 +107,25 @@ def admin_actions():
             return jsonify({'error': 'The following users already have this role: {}'.format(users_list)}), 400
         # --- End check if any users are already assigned the role --- #
 
+        # If the role was organizer, start initial setup and send email
+        if role == 'organizer':
+            success_list = []
+            fail_list = []
+            for user_id in user_ids:
+                status, message = add_organizer(user_id)
+                if status:
+                    success_list.append(user_id)
+                else:
+                    fail_list.append((user_id, message))
+            if fail_list:
+                if success_list:
+                    success_message = "Successfully added the organizer role to users: {}. ".format(success_list)
+                else:
+                    success_message = ""
+                fail_message = ", ".join(["User {}: {}".format(user_id, message) for user_id, message in fail_list])
+                return_message = "{}Failed to add the organizer role to users with error messages: {}".format(success_message, fail_message)
+                return jsonify({'error': return_message}), 500
+
         # Add the role to the users
         user_role_values = [(int(user_id), role_id) for user_id in user_ids]
         status, message = execute_many_sql("INSERT INTO user_roles (user_id, role_id) VALUES (%s, %s)", user_role_values)
@@ -113,7 +133,7 @@ def admin_actions():
             return jsonify({'error': message}), 500
         
         # Return success
-        return_message = "Removed the {} role from selected users.".format(role)
+        return_message = "Added the {} role from selected users.".format(role)
         return jsonify(success=True, message=return_message), 200
 
     # Handle removing roles
@@ -145,3 +165,71 @@ def admin_actions():
     
     # Return success
     return jsonify(success=True), 200
+
+
+# --- Helper functions --- #
+def add_organizer(user_id):
+    with Database() as db:
+        # Validate user_id
+        status, message, result = db.execute_fetchone("SELECT user_id FROM users WHERE user_id = %s", (user_id,))
+        if not status:
+            db.rollback()
+            return False, message
+        if not result:
+            db.rollback()
+            return False, "User not found"
+
+        # Get largest ID in competitions table
+        status, message, result = db.execute_fetchone("SELECT MAX(id) FROM competitions")
+        if not status:
+            db.rollback()
+            return False, message
+        max_comp_id = result[0] if result else 0
+
+        # Create a placeholder competition
+        query = "INSERT INTO competitions (name, join_link, start_date, end_date) VALUES (%s, %s, %s, %s)"
+        values = ("Placeholder{}".format(max_comp_id + 1), "Placeholder{}".format(max_comp_id + 1), "1970-01-01", "1970-01-01")
+        status, message, comp_id = db.execute_return_id(query, values)
+        if not status:
+            db.rollback()
+            return False, message
+        if not comp_id:
+            db.rollback()
+            return False, "Failed to create placeholder competition"
+        
+        # Mark competition as not setup
+        status, message = db.execute("INSERT INTO competition_configured (competition_id, is_setup) VALUES (%s, %s)", (comp_id,False,))
+        if not status:
+            db.rollback()
+            return False, message
+
+        # Set user as organizer for the placeholder competition
+        status, message = db.execute("INSERT INTO competition_organizer (competition_id, user_id) VALUES (%s, %s)", (comp_id, user_id))
+        if not status:
+            db.rollback()
+            return False, message
+        
+        # Get user email
+        status, message, receiver_email = db.execute_fetchone("SELECT email FROM users WHERE user_id = %s", (user_id,))
+        if not status:
+            db.rollback()
+            return False, message
+        if not receiver_email:
+            db.rollback()
+            return False, "User email not found"
+        receiver_email = receiver_email[0]
+
+        # Send email to organizer
+        base_url = request.host_url
+        subject = "You have now been added as an organizer. Let's get started!"
+        body = "Hello! You have been added as an organizer. You can now start creating your competition. " \
+                "Please click on the link below to get started: {}/organizer/dashboard/{}".format(base_url, comp_id)
+        status, message = send_generic_email(receiver_email, subject, body)
+        if not status:
+            db.rollback()
+            return False, message
+        
+        # Commit changes
+        db.commit()
+
+        return True, "Good"

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizer Dashboard</title>
+    {% include "macros/style-import.html" ignore missing with context %}
+</head>
+<body>
+    <!-- Include Navbar -->
+    {% include "macros/navbar.html" ignore missing with context %}
+
+    <!-- Get Flask messages -->
+    {% include "macros/flask_messages.html" ignore missing with context %}
+
+    <div class="container-fluid h-100">
+        <!-- h-100 takes the full height
+                of the container-->
+        <div class="row h-100">
+            <div class="col-2" id="green">
+                <h4>Manage Competitions</h4>
+                <a href="#">Create New</a><br />
+                <br />
+                {% for competition in competitions %}
+                <a href="{{url_for('organizer.organizer_dashboard', dashboard_id = competition.id)}}">{{competition.name}}</a><br />
+                <br />
+                {% endfor %}
+                {% if unfinished_competitions %}
+                <!-- Show competitions not yet completed with setup -->
+                <h5>Finish Setting Up</h5>
+                {% for competition in unfinished_competitions %}
+                <a href="{{url_for('organizer.setup_competition', competition_id = competition.id)}}">{{competition.name}}</a><br />
+                <br />
+                {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
