@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    {% include "macros/style-import.html" ignore missing with context %}
+    {% block css_files %}{% endblock %}
+</head>
+<body>
+    <!-- Include Navbar -->
+    {% include "macros/navbar.html" ignore missing with context %}
+
+    <!-- Get Flask messages -->
+    {% include "macros/flask_messages.html" ignore missing with context %}
+
+    <!-- h-100 takes the full height of the body-->
+    <div class="container-fluid h-100">
+    <!-- h-100 takes the full height of the container-->
+        <div class="row h-100">
+            <!-- Organizer Sidebar -->
+            {% include "macros/organizer/organizer_sidebar.html" ignore missing with context %}
+            <div class="col-10" style="padding: 0;">
+                <!-- Contains the main content of the webpage-->
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+    {% block js_files %}{% endblock %}
+</body>
+</html>
