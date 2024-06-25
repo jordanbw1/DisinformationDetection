@@ -242,7 +242,7 @@ SELECT
     user_id,
     full_name,
     highest_fscore,
-    RANK() OVER (ORDER BY highest_fscore DESC) AS ranking
+    RANK() OVER (PARTITION BY competition_id ORDER BY highest_fscore DESC) AS ranking
 FROM 
     user_scores
 ORDER BY 
@@ -271,5 +271,30 @@ CREATE TABLE IF NOT EXISTS competition_datasets (
 CREATE TABLE IF NOT EXISTS competition_configured (
   competition_id BIGINT UNSIGNED PRIMARY KEY,
   is_setup BOOLEAN NOT NULL DEFAULT FALSE,
+  details JSON NOT NULL,
   CONSTRAINT FOREIGN KEY(competition_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+
+CREATE OR REPLACE VIEW registered_leaderboard_view AS
+SELECT 
+    competitions.id AS competition_id, 
+    competitions.name, 
+    COALESCE(competition_scoreboard_fscore.highest_fscore, 'N/A') AS highest_fscore, 
+    COALESCE(competition_scoreboard_fscore.ranking, 'N/A') AS ranking, 
+    competitions.start_date, 
+    competitions.end_date,
+    competition_participants.user_id
+FROM 
+    competitions
+LEFT JOIN
+	  competition_participants
+ON
+	  competitions.id = competition_participants.competition_id
+LEFT JOIN 
+    competition_scoreboard_fscore
+ON 
+    competitions.id = competition_scoreboard_fscore.competition_id
+    AND competition_scoreboard_fscore.user_id = competition_participants.user_id
+ORDER BY 
+    competition_scoreboard_fscore.highest_fscore DESC;

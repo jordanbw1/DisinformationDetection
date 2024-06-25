@@ -93,7 +93,32 @@ def organizer_dashboard(dashboard_id):
 @organizer_routes.route('/setup/<int:competition_id>')
 @organizer_required
 def setup_competition(competition_id):
-    pass
+    # Confirm that the competition_id is valid for this user
+    query = "SELECT name FROM competitions INNER JOIN competition_organizer ON competitions.id = competition_organizer.competition_id "\
+        "WHERE competitions.id = %s AND competition_organizer.user_id = %s"
+    status, message, result = sql_results_one(query, (competition_id, session['user_id']))
+    if not status:
+        flash(message, 'error')
+        return redirect(url_for('index'))
+    if not result:
+        flash("You do not have access to this competition.", 'error')
+        return redirect(url_for('index'))
+    competition_name = result[0]
+    
+    # Figure out which part of setup organizer is at
+    # Check if the basic setup has been done
+    query = "SELECT id, name, join_link, start_date, end_date, is_setup FROM competition_configured WHERE competition_id = %s"
+    status, message, is_setup = sql_results_one(query, (competition_id,))
+    if not status:
+        flash(message, 'error')
+        return redirect(url_for('index'))
+    if is_setup:
+        flash("This competition has already been configured.", 'error')
+        return redirect(url_for('organizer.organizer_dashboard', dashboard_id=competition_id))
+    
+    # TODO: Continue implementing the setup_competition route
+    flash("This route is not yet implemented.", 'error')
+    return redirect(url_for('organizer.organizer_dashboard', dashboard_id=competition_id))
 
 
 # --- Helper functions --- #

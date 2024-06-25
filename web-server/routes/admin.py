@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, url_for, redirect, jsonify, request, session, flash
 from functools import wraps
+import json
 from helper_functions.database import execute_sql, sql_results_one, sql_results_all, execute_many_sql, execute_sql_return_id, Database
 from helper_functions.email_functions import send_generic_email
 
@@ -198,7 +199,8 @@ def add_organizer(user_id):
             return False, "Failed to create placeholder competition"
         
         # Mark competition as not setup
-        status, message = db.execute("INSERT INTO competition_configured (competition_id, is_setup) VALUES (%s, %s)", (comp_id,False,))
+        json_init = json.dumps({})
+        status, message = db.execute("INSERT INTO competition_configured (competition_id, is_setup, details) VALUES (%s, %s, %s)", (comp_id,False,json_init))
         if not status:
             db.rollback()
             return False, message

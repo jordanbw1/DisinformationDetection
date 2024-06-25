@@ -62,7 +62,7 @@ def welcome(join_link):
     competition_id = competition_id[0]
 
     # Get the name and description for competition
-    status, message, result = sql_results_one("SELECT name, description FROM competition_details INNER JOIN competitions WHERE competition_id = %s", (competition_id,))
+    status, message, result = sql_results_one("SELECT name, description FROM competition_details LEFT JOIN competitions ON id = competition_id WHERE competition_id = %s", (competition_id,))
     if not status:
         flash(f"Error occurred while joining competition: {message}", "error")
         return redirect(url_for('index'))
@@ -89,7 +89,7 @@ def register(join_link):
 
     if request.method == 'GET':
         # Get the name, rules, and terms of service for competition
-        status, message, result = sql_results_one("SELECT name, rules, terms_service FROM competition_details INNER JOIN competitions WHERE competition_id = %s", (competition_id,))
+        status, message, result = sql_results_one("SELECT name, rules, terms_service FROM competition_details LEFT JOIN competitions ON id = competition_id WHERE competition_id = %s", (competition_id,))
         if not status:
             flash(f"Error occurred while joining competition: {message}", "error")
             return redirect(url_for('index'))
@@ -279,15 +279,14 @@ def get_registered_competitions():
 
     # Get the registered competition information for the user
     query = """SELECT competition_id, name, highest_fscore, ranking, start_date, end_date
-    FROM competition_scoreboard_fscore 
-    INNER JOIN competitions ON competitions.id = competition_scoreboard_fscore.competition_id
+    FROM registered_leaderboard_view 
     WHERE user_id = %s ORDER BY highest_fscore DESC LIMIT %s OFFSET %s"""
     status, message, scores = sql_results_all(query, (session["user_id"], per_page, start,))
     if not status:
         return jsonify({'error': message}), 500
     
     # Get the total number of competitions
-    status, message, total = sql_results_one("SELECT COUNT(*) FROM competition_scoreboard_fscore INNER JOIN competitions ON competitions.id = competition_scoreboard_fscore.competition_id WHERE user_id = %s;", (session["user_id"],))
+    status, message, total = sql_results_one("SELECT COUNT(*) FROM registered_leaderboard_view WHERE user_id = %s;", (session["user_id"],))
     if not status:
         return jsonify({'error': message}), 500
 
