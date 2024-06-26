@@ -82,6 +82,11 @@ def login():
         email = request.form['email']
         password = request.form['password']
 
+        # Use regex to confirm email is valid email format
+        if not check_email(email):
+            flash("Invalid email format", 'error')
+            return render_template("register.html")
+
         conn = get_db_connection()
         cursor = conn.cursor()
         try:
