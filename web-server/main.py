@@ -164,7 +164,7 @@ def register():
         status, message = validate_user_name(full_name)
         if not status:
             flash(message, "error")
-            return redirect(url_for('account.account_page'))
+            return render_template("register.html")
 
         # Confirm that passwords match
         if password != confirm_password:
@@ -207,7 +207,20 @@ def register():
         session['confirmed'] = False
 
         # Send verification code to email
-        send_verification_email(email)
+        status, message = send_verification_email(email)
+        # Handle email send errors.
+        if not status:
+            # Remove created user account from DB
+            status2, message2 = execute_sql("""DELETE FROM users WHERE user_id = %s""", (user_id),)
+            session.clear() # Clear session so no weird auth happens
+            # Handle errors in DB call
+            if not status2:
+                flash(f"Unknown error occured: {message2} While trying to handle another error: {message}", "error")
+                return render_template("register.html")
+            # Tell user the email failed to send, account changes reverted
+            flash(f"Unknown error occured while trying to send verification email, user account changes reverted. Please try again or contact support. Error: {message}")
+            return render_template("register.html")
+
         return redirect(url_for('verify_email'))
 
 @app.route('/verify-email', methods=['GET', 'POST'])

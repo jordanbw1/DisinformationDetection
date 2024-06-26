@@ -114,6 +114,7 @@ def send_verification_email(receiver_email):
     """
     message.attach(MIMEText(body, 'plain'))
 
+    server = None
     try:
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
