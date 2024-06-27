@@ -6,9 +6,25 @@
 
 
 {% block content %}
-<p style="padding: 15px; text-align: justify;">
-Set up a new competition
-</p>
+
+<h1>New Challenge</h1>
+
+<nav>Landing Page | Challenge Info | Model & Datset | Evaluation Builder | Wrap Up</nav>
+
+<form>
+{% if setup_part == 1 %}
+    {% include "macros/organizer/setup/1.html" ignore missing with context %}
+{% elif setup_part == 2 %}
+    <!-- Include macro for 2.html -->
+{% elif setup_part == 3 %}
+    <!-- Include macro for 3.html -->
+{% elif setup_part == 4 %}
+    <!-- Include macro for 4.html -->
+{% elif setup_part == 5 %}
+    <!-- Include macro for 5.html -->
+{% endif %}
+</form>
+
 {% endblock %}
 
 {% block js_files %}{% endblock %}
