@@ -7,9 +7,34 @@
 
 {% block content %}
 
-<h1>New Challenge</h1>
+<h3>New Challenge</h3>
 
-<nav>Landing Page | Challenge Info | Model & Datset | Evaluation Builder | Wrap Up</nav>
+<div class="row col-12">
+    <div class="col-3"></div>
+    <div class="col-6"><nav class="organizer-setup-nav">
+        <ul class="text-center">
+            <button type="button" class="border-0 {% if setup_part == 1 %}selected{% endif %}" disabled><i class="bi bi-display fs-5" aria-hidden="true"></i></button>
+            <h6>Landing Page</h6>
+        </ul>
+        <ul class="text-center">
+            <button type="button" class="border-0 {% if setup_part == 2 %}selected{% endif %}" disabled><i class="bi bi-text-left fs-5" aria-hidden="true"></i></button>
+            <h6>Challenge Info</h6>
+        </ul>
+        <ul class="text-center">
+            <button type="button" class="border-0 {% if setup_part == 3 %}selected{% endif %}" disabled><i class="bi bi-card-checklist fs-5" aria-hidden="true"></i></button>
+            <h6>Model & Datset</h6>
+        </ul>
+        <ul class="text-center">
+            <button type="button" class="border-0 {% if setup_part == 4 %}selected{% endif %}" disabled><i class="bi bi-bar-chart-steps fs-5" aria-hidden="true"></i></button>
+            <h6>Evaluation Builder</h6>
+        </ul>
+        <ul class="text-center">
+            <button type="button" class="border-0 {% if setup_part == 5 %}selected{% endif %}" disabled><i class="bi bi-clipboard-data fs-5" aria-hidden="true"></i></button>
+            <h6>Wrap Up</h6>
+        </ul>
+    </nav></div>
+    <div class="col-3"></div>
+</div>
 
 <form>
 {% if setup_part == 1 %}
@@ -27,4 +52,4 @@
 
 {% endblock %}
 
-{% block js_files %}{% endblock %}
+{% block js_files %}<script src="{{ url_for('static', filename='page_content/competition_setup/competition_setup.js') }}"></script>{% endblock %}

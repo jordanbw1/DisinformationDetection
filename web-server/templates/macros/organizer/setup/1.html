@@ -1,14 +1,52 @@
-<div>
-    <h2>Title</h2>
-    <input>
-    <p>100 Characters remaining</p>
-
-    <br>
-    <h2>Short Description</h2>
-    <input>
-    <p>100 Characters remaining</p>
-
-    <br>
-    <h2>Banner Image</h2>
-    <Button>Upload</Button>
+<div class="container">
+    <form>
+        <div class="row">
+            <div class="col-2 offset-10">
+                <button type="button" class="btn btn-secondary btn-lg mb-3">Preview <i class="bi bi-eye-fill"></i></button>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-12">
+                <label class="fw-normal form-label fs-3" for="titleInput">Title</label>
+            </div>
+            <div class="col-10 ms-3">
+                <input id="titleInput" type="text" aria-label="Title Input" class="form-control">
+                <div id="titleHelp" class="form-text">100 Characters remaining</p>
+            </div>
+        </div>
+        <div class="mb-3">
+            <div class="row mb-3">
+                <div class="col-12">
+                    <label class="fw-normal form-label fs-3" for="descriptionInput">Short Description</label>
+                </div>
+                <div class="col-10 ms-3">
+                    <textarea id="descriptionInput" type="text" aria-label="Description Input" class="form-control"></textarea>
+                    <div id="descriptionHelp" class="form-text">500 Characters remaining</p>
+                </div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <div class="row mb-3">
+                <div class="col-12">
+                    <label class="fw-normal form-label fs-3" for="bannerImgInput">Banner Image</label>
+                </div>
+                <div class="col-2 ms-3">
+                    <input id="bannerImgInput" type="file" accept="image/*" aria-label="Banner Image" class="form-control">
+                    <label for="bannerImgInput" type="button" class="btn btn-secondary mb-3">Upload</label>
+                    <figure class="figure">
+                        <div id="bannerImgPlaceholder">
+                            <i class="bi bi-image fs-1"></i>
+                        </div>
+                        <img id="bannerImgDisplay" class="d-none" src="#">
+                        <figcaption id="bannerImgName" class="figure-caption"></figcaption>
+                    </figure>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-2 offset-10">
+                <button type="button" class="btn btn-secondary btn-lg mb-3">Continue</button>
+            </div>
+        </div>
+    </form>
 </div>
