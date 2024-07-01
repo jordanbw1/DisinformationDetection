@@ -180,36 +180,37 @@ def add_organizer(user_id):
             db.rollback()
             return False, "User not found"
 
-        # Get largest ID in competitions table
-        status, message, result = db.execute_fetchone("SELECT MAX(id) FROM competitions")
-        if not status:
-            db.rollback()
-            return False, message
-        max_comp_id = result[0] if result else 0
+        # TODO: Clean this up
+        # # Get largest ID in challenges table
+        # status, message, result = db.execute_fetchone("SELECT MAX(id) FROM challenges")
+        # if not status:
+        #     db.rollback()
+        #     return False, message
+        # max_comp_id = result[0] if result else 0
 
-        # Create a placeholder competition
-        query = "INSERT INTO competitions (name, join_link, start_date, end_date) VALUES (%s, %s, %s, %s)"
-        values = ("Placeholder{}".format(max_comp_id + 1), "Placeholder{}".format(max_comp_id + 1), "1970-01-01", "1970-01-01")
-        status, message, comp_id = db.execute_return_id(query, values)
-        if not status:
-            db.rollback()
-            return False, message
-        if not comp_id:
-            db.rollback()
-            return False, "Failed to create placeholder competition"
+        # # Create a placeholder challenge
+        # query = "INSERT INTO challenges (name, join_link, start_date, end_date) VALUES (%s, %s, %s, %s)"
+        # values = ("Placeholder{}".format(max_comp_id + 1), "Placeholder{}".format(max_comp_id + 1), "1970-01-01", "1970-01-01")
+        # status, message, comp_id = db.execute_return_id(query, values)
+        # if not status:
+        #     db.rollback()
+        #     return False, message
+        # if not comp_id:
+        #     db.rollback()
+        #     return False, "Failed to create placeholder challenge"
         
-        # Mark competition as not setup
-        json_init = json.dumps({})
-        status, message = db.execute("INSERT INTO competition_configured (competition_id, is_setup, details) VALUES (%s, %s, %s)", (comp_id,False,json_init))
-        if not status:
-            db.rollback()
-            return False, message
+        # # Mark challenge as not setup
+        # json_init = json.dumps({})
+        # status, message = db.execute("INSERT INTO challenge_configured (challenge_id, is_setup, details) VALUES (%s, %s, %s)", (comp_id,False,json_init))
+        # if not status:
+        #     db.rollback()
+        #     return False, message
 
-        # Set user as organizer for the placeholder competition
-        status, message = db.execute("INSERT INTO competition_organizer (competition_id, user_id) VALUES (%s, %s)", (comp_id, user_id))
-        if not status:
-            db.rollback()
-            return False, message
+        # # Set user as organizer for the placeholder challenge
+        # status, message = db.execute("INSERT INTO challenge_organizer (challenge_id, user_id) VALUES (%s, %s)", (comp_id, user_id))
+        # if not status:
+        #     db.rollback()
+        #     return False, message
         
         # Get user email
         status, message, receiver_email = db.execute_fetchone("SELECT email FROM users WHERE user_id = %s", (user_id,))
@@ -224,8 +225,8 @@ def add_organizer(user_id):
         # Send email to organizer
         base_url = request.host_url
         subject = "You have now been added as an organizer. Let's get started!"
-        body = "Hello! You have been added as an organizer. You can now start creating your competition. " \
-                "Please click on the link below to get started: {}/organizer/dashboard/{}".format(base_url, comp_id)
+        body = "Hello! You have been added as an organizer. You can now start creating challenges. " \
+                "Please click on the link below to get started: {}/organizer/create".format(base_url)
         status, message = send_generic_email(receiver_email, subject, body)
         if not status:
             db.rollback()

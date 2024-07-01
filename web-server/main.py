@@ -9,7 +9,7 @@ from helper_functions.api import test_gemini_key, test_chatgpt_key
 from routes.documents import documents_routes
 from routes.account import account_routes
 from routes.admin import admin_routes
-from routes.competition import competition_routes
+from routes.challenge import challenge_routes
 from routes.organizer import organizer_routes
 from helper_functions.fail_running_tasks import fail_running_tasks
 import mysql.connector
@@ -39,7 +39,7 @@ app.secret_key = os.environ.get("SECRET_KEY")
 app.register_blueprint(documents_routes, url_prefix="/documents")
 app.register_blueprint(account_routes, url_prefix="/account")
 app.register_blueprint(admin_routes, url_prefix="/admin")
-app.register_blueprint(competition_routes, url_prefix="/competition")
+app.register_blueprint(challenge_routes, url_prefix="/challenge")
 app.register_blueprint(organizer_routes, url_prefix="/organizer")
 
 # Initialize CSRF protection

@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const perPage = 10;
 
     function fetchScoreboard(page) {
-        fetch(`/competition/scoreboard/${comp_id}?page=${page}&per_page=${perPage}`)
+        fetch(`/challenge/scoreboard/${comp_id}?page=${page}&per_page=${perPage}`)
             .then(response => response.json())
             .then(data => {
                 const scoreboard = document.getElementById('scoreboard');

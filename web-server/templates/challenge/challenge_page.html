@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{comp_name}} Competition</title>
+    <title>{{comp_name}} Challenge</title>
     {% include "macros/style-import.html" ignore missing with context %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='page_content/competition/competition_page.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='page_content/challenge/challenge_page.css') }}">
 </head>
 <body>
     <!-- Include Navbar -->
@@ -19,8 +19,8 @@
         <div class="container mt-5">
             <!-- Headers -->
             <div class="d-flex justify-content-between">
-                <h2 class="headers">{{comp_name}} Competition</h2>
-                <a href="{{url_for('competition_routes.prompt_editor', comp_id=competition_id)}}" class="headers btn btn-secondary">Prompt Editor</a>
+                <h2 class="headers">{{comp_name}} Challenge</h2>
+                <a href="{{url_for('challenge_routes.prompt_editor', comp_id=challenge_id)}}" class="headers btn btn-secondary">Prompt Editor</a>
             </div><br>
             <!-- Announcements Area -->
             {% if announcements %}
@@ -70,9 +70,9 @@
     </div>
 
 <!-- Store comp_id for the javascript -->
-<input type="hidden" id="comp_id" value="{{competition_id}}">
+<input type="hidden" id="comp_id" value="{{challenge_id}}">
 
-<script src="{{ url_for('static', filename='page_content/competition/competition_page.js') }}"></script>
+<script src="{{ url_for('static', filename='page_content/challenge/challenge_page.js') }}"></script>
     
 </body>
 </html>

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{comp_name}} Prompt Editor</title>
     {% include "macros/style-import.html" ignore missing with context %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='page_content/competition/prompt_editor.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='page_content/challenge/prompt_editor.css') }}">
 </head>
 <body>
     <!-- Include Navbar -->
@@ -36,6 +36,6 @@
 
     <!-- Following script provides dataset names and max rows to javascript -->
     <script id="dataset-data" type="application/json">{{ datasets | tojson }}</script> 
-    <script src="{{ url_for('static', filename='page_content/competition/prompt_editor.js') }}"></script>
+    <script src="{{ url_for('static', filename='page_content/challenge/prompt_editor.js') }}"></script>
 </body>
 </html>
