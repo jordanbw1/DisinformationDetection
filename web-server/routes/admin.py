@@ -179,38 +179,6 @@ def add_organizer(user_id):
         if not result:
             db.rollback()
             return False, "User not found"
-
-        # TODO: Clean this up
-        # # Get largest ID in challenges table
-        # status, message, result = db.execute_fetchone("SELECT MAX(id) FROM challenges")
-        # if not status:
-        #     db.rollback()
-        #     return False, message
-        # max_comp_id = result[0] if result else 0
-
-        # # Create a placeholder challenge
-        # query = "INSERT INTO challenges (name, join_link, start_date, end_date) VALUES (%s, %s, %s, %s)"
-        # values = ("Placeholder{}".format(max_comp_id + 1), "Placeholder{}".format(max_comp_id + 1), "1970-01-01", "1970-01-01")
-        # status, message, comp_id = db.execute_return_id(query, values)
-        # if not status:
-        #     db.rollback()
-        #     return False, message
-        # if not comp_id:
-        #     db.rollback()
-        #     return False, "Failed to create placeholder challenge"
-        
-        # # Mark challenge as not setup
-        # json_init = json.dumps({})
-        # status, message = db.execute("INSERT INTO challenge_configured (challenge_id, is_setup, details) VALUES (%s, %s, %s)", (comp_id,False,json_init))
-        # if not status:
-        #     db.rollback()
-        #     return False, message
-
-        # # Set user as organizer for the placeholder challenge
-        # status, message = db.execute("INSERT INTO challenge_organizer (challenge_id, user_id) VALUES (%s, %s)", (comp_id, user_id))
-        # if not status:
-        #     db.rollback()
-        #     return False, message
         
         # Get user email
         status, message, receiver_email = db.execute_fetchone("SELECT email FROM users WHERE user_id = %s", (user_id,))

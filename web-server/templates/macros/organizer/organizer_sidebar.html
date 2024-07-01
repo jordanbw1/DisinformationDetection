@@ -1,6 +1,6 @@
 <div class="col-2" id="green">
     <h4>Manage Challenges</h4>
-    <a href="#">Create New</a><br />
+    <a href="{{url_for('organizer.create')}}">Create New</a><br />
     <br />
     <!-- Navigation links in sidebar-->
     {% for challenge in challenges %}
@@ -11,7 +11,7 @@
     <!-- Show challenges not yet completed with setup -->
     <h5>Finish Setting Up</h5>
     {% for challenge in unfinished_challenges %}
-    <a href="{{url_for('organizer.setup_challenge', challenge_id = challenge.id)}}">{{challenge.name}}</a><br />
+    <a href="{{url_for('organizer.setup_challenge', draft_id = challenge.id)}}">{{challenge.name}}</a><br />
     <br />
     {% endfor %}
     {% endif %}

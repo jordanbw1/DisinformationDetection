@@ -87,7 +87,15 @@ def organizer_dashboard(dashboard_id):
     if not status:
         flash(message, 'error')
         return redirect(url_for('index'))
+    
+    # Prepare the list of draft challenges
     unfinished_challenges = [{"id": challenge[0], "name": challenge[1]} for challenge in unfinished_challenges]
+    # Replace the name of the draft challenges with "Draft X" if the name is None
+    count = 0
+    for challenge in unfinished_challenges:
+        if challenge["name"] is None:
+            count += 1
+            challenge["name"] = f"Draft {count}"
 
     # Prepare the current challenge
     current_challenge = {"id": dashboard_id, "name": challenge_name, "join_link": join_link, "start_date": start_date, "end_date": end_date}
@@ -95,25 +103,26 @@ def organizer_dashboard(dashboard_id):
     # Render the dashboard with the challenge information
     return render_template("organizer/dashboard.html", current_challenge=current_challenge, challenges=challenges, unfinished_challenges=unfinished_challenges)
 
-@organizer_routes.route('/setup/<int:challenge_id>')
+@organizer_routes.route('/setup/<int:draft_id>')
 @organizer_required
-def setup_challenge(challenge_id):
+def setup_challenge(draft_id):
     """Redirect to the first part of the challenge setup process."""
-    return redirect(url_for('organizer.setup_challenge_parts', challenge_id=challenge_id, setup_part=1))
+    return redirect(url_for('organizer.setup_challenge_parts', draft_id=draft_id, setup_part=1))
 
-@organizer_routes.route('/setup/<int:challenge_id>/<int:setup_part>')
+@organizer_routes.route('/setup/<int:draft_id>/<int:setup_part>')
 @organizer_required
-def setup_challenge_parts(challenge_id, setup_part):
-    # Confirm that the challenge_id is valid for this user
-    query = "SELECT name FROM challenges INNER JOIN challenge_organizer ON challenges.id = challenge_organizer.challenge_id "\
-        "WHERE challenges.id = %s AND challenge_organizer.user_id = %s"
-    status, message, result = sql_results_one(query, (challenge_id, session['user_id']))
+def setup_challenge_parts(draft_id, setup_part):
+    # Confirm that the draft_id is valid for this user
+    query = "SELECT name FROM challenge_drafts WHERE id = %s AND user_id = %s"
+    status, message, result = sql_results_one(query, (draft_id, session['user_id']))
     if not status:
         flash(message, 'error')
         return redirect(url_for('index'))
     if not result:
-        flash("You do not have access to this challenge.", 'error')
+        flash("Either challenge does not exist or you do not have access to it.", 'error')
         return redirect(url_for('index'))
+    
+    # Get relevant values from the query result
     challenge_name = result[0]
     
     # Figure out which part of setup organizer is at
@@ -137,14 +146,25 @@ def setup_challenge_parts(challenge_id, setup_part):
     # TODO: Continue implementing the setup_challenge route
     flash("This route is not yet implemented.", 'error')
     # return redirect(url_for('organizer.organizer_dashboard', dashboard_id=challenge_id))
-    return render_template("organizer/setup.html", challenge_id=challenge_id, challenge_name=challenge_name, setup_part=setup_part)
+    return render_template("organizer/setup.html", draft_id=draft_id, challenge_name=challenge_name, setup_part=setup_part)
 
 
 @organizer_routes.route('/create')
 @organizer_required
 def create():
-    flash("Still implementing route", "error")
-    return redirect(url_for('index'))
+    # Create a draft competition
+    query = "INSERT INTO challenge_drafts (user_id) VALUES (%s);"
+    status, message, result = execute_sql_return_id(query, (session['user_id'],))
+    if not status:
+        flash(message, 'error')
+        return redirect(url_for('index'))
+    if not result:
+        flash(message, 'error')
+        return redirect(url_for('index'))
+    draft_id = result
+    
+    # Redirect to setup page
+    return redirect(url_for('organizer.setup_challenge_parts', draft_id=draft_id, setup_part=1))
 
 
 # --- Helper functions --- #
