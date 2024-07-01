@@ -10,8 +10,8 @@
 <h3>New Challenge</h3>
 
 <div class="row col-12">
-    <div class="col-3"></div>
-    <div class="col-6"><nav class="organizer-setup-nav">
+    <div class="col-sm-1 col-lg-3"></div>
+    <div class="col-sm-10 col-lg-6"><nav class="organizer-setup-nav">
         <ul class="text-center">
             <button type="button" class="border-0 {% if setup_part == 1 %}selected{% endif %}" disabled><i class="bi bi-display fs-5" aria-hidden="true"></i></button>
             <h6>Landing Page</h6>
@@ -33,14 +33,14 @@
             <h6>Wrap Up</h6>
         </ul>
     </nav></div>
-    <div class="col-3"></div>
+    <div class="col-sm-1 col-lg-3"></div>
 </div>
 
 <form>
 {% if setup_part == 1 %}
     {% include "macros/organizer/setup/1.html" ignore missing with context %}
 {% elif setup_part == 2 %}
-    <!-- Include macro for 2.html -->
+    {% include "macros/organizer/setup/2.html" ignore missing with context %}
 {% elif setup_part == 3 %}
     <!-- Include macro for 3.html -->
 {% elif setup_part == 4 %}

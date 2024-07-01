@@ -90,11 +90,14 @@ def organizer_dashboard(dashboard_id):
     # Render the dashboard with the competition information
     return render_template("organizer/dashboard.html", current_competition=current_competition, competitions=competitions, unfinished_competitions=unfinished_competitions)
 
-@organizer_routes.route('/setup/<int:competition_id>')
+@organizer_routes.route('/setup/<int:competition_id>/<int:setup_part>')
 @organizer_required
-def setup_competition(competition_id):
-    """Redirect to the first part of the competition setup process."""
-    return redirect(url_for('organizer.setup_competition_parts', competition_id=competition_id, setup_part=1))
+def setup_competition(competition_id, setup_part):
+    if setup_part:
+        return redirect(url_for('organizer.setup_competition_parts', competition_id=competition_id, setup_part=setup_part))
+    else:
+        """Redirect to the first part of the competition setup process."""
+        return redirect(url_for('organizer.setup_competition_parts', competition_id=competition_id, setup_part=1))
 
 @organizer_routes.route('/setup/<int:competition_id>/<int:setup_part>')
 @organizer_required
