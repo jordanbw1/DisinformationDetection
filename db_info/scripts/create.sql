@@ -1,3 +1,4 @@
+-- Tables
 CREATE TABLE IF NOT EXISTS `users` (
   `user_id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `full_name` varchar(255) NOT NULL,
@@ -100,6 +101,112 @@ CREATE TABLE IF NOT EXISTS running_tasks (
 ALTER TABLE running_tasks CHANGE start_time start_time DATETIME NOT NULL DEFAULT (UTC_TIMESTAMP());
 
 
+CREATE TABLE IF NOT EXISTS challenge_drafts (
+	id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT UNSIGNED NOT NULL,
+  name VARCHAR(255),
+  start_date DATETIME,
+  end_date DATETIME,
+  join_link VARCHAR(255) UNIQUE,
+  public_visibility BOOL DEFAULT TRUE,
+  description TEXT,
+  rules TEXT,
+  terms_service TEXT,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+CREATE TABLE IF NOT EXISTS challenges (
+	id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  start_date DATETIME NOT NULL,
+  end_date DATETIME NOT NULL,
+  join_link VARCHAR(255) UNIQUE NOT NULL,
+  public_visibility BOOL NOT NULL DEFAULT TRUE,
+  description TEXT NOT NULL,
+  rules TEXT NOT NULL,
+  terms_service TEXT NOT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS challenge_organizer (
+	user_id BIGINT UNSIGNED NOT NULL,
+  challenge_id BIGINT UNSIGNED NOT NULL,
+  PRIMARY KEY(user_id, challenge_id),
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (challenge_id) REFERENCES challenges(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+CREATE TABLE IF NOT EXISTS challenge_participants (
+	user_id BIGINT UNSIGNED NOT NULL,
+  challenge_id BIGINT UNSIGNED NOT NULL,
+  date_joined DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY(user_id, challenge_id),
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (challenge_id) REFERENCES challenges(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+ALTER TABLE challenge_participants CHANGE date_joined date_joined DATETIME NOT NULL DEFAULT (UTC_TIMESTAMP());
+
+
+CREATE TABLE IF NOT EXISTS challenge_announcements (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	challenge_id BIGINT UNSIGNED NOT NULL,
+  announcement TEXT NOT NULL,
+  announce_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT FOREIGN KEY (challenge_id) REFERENCES challenges(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+ALTER TABLE challenge_announcements CHANGE announce_time announce_time DATETIME NOT NULL DEFAULT (UTC_TIMESTAMP());
+
+
+CREATE TABLE IF NOT EXISTS results (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
+  user_id BIGINT UNSIGNED NOT NULL,
+  uuid VARCHAR(36) NOT NULL,
+  scores JSON NOT NULL,
+  finish_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  prompt TEXT NOT NULL,
+  instructions TEXT NOT NULL,
+  CONSTRAINT FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+ALTER TABLE results CHANGE finish_time finish_time DATETIME NOT NULL DEFAULT (UTC_TIMESTAMP());
+
+
+CREATE TABLE IF NOT EXISTS result_in_challenge (
+  result_id BIGINT UNSIGNED, 
+  challenge_id BIGINT UNSIGNED,
+  PRIMARY KEY(result_id, challenge_id),
+  CONSTRAINT FOREIGN KEY (result_id) REFERENCES results(id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT FOREIGN KEY (challenge_id) REFERENCES challenges(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+CREATE TABLE IF NOT EXISTS running_task_challenge (
+  task_id BIGINT UNSIGNED NOT NULL,
+  challenge_id BIGINT UNSIGNED NOT NULL,
+  PRIMARY KEY (task_id),
+  FOREIGN KEY (task_id) REFERENCES running_tasks(process_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (challenge_id) REFERENCES challenges(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+CREATE TABLE IF NOT EXISTS challenge_datasets (
+  challenge_id BIGINT UNSIGNED PRIMARY KEY,
+  file_name VARCHAR(70) NOT NULL,
+  friendly_name VARCHAR(70) NOT NULL,
+  num_rows INT UNSIGNED NOT NULL,
+  subject VARCHAR(255),
+  CONSTRAINT FOREIGN KEY(challenge_id) REFERENCES challenges(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+-- Views
 CREATE OR REPLACE VIEW users_and_roles AS
 SELECT 
     users.user_id,
@@ -115,186 +222,67 @@ GROUP BY
     users.user_id, users.email;
 
 
-CREATE TABLE IF NOT EXISTS competitions (
-	id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  start_date DATETIME,
-  end_date DATETIME,
-  join_link VARCHAR(255) UNIQUE NOT NULL
-);
-
-
-CREATE TABLE IF NOT EXISTS competition_organizer (
-	user_id BIGINT UNSIGNED,
-  competition_id BIGINT UNSIGNED,
-  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY (competition_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-
-CREATE TABLE IF NOT EXISTS competition_participants (
-	user_id BIGINT UNSIGNED,
-  competition_id BIGINT UNSIGNED,
-  date_joined DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY (competition_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-
-ALTER TABLE competition_participants CHANGE date_joined date_joined DATETIME NOT NULL DEFAULT (UTC_TIMESTAMP());
-
-
-CREATE TABLE IF NOT EXISTS competition_settings (
-	competition_id BIGINT UNSIGNED PRIMARY KEY,
-  scoreboard_visibility BOOL NOT NULL DEFAULT TRUE,
-  public BOOL NOT NULL DEFAULT FALSE,
-  additional JSON,
-  CONSTRAINT FOREIGN KEY (competition_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-
-CREATE TABLE IF NOT EXISTS competition_details (
-  competition_id BIGINT UNSIGNED PRIMARY KEY,
-  description TEXT,
-  rules TEXT,
-  terms_service TEXT,
-  CONSTRAINT FOREIGN KEY (competition_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-
-CREATE TABLE IF NOT EXISTS competition_announcements (
-  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-	competition_id BIGINT UNSIGNED NOT NULL,
-  announcement TEXT NOT NULL,
-  announce_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT FOREIGN KEY (competition_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-
-ALTER TABLE competition_announcements CHANGE announce_time announce_time DATETIME NOT NULL DEFAULT (UTC_TIMESTAMP());
-
-
-CREATE TABLE IF NOT EXISTS results (
-  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
-  user_id BIGINT UNSIGNED NOT NULL,
-  uuid VARCHAR(36) NOT NULL,
-  scores JSON NOT NULL,
-  finish_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-
-ALTER TABLE results CHANGE finish_time finish_time DATETIME NOT NULL DEFAULT (UTC_TIMESTAMP());
-
-
-CREATE TABLE IF NOT EXISTS results_additional_info (
-  result_id BIGINT UNSIGNED PRIMARY KEY, 
-  prompt TEXT,
-  instructions TEXT,
-  CONSTRAINT FOREIGN KEY (result_id) REFERENCES results(id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-
-CREATE TABLE IF NOT EXISTS result_in_competition (
-  result_id BIGINT UNSIGNED, 
-  competition_id BIGINT UNSIGNED,
-  PRIMARY KEY(result_id, competition_id),
-  CONSTRAINT FOREIGN KEY (result_id) REFERENCES results(id) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT FOREIGN KEY (competition_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-
-CREATE OR REPLACE VIEW competition_scoreboard AS
+CREATE OR REPLACE VIEW challenge_scoreboard AS
 SELECT 
-    result_in_competition.result_id,
-    result_in_competition.competition_id,
+    result_in_challenge.result_id,
+    result_in_challenge.challenge_id,
     results.user_id,
     users.full_name,
     results.scores,
-    results_additional_info.prompt
+    results.prompt
 FROM 
-    result_in_competition
+    result_in_challenge
 LEFT JOIN 
     results
-ON result_in_competition.result_id = results.id
-LEFT JOIN
-	results_additional_info
-ON results_additional_info.result_id = results.id
+ON result_in_challenge.result_id = results.id
 LEFT JOIN
 	users
 ON users.user_id = results.user_id;
 
 
-CREATE OR REPLACE VIEW competition_scoreboard_fscore AS
+CREATE OR REPLACE VIEW challenge_scoreboard_fscore AS
 WITH user_scores AS (
     SELECT
-        competition_id,
+        challenge_id,
         user_id,
         full_name,
         MAX(CAST(JSON_UNQUOTE(JSON_EXTRACT(scores, '$.fscore')) AS DECIMAL(10,2))) AS highest_fscore
     FROM 
-        competition_scoreboard
+        challenge_scoreboard
     GROUP BY 
-        competition_id, user_id, full_name
+        challenge_id, user_id, full_name
 )
 SELECT 
-	  competition_id,
+	  challenge_id,
     user_id,
     full_name,
     highest_fscore,
-    RANK() OVER (PARTITION BY competition_id ORDER BY highest_fscore DESC) AS ranking
+    RANK() OVER (PARTITION BY challenge_id ORDER BY highest_fscore DESC) AS ranking
 FROM 
     user_scores
 ORDER BY 
     ranking;
 
 
-CREATE TABLE IF NOT EXISTS running_task_competition (
-    task_id BIGINT UNSIGNED NOT NULL,
-    competition_id BIGINT UNSIGNED NOT NULL,
-    PRIMARY KEY (task_id),
-    FOREIGN KEY (task_id) REFERENCES running_tasks(process_id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (competition_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-
-CREATE TABLE IF NOT EXISTS competition_datasets (
-  competition_id BIGINT UNSIGNED PRIMARY KEY,
-  file_name VARCHAR(70) NOT NULL,
-  friendly_name VARCHAR(70) NOT NULL,
-  num_rows INT UNSIGNED NOT NULL,
-  subject VARCHAR(255),
-  CONSTRAINT FOREIGN KEY(competition_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-
-CREATE TABLE IF NOT EXISTS competition_configured (
-  competition_id BIGINT UNSIGNED PRIMARY KEY,
-  is_setup BOOLEAN NOT NULL DEFAULT FALSE,
-  details JSON NOT NULL,
-  CONSTRAINT FOREIGN KEY(competition_id) REFERENCES competitions(id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-
 CREATE OR REPLACE VIEW registered_leaderboard_view AS
 SELECT 
-    competitions.id AS competition_id, 
-    competitions.name, 
-    COALESCE(competition_scoreboard_fscore.highest_fscore, 'N/A') AS highest_fscore, 
-    COALESCE(competition_scoreboard_fscore.ranking, 'N/A') AS ranking, 
-    competitions.start_date, 
-    competitions.end_date,
-    competition_participants.user_id
+    challenges.id AS challenge_id, 
+    challenges.name, 
+    COALESCE(challenge_scoreboard_fscore.highest_fscore, 'N/A') AS highest_fscore, 
+    COALESCE(challenge_scoreboard_fscore.ranking, 'N/A') AS ranking, 
+    challenges.start_date, 
+    challenges.end_date,
+    challenge_participants.user_id
 FROM 
-    competitions
+    challenges
 LEFT JOIN
-	  competition_participants
+	  challenge_participants
 ON
-	  competitions.id = competition_participants.competition_id
+	  challenges.id = challenge_participants.challenge_id
 LEFT JOIN 
-    competition_scoreboard_fscore
+    challenge_scoreboard_fscore
 ON 
-    competitions.id = competition_scoreboard_fscore.competition_id
-    AND competition_scoreboard_fscore.user_id = competition_participants.user_id
+    challenges.id = challenge_scoreboard_fscore.challenge_id
+    AND challenge_scoreboard_fscore.user_id = challenge_participants.user_id
 ORDER BY 
-    competition_scoreboard_fscore.highest_fscore DESC;
+    challenge_scoreboard_fscore.highest_fscore DESC;
