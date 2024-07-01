@@ -40,9 +40,9 @@ def run_prompt(api_key, prompt, email, base_url, user_id, dataset_info, num_rows
         return None
     task_id = result
 
-    # Insert task_id into running_task_competition table
+    # Insert task_id into running_task_challenge table
     if comp_id:
-        status, message = execute_sql("INSERT INTO running_task_competition (task_id, competition_id) VALUES (%s, %s);", (task_id, comp_id,))
+        status, message = execute_sql("INSERT INTO running_task_challenge (task_id, challenge_id) VALUES (%s, %s);", (task_id, comp_id,))
         if not status:
             print("ERROR:", message)
             mark_task_failed(uuid_name)
@@ -230,11 +230,18 @@ def run_prompt(api_key, prompt, email, base_url, user_id, dataset_info, num_rows
         print("ERROR:", message)
         return None
     
-    # If the competition_id is not None, insert the result_id into the competition_results table
+    # If the challenge_id is not None, insert the result_id into the challenge_results table
     if comp_id:
-        status, message = execute_sql("INSERT INTO result_in_competition (result_id, competition_id) VALUES (%s, %s);", (result_id, comp_id,))
+        status, message = execute_sql("INSERT INTO result_in_challenge (result_id, challenge_id) VALUES (%s, %s);", (result_id, comp_id,))
         if not status:
             print("ERROR:", message)
+            return None
+        
+        # Remove task from running challenge tasks
+        status, message = execute_sql("DELETE FROM running_task_challenge WHERE task_id = %s AND challenge_id = %s;", (task_id, comp_id,))
+        if not status:
+            print("ERROR:", message)
+            mark_task_failed(uuid_name)
             return None
 
     return None

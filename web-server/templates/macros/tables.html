@@ -1,5 +1,5 @@
 <!-- macros/tables.html -->
-{% macro competition_table(id, head_name, search_id, table_headers, fetch_url, join_type) %}
+{% macro challenge_table(id, head_name, search_id, table_headers, fetch_url, join_type) %}
 <div class="container mt-5">
     <h2 class="headers">{{head_name}}</h2><br>
     <div class="search-box">
@@ -15,7 +15,7 @@
             </tr>
         </thead>
         <tbody id="{{ id }}">
-            <!-- Competitions will be dynamically inserted here -->
+            <!-- Challenges will be dynamically inserted here -->
         </tbody>
     </table>
 
@@ -31,25 +31,25 @@
             let currentPage = 1;
             const perPage = 10;
 
-            function fetchCompetitions(page) {
+            function fetchChallenges(page) {
                 fetch('{{ fetch_url }}?page=' + page + '&per_page=' + perPage)
                     .then(response => response.json())
                     .then(data => {
-                        const competitions = document.getElementById('{{ id }}');
-                        competitions.innerHTML = '';
-                        data.competitions.forEach(comp => {
+                        const challenges = document.getElementById('{{ id }}');
+                        challenges.innerHTML = '';
+                        data.challenges.forEach(comp => {
                             const row = document.createElement('tr');
                             {% for header in table_headers %}
                                 var cell = document.createElement('td');
                                 {% if header[1] == 'name' %}
                                     {% if join_type == 'join' %}
                                         const link = document.createElement('a');
-                                        link.href = '/competition/join/' + comp.join_path;
+                                        link.href = '/challenge/join/' + comp.join_path;
                                         link.textContent = comp.name;
                                         cell.appendChild(link);
                                     {% else %}
                                         const link = document.createElement('a');
-                                        link.href = '/competition/' + comp.competition_id;
+                                        link.href = '/challenge/' + comp.challenge_id;
                                         link.textContent = comp.name;
                                         cell.appendChild(link);
                                     {% endif %}
@@ -58,12 +58,12 @@
                                 {% endif %}
                                 row.appendChild(cell);
                             {% endfor %}
-                            competitions.appendChild(row);
+                            challenges.appendChild(row);
                         });
 
                         // Enable/disable pagination buttons
                         document.getElementById('prevPage_{{ id }}').parentElement.classList.toggle('disabled', page === 1);
-                        document.getElementById('nextPage_{{ id }}').parentElement.classList.toggle('disabled', data.competitions.length < perPage);
+                        document.getElementById('nextPage_{{ id }}').parentElement.classList.toggle('disabled', data.challenges.length < perPage);
                     });
             }
 
@@ -84,18 +84,18 @@
                 event.preventDefault();
                 if (currentPage > 1) {
                     currentPage--;
-                    fetchCompetitions(currentPage);
+                    fetchChallenges(currentPage);
                 }
             });
 
             document.getElementById('nextPage_{{ id }}').addEventListener('click', function(event) {
                 event.preventDefault();
                 currentPage++;
-                fetchCompetitions(currentPage);
+                fetchChallenges(currentPage);
             });
 
             // Initial fetch
-            fetchCompetitions(currentPage);
+            fetchChallenges(currentPage);
         });
     </script>
 </div>

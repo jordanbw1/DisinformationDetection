@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Competitions</title>
+    <title>Challenges</title>
     {% include "macros/style-import.html" ignore missing with context %}
     <link rel="stylesheet" href="{{ url_for('static', filename='page_content/index/index.css') }}">
 </head>
@@ -15,15 +15,15 @@
     {% include "macros/flask_messages.html" ignore missing with context %}
 
     <!-- Get macro for table -->
-    {% from "macros/tables.html" import competition_table %}
+    {% from "macros/tables.html" import challenge_table %}
 
-    <!-- Display competitions the user is registered in -->
+    <!-- Display challenges the user is registered in -->
     <div class="body-div">
-        <!-- Use generic_table macro to create a registered competitions table -->
-        {{ competition_table('registeredCompetitions', 'Registered competitions', 'searchInputRegistered', [('Competition', 'name'), ('Your Score', 'score'), ('Your Ranking', 'rank'), ('Start Date','start_date'), ('End Date', 'end_date')], '/competition/registered/', "") }}
+        <!-- Use generic_table macro to create a registered challenges table -->
+        {{ challenge_table('registeredChallenges', 'Registered challenges', 'searchInputRegistered', [('Challenge', 'name'), ('Your Score', 'score'), ('Your Ranking', 'rank'), ('Start Date','start_date'), ('End Date', 'end_date')], '/challenge/registered/', "") }}
 
-        <!-- Display the list of public competitions -->
-        {{ competition_table('availableCompetitions', 'Open for registration', 'searchInputAvailable', [('Competition', 'name'), ('Start Date','start_date'), ('End Date', 'end_date')], '/competition/available/', "join") }}
+        <!-- Display the list of public challenges -->
+        {{ challenge_table('availableChallenges', 'Open for registration', 'searchInputAvailable', [('Challenge', 'name'), ('Start Date','start_date'), ('End Date', 'end_date')], '/challenge/available/', "join") }}
     </div>
    
 </body>
