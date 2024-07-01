@@ -46,7 +46,7 @@ def organizer_dashboard_empty():
     if not status:
         flash(message, 'error')
         return redirect(url_for('index'))
-    # If they don't have any competitions, redirect them to creating a competition
+    # If they don't have any challenges, redirect them to creating a challenge
     if not dashboard_id:
         redirect(url_for('organizer.create'))
     return redirect(url_for('organizer.organizer_dashboard', dashboard_id=dashboard_id))
@@ -152,7 +152,7 @@ def setup_challenge_parts(draft_id, setup_part):
 @organizer_routes.route('/create')
 @organizer_required
 def create():
-    # Create a draft competition
+    # Create a draft challenge
     query = "INSERT INTO challenge_drafts (user_id) VALUES (%s);"
     status, message, result = execute_sql_return_id(query, (session['user_id'],))
     if not status:
