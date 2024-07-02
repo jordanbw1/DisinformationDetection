@@ -11,3 +11,4 @@ matplotlib~=3.8.4
 seaborn~=0.13.2
 openai~=1.26.0
 flask-wtf~=1.2.1
+Bootstrap-Flask==2.4.0
