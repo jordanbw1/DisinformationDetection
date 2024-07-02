@@ -129,7 +129,7 @@ def update_name():
             return redirect(url_for('account.account_page'))
         
         session["full_name"] = full_name
-        flash("API key updated successfully", "success")
+        flash("Name updated successfully", "success")
         return redirect(url_for('account.account_page'))
 
 def helper_save_query_key(api_key_type, api_key):
