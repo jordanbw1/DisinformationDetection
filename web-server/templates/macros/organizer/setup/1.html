@@ -1,11 +1,6 @@
-{% from 'bootstrap5/form.html' import render_form %}
 <div class="container">
-    {{ render_form(form) }}
-    {{url_for('organizer.setup_challenge_parts', draft_id=draft_id, setup_part=setup_part)}}
-    <!-- <form method="POST" action="{{url_for('organizer.setup_challenge_parts', draft_id=draft_id, setup_part=setup_part)}}" enctype="multipart/form-data">
+    <form method="POST" action="{{url_for('organizer.setup_challenge_parts', draft_id=draft_id, setup_part=setup_part)}}" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-        <input type="number" name="draft_id" value="{{draft_id}}" class="d-none">
-        <input type="number" name="setup_part" value="{{setup_part}}" class="d-none">
         <div class="row">
             <div class="col-2 offset-10">
                 <button type="button" class="btn btn-secondary btn-lg mb-3">Preview <i class="bi bi-eye-fill"></i></button>
@@ -54,5 +49,5 @@
                 <input type="submit" value="Submit" class="btn btn-secondary btn-lg mb-3">
             </div>
         </div>
-    </form> -->
+    </form>
 </div>

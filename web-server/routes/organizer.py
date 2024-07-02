@@ -114,13 +114,13 @@ def setup_challenge(draft_id):
 @organizer_routes.route('/setup/<int:draft_id>/<int:setup_part>', methods=['GET', 'POST'])
 @organizer_required
 def setup_challenge_parts(draft_id, setup_part):
-    form = LandingPageForm()
-    if form.validate_on_submit():
-        title = form.title.data
-        description = form.description.data
-        banner_image = form.banner_image.data
-        print("Form Submitted", title, description, banner_image)
-
+    # form = LandingPageForm()
+    
+    # if form.validate_on_submit():
+    #     title = form.title.data
+    #     description = form.description.data
+    #     banner_image = form.banner_image.data
+    #     print("Form Submitted", title, description, banner_image)
 
     # Confirm that the draft_id is valid for this user
     query = "SELECT name FROM challenge_drafts WHERE id = %s AND user_id = %s"
@@ -134,6 +134,27 @@ def setup_challenge_parts(draft_id, setup_part):
     
     # Get relevant values from the query result
     challenge_name = result[0]
+    
+    if request.method == 'POST':
+        if setup_part == 1:
+            # Get sumbitted form input values
+            title = request.form.get('title')
+            description = request.form.get('description')
+            banner_img = request.files.get('bannerImg')
+            print(banner_img)
+            # script_directory = os.path.dirname(os.path.abspath(__file__))
+            # parent_directory = os.path.dirname(script_directory)
+            # inFileLoc = os.path.join(parent_directory, "dynamic", "banner_images", banner_img.filename)
+            # banner_img.save(inFileLoc)
+            if title and description:
+                query = "UPDATE challenge_drafts SET name = %s, description = %s WHERE id = %s"
+                status, message = execute_sql(query, (title, description, draft_id))
+                if not status:
+                    flash(message, 'error')
+                    return redirect(url_for('index'))
+                return render_template("organizer/setup.html", draft_id=draft_id, challenge_name=challenge_name, setup_part=2)
+            else:
+                return render_template("organizer/setup.html", draft_id=draft_id, challenge_name=challenge_name, setup_part=setup_part)
     
     # Figure out which part of setup organizer is at
     # TODO: Query the relevant tables for each part of the setup process
@@ -156,7 +177,7 @@ def setup_challenge_parts(draft_id, setup_part):
     # TODO: Continue implementing the setup_challenge route
     flash("This route is not yet implemented.", 'error')
     # return redirect(url_for('organizer.organizer_dashboard', dashboard_id=challenge_id))
-    return render_template("organizer/setup.html", draft_id=draft_id, challenge_name=challenge_name, setup_part=setup_part, form=form)
+    return render_template("organizer/setup.html", draft_id=draft_id, challenge_name=challenge_name, setup_part=setup_part)
 
 # @organizer_routes.route('/setup/update', methods=['POST'])
 # @organizer_required
