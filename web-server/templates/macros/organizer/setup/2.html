@@ -1,11 +1,5 @@
-{% from 'bootstrap5/form.html' import render_form %}
 <div class="container">
-    {{ render_form(form) }}
-    {{url_for('organizer.setup_challenge_parts', draft_id=draft_id, setup_part=setup_part)}}
-    <!-- <form method="POST" action="{{url_for('organizer.setup_challenge_parts', draft_id=draft_id, setup_part=setup_part)}}" enctype="multipart/form-data">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-        <input type="number" name="draft_id" value="{{draft_id}}" class="d-none">
-        <input type="number" name="setup_part" value="{{setup_part}}" class="d-none">
+    <form>
         <div class="row">
             <div class="col-2 offset-10">
                 <button type="button" class="btn btn-secondary btn-lg mb-3">Preview <i class="bi bi-eye-fill"></i></button>
@@ -16,7 +10,7 @@
                 <label class="fw-normal form-label fs-3" for="titleInput">Title</label>
             </div>
             <div class="col-10 ms-3">
-                <input id="titleInput" type="text" name="title" aria-label="Title Input" class="form-control">
+                <input id="titleInput" type="text" aria-label="Title Input" class="form-control">
                 <div id="titleHelp" class="form-text">100 Characters remaining</p>
             </div>
         </div>
@@ -26,7 +20,7 @@
                     <label class="fw-normal form-label fs-3" for="descriptionInput">Short Description</label>
                 </div>
                 <div class="col-10 ms-3">
-                    <textarea id="descriptionInput" type="text" name="description" aria-label="Description Input" class="form-control"></textarea>
+                    <textarea id="descriptionInput" type="text" aria-label="Description Input" class="form-control"></textarea>
                     <div id="descriptionHelp" class="form-text">500 Characters remaining</p>
                 </div>
             </div>
@@ -37,22 +31,22 @@
                     <label class="fw-normal form-label fs-3" for="bannerImgInput">Banner Image</label>
                 </div>
                 <div class="col-2 ms-3">
-                    <input id="bannerImgInput" type="file" name="bannerImg" accept="image/*" aria-label="Banner Image" class="form-control">
+                    <input id="bannerImgInput" type="file" accept="image/*" aria-label="Banner Image" class="form-control">
                     <label for="bannerImgInput" type="button" class="btn btn-secondary mb-3">Upload</label>
                     <figure class="figure">
                         <div id="bannerImgPlaceholder">
                             <i class="bi bi-image fs-1"></i>
                         </div>
                         <img id="bannerImgDisplay" class="d-none" src="#">
-                        <figcaption id="bannerImgName" class="figure-caption"></figcaption>
+                        <figcaption id="bannerImgName" class="figure-caption" href=""></figcaption>
                     </figure>
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="col-2 offset-10">
-                <input type="submit" value="Submit" class="btn btn-secondary btn-lg mb-3">
+                <a type="button" class="btn btn-secondary btn-lg mb-3" href="url_for('organizer.setup_challenge_parts', draft_id=competition_id, setup_part=2)">Continue</a>
             </div>
         </div>
-    </form> -->
+    </form>
 </div>

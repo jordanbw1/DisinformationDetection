@@ -10,8 +10,8 @@
     {% if unfinished_challenges %}
     <!-- Show challenges not yet completed with setup -->
     <h5>Finish Setting Up</h5>
-    {% for challenge in unfinished_challenges %}
-    <a href="{{url_for('organizer.setup_challenge', draft_id = challenge.id)}}">{{challenge.name}}</a><br />
+    {% for challenge_draft in unfinished_challenges %}
+    <a href="{{url_for('organizer.setup_challenge', draft_id = challenge_draft.id)}}">{{challenge_draft.name}}</a><br />
     <br />
     {% endfor %}
     {% endif %}

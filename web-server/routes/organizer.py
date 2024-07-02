@@ -1,6 +1,8 @@
 from flask import Blueprint, render_template, url_for, redirect, jsonify, request, session, flash
 from functools import wraps
 from helper_functions.database import execute_sql, sql_results_one, sql_results_all, execute_many_sql, execute_sql_return_id
+from forms.organizer import LandingPageForm
+import os
 
 def organizer_required(f):
     @wraps(f)
@@ -103,15 +105,23 @@ def organizer_dashboard(dashboard_id):
     # Render the dashboard with the challenge information
     return render_template("organizer/dashboard.html", current_challenge=current_challenge, challenges=challenges, unfinished_challenges=unfinished_challenges)
 
-@organizer_routes.route('/setup/<int:competition_id>')
+@organizer_routes.route('/setup/<int:draft_id>')
 @organizer_required
 def setup_challenge(draft_id):
     """Redirect to the first part of the challenge setup process."""
     return redirect(url_for('organizer.setup_challenge_parts', draft_id=draft_id, setup_part=1))
 
-@organizer_routes.route('/setup/<int:draft_id>/<int:setup_part>')
+@organizer_routes.route('/setup/<int:draft_id>/<int:setup_part>', methods=['GET', 'POST'])
 @organizer_required
 def setup_challenge_parts(draft_id, setup_part):
+    form = LandingPageForm()
+    if form.validate_on_submit():
+        title = form.title.data
+        description = form.description.data
+        banner_image = form.banner_image.data
+        print("Form Submitted", title, description, banner_image)
+
+
     # Confirm that the draft_id is valid for this user
     query = "SELECT name FROM challenge_drafts WHERE id = %s AND user_id = %s"
     status, message, result = sql_results_one(query, (draft_id, session['user_id']))
@@ -146,8 +156,41 @@ def setup_challenge_parts(draft_id, setup_part):
     # TODO: Continue implementing the setup_challenge route
     flash("This route is not yet implemented.", 'error')
     # return redirect(url_for('organizer.organizer_dashboard', dashboard_id=challenge_id))
-    return render_template("organizer/setup.html", draft_id=draft_id, challenge_name=challenge_name, setup_part=setup_part)
+    return render_template("organizer/setup.html", draft_id=draft_id, challenge_name=challenge_name, setup_part=setup_part, form=form)
 
+# @organizer_routes.route('/setup/update', methods=['POST'])
+# @organizer_required
+# def update_challenge_draft():
+#     draft_id = request.form.get('draft_id')
+#     setup_part = request.form.get('setup_part')
+#     # Confirm that the draft_id is valid for this user
+#     query = "SELECT name FROM challenge_drafts WHERE id = %s AND user_id = %s"
+#     status, message, result = sql_results_one(query, (draft_id, session['user_id']))
+#     if not status:
+#         flash(message, 'error')
+#         return redirect(url_for('index'))
+#     if not result:
+#         flash("Either challenge does not exist or you do not have access to it.", 'error')
+#         return redirect(url_for('index'))
+    
+#     # Get relevant values from the query result
+#     challenge_name = result[0]
+
+#     if setup_part == 1:
+#         # Get sumbitted form input values
+#         title = request.form.get('title')
+#         description = request.form.get('description')
+#         banner_img = request.files.get('bannerImg')
+#         banner_img.save(os.path.join("uploads", banner_img.name))
+#         if title and description:
+#             query = "UPDATE challenge_drafts SET title = %s, description = %s WHERE id = %s"
+#             status, message = execute_sql(query, (title, description, session['user_id']))
+#             if not status:
+#                 flash(message, 'error')
+#                 return redirect(url_for('index'))
+#             return render_template("organizer/setup.html", draft_id=draft_id, challenge_name=challenge_name, setup_part=2)
+#         else:
+#             return render_template("organizer/setup.html", draft_id=draft_id, challenge_name=challenge_name, setup_part=setup_part)
 
 @organizer_routes.route('/create')
 @organizer_required

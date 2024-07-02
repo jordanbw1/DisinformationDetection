@@ -16,7 +16,8 @@ import mysql.connector
 from helper_functions.database import get_db_connection, execute_sql, sql_results_one, sql_results_all, execute_sql_return_id
 from helper_functions.prompt import append_instructions, get_instructions
 from helper_functions.account_actions import is_valid_password_token, get_user_from_token, validate_user_name
-from flask_wtf import CSRFProtect
+from flask_wtf import FlaskForm, CSRFProtect
+from flask_bootstrap import Bootstrap5
 import hashlib
 import secrets
 import json
@@ -41,6 +42,9 @@ app.register_blueprint(account_routes, url_prefix="/account")
 app.register_blueprint(admin_routes, url_prefix="/admin")
 app.register_blueprint(challenge_routes, url_prefix="/challenge")
 app.register_blueprint(organizer_routes, url_prefix="/organizer")
+
+# Initialize Bootstrap
+bootstrap = Bootstrap5(app)
 
 # Initialize CSRF protection
 csrf = CSRFProtect()
