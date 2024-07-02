@@ -36,7 +36,6 @@
     <div class="col-sm-1 col-lg-3"></div>
 </div>
 
-<form>
 {% if setup_part == 1 %}
     {% include "macros/organizer/setup/1.html" ignore missing with context %}
 {% elif setup_part == 2 %}
@@ -48,7 +47,6 @@
 {% elif setup_part == 5 %}
     <!-- Include macro for 5.html -->
 {% endif %}
-</form>
 
 {% endblock %}
 
